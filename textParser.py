@@ -58,3 +58,16 @@ morseDict = {
 }
 
 englishDict = dict((b,a) for a,b in morseDict.items())
+
+def parseMorse(text):
+    phrase = ''
+    chars = text.split(' / ')
+    for i,c in enumerate(chars):
+        chars[i] = c.split(' ')
+        for j,x in enumerate(chars[i]):
+            chars[i][j] = englishDict[x]
+        word = ''.join(chars[i]) + ' '
+        phrase += word
+    phrase = phrase[:-1]
+    return phrase
+    
