@@ -158,6 +158,3 @@ def fixInvalidMorseSequence(text):
         return newText
     except:
         return False
-
-print('_')
-print(validateMorse('@@@'))
