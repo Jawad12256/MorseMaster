@@ -10,8 +10,8 @@ def validateMorse(text): #points A3, A3.1
     return text
         
 def runMorseFixes(text): #point A3
-    text = fixInvalidMorseCharacters(text)
     text = fixMorseLineBreaks(text)
+    text = fixInvalidMorseCharacters(text)
     text = fixAdjacentRepeatedWordBreaks(text)
     text = fixRepeatedSpaces(text)
     text = fixWordBreakSpacing(text)
@@ -25,11 +25,13 @@ def validateEnglish(text): #points A1, A1.1
     while text != previousText and text != False:
         previousText = text
         text = runEnglishFixes(text)
+    if text == '':
+        return False
     return text
 
 def runEnglishFixes(text): #point A1
-    text = fixInvalidEnglishCharacters(text)
     text = fixEnglishLineBreaks(text)
+    text = fixInvalidEnglishCharacters(text)
     text = fixRepeatedSpaces(text)
     return text
 

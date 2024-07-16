@@ -23,7 +23,7 @@ print('Starting tests...')
     ('   ',False),
     ('Happy\nBirthday\nMr\nSavage','HAPPY BIRTHDAY MR SAVAGE'),
     ('\n',False),
-    ('\#J\nSA\#V\n\#','J SAV '),
+    ('\#J\nSA\#V\n\#','J SAV'),
     ('عيد ميلاد\n سعيد',False)
     ]) 
 
