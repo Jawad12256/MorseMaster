@@ -1,6 +1,6 @@
 '''TEXT VALIDATION MODULE'''
 
-def formatMorse(text): #points A3.2, A3.3., A3.4, A3.5
+def formatMorse(text): #points A3.2, A3.3, A3.4, A3.5
     t = text.replace('\n',' / ')
     for i in range(len(t)-1):
         if t[i] == ' ':
