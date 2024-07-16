@@ -2,16 +2,16 @@
 from textParser import morseDict
 englishDict = dict((b,a) for a,b in morseDict.items())
 
-def validateMorse(text): #points A3.1
+def validateMorse(text): #points A3, A3.1
     previousText = ''
     while text != previousText and text != False:
         previousText = text
-        text = runFixes(text)
+        text = runMorseFixes(text)
     return text
         
-def runFixes(text):
-    text = fixInvalidCharacters(text)
-    text = fixLineBreaks(text)
+def runMorseFixes(text): #point A3
+    text = fixInvalidMorseCharacters(text)
+    text = fixMorseLineBreaks(text)
     text = fixAdjacentRepeatedWordBreaks(text)
     text = fixRepeatedSpaces(text)
     text = fixWordBreakSpacing(text)
@@ -19,7 +19,21 @@ def runFixes(text):
     text = fixInvalidMorseSequence(text)
     return text
 
-def fixInvalidCharacters(text):
+def validateEnglish(text): #points A1, A1.1
+    previousText = ''
+    text = text.upper()
+    while text != previousText and text != False:
+        previousText = text
+        text = runEnglishFixes(text)
+    return text
+
+def runEnglishFixes(text): #point A1
+    text = fixInvalidEnglishCharacters(text)
+    text = fixEnglishLineBreaks(text)
+    text = fixRepeatedSpaces(text)
+    return text
+
+def fixInvalidMorseCharacters(text): #point A3.2
     try:
         allowedCharacters = [' ','.','-','/']
         characters = [char for char in text]
@@ -31,13 +45,31 @@ def fixInvalidCharacters(text):
     except:
         return False
 
-def fixLineBreaks(text):
+def fixInvalidEnglishCharacters(text): #point A1.2
+    try:
+        allowedCharacters = list(morseDict.keys()) + [' ']
+        characters = [char for char in text]
+        newText = ''
+        for char in characters:
+            if char in allowedCharacters:
+                newText += char
+        return newText
+    except:
+        return False
+
+def fixMorseLineBreaks(text): #point A3.3
     try:
         return text.replace('\n',' / ')
     except:
         return False
 
-def fixRepeatedSpaces(text):
+def fixEnglishLineBreaks(text): #point A1.3
+    try:
+        return text.replace('\n',' ')
+    except:
+        return False
+
+def fixRepeatedSpaces(text): #point A3.4
     try:
         left = 0
         right = len(text)-1
@@ -58,7 +90,7 @@ def fixRepeatedSpaces(text):
     except:
         return False
 
-def fixAdjacentRepeatedWordBreaks(text):
+def fixAdjacentRepeatedWordBreaks(text): #point A3.4
     try:
         left = 0
         right = len(text)-1
@@ -79,7 +111,7 @@ def fixAdjacentRepeatedWordBreaks(text):
     except:
         return False
 
-def fixNonAdjacentRepeatedWordBreaks(text):
+def fixNonAdjacentRepeatedWordBreaks(text): #point A3.4
     try:
         left = 0
         right = len(text)-1
@@ -104,7 +136,7 @@ def fixNonAdjacentRepeatedWordBreaks(text):
     except:
         return False
 
-def fixWordBreakSpacing(text):
+def fixWordBreakSpacing(text): #point A3.4
     try:
         characters = [char for char in text]
         spaced = False
@@ -127,7 +159,7 @@ def fixWordBreakSpacing(text):
     except:
         return False
 
-def fixInvalidMorseSequence(text):
+def fixInvalidMorseSequence(text): #point A3.5
     try:
         if ' / ' in text:
             characters2D = text.split(' / ')
