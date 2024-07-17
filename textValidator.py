@@ -7,6 +7,8 @@ def validateMorse(text): #points A3, A3.1
     while text != previousText and text != False:
         previousText = text
         text = runMorseFixes(text)
+    if text == '':
+        return False
     return text
         
 def runMorseFixes(text): #point A3
