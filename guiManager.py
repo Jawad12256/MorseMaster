@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter.scrolledtext import ScrolledText
 from tkinter import ttk
 
 class MorseMaster(tk.Tk):
@@ -55,13 +56,13 @@ class TabBar(ttk.Notebook):
         self.populateNetworkingTab()
 
     def populateTextTranslatorTab(self):
-        textFrame = Text(self.textTranslatorTab, text = 'HELLO!')
-        textFrame.grid(row = 0, column = 0, sticky = 'nw')
-        textFrame.tkraise()
+        inputTextLabel = TextLabel(self.textTranslatorTab, text = 'Input English plaintext:')
+        inputTextLabel.grid(row = 0, column = 0, sticky = 'nw')
+        inputTextLabel.tkraise()
 
-        textFrame2 = Text(self.textTranslatorTab, text = 'GOODBYE!')
-        textFrame2.grid(row = 1, column = 0, sticky = 'nw')
-        textFrame2.tkraise()
+        inputTextArea = TextEntry(self.textTranslatorTab)
+        inputTextArea.grid(row = 2, column = 0, sticky = 'nw')
+        inputTextArea.tkraise()
 
     def populateSoundTranslatorTab(self):
         pass
@@ -96,7 +97,7 @@ class Networking:
     pass
 
 
-class Text(tk.Frame):
+class TextLabel(tk.Frame):
     def __init__(self, parent, text = 'MorseMaster', fontSize = 12, fontType = 'Verdana', anchor = 'w'):
         self.fontSize = fontSize
         self.fontType = fontType
@@ -104,15 +105,22 @@ class Text(tk.Frame):
         self.anchor = anchor
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text = self.text, font = (self.fontType, self.fontSize), anchor = self.anchor)
-        label.pack(pady = 10, padx = 10)
+        label.pack(pady = 5, padx = 10)
 
 
 class Button():
     pass
 
 
-class TextEntry():
-    pass
+class TextEntry(tk.Frame):
+    def __init__(self, parent, fontSize = 12, fontType = 'Verdana', width = 40, height = 5):
+        self.fontSize = fontSize
+        self.fontType = fontType
+        self.width = width
+        self.height = height
+        tk.Frame.__init__(self, parent)
+        textBox = ScrolledText(self, font = (self.fontType, self.fontSize), width = self.width, height = self.height)
+        textBox.pack(pady = 0, padx = 10, fill='y')
 
 
 class LightBox:
