@@ -1,27 +1,22 @@
 import tkinter as tk
+from tkinter import ttk
 
 class MorseMaster(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        container = tk.Frame(self)
-        container.pack(side = "top", fill = "both", expand = True)
-        container.grid_rowconfigure(0, weight = 1)
-        container.grid_columnconfigure(0, weight = 1)
 
-        textFrame = Text(container, text='HELLO!')
-        textFrame.grid(row = 0, column = 0, sticky = "nw")
-        textFrame.tkraise()
+        s = ttk.Style()
+        s.configure('TNotebook.Tab', font = ('Verdana',10), padding = [10, 2])
 
-        textFrame2 = Text(container, text='GOODBYE!')
-        textFrame2.grid(row = 1, column = 0, sticky = "nw")
-        textFrame2.tkraise()
+        self.tabBar = TabBar(self)
+        self.tabBar.pack(side='top', fill='both', expand=True)
 
-        self.menu_bar = MenuBar(self)
-        self.config(menu = self.menu_bar.menubar)
+        self.menuBar = MenuBar(self)
+        self.config(menu = self.menuBar.menubar)
 
 
 class MenuBar:
-    def __init__(self,app):
+    def __init__(self, app):
         self.menubar = tk.Menu(app)
 
         file = tk.Menu(self.menubar, tearoff = 0)
@@ -37,8 +32,32 @@ class MenuBar:
         help_.add_command(label = 'About MorseMaster', command = None)
 
 
-class NavigationBar:
-    pass
+class TabBar(ttk.Notebook):
+    def __init__(self, app):
+        super().__init__(app)
+        
+        self.textTranslatorTab = tk.ttk.Frame(self)
+        self.soundTranslatorTab = tk.ttk.Frame(self)
+        self.keyerTab = tk.ttk.Frame(self)
+        self.challengeModeTab = tk.ttk.Frame(self)
+        self.networkingTab = tk.ttk.Frame(self)
+        
+        self.add(self.textTranslatorTab, text='Text Translator')
+        self.add(self.soundTranslatorTab, text='Sound Translator')
+        self.add(self.keyerTab, text='Keyer')
+        self.add(self.challengeModeTab, text='Challenge Mode')
+        self.add(self.networkingTab, text='Networking')
+        
+        self.populate_tabs()
+
+    def populate_tabs(self):
+        textFrame = Text(self.textTranslatorTab, text = 'HELLO!')
+        textFrame.grid(row = 0, column = 0, sticky = 'nw')
+        textFrame.tkraise()
+
+        textFrame2 = Text(self.textTranslatorTab, text = 'GOODBYE!')
+        textFrame2.grid(row = 1, column = 0, sticky = 'nw')
+        textFrame2.tkraise()
 
 
 class TextTranslator:
