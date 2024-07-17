@@ -48,9 +48,13 @@ class TabBar(ttk.Notebook):
         self.add(self.challengeModeTab, text='Challenge Mode')
         self.add(self.networkingTab, text='Networking')
         
-        self.populate_tabs()
+        self.populateTextTranslatorTab()
+        self.populateSoundTranslatorTab()
+        self.populateKeyerTab()
+        self.populateChallengeModeTab()
+        self.populateNetworkingTab()
 
-    def populate_tabs(self):
+    def populateTextTranslatorTab(self):
         textFrame = Text(self.textTranslatorTab, text = 'HELLO!')
         textFrame.grid(row = 0, column = 0, sticky = 'nw')
         textFrame.tkraise()
@@ -58,6 +62,18 @@ class TabBar(ttk.Notebook):
         textFrame2 = Text(self.textTranslatorTab, text = 'GOODBYE!')
         textFrame2.grid(row = 1, column = 0, sticky = 'nw')
         textFrame2.tkraise()
+
+    def populateSoundTranslatorTab(self):
+        pass
+
+    def populateKeyerTab(self):
+        pass
+
+    def populateChallengeModeTab(self):
+        pass
+
+    def populateNetworkingTab(self):
+        pass
 
 
 class TextTranslator:
