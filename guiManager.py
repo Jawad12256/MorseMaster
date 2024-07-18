@@ -57,27 +57,29 @@ class TabBar(ttk.Notebook):
         self.populateNetworkingTab()
 
     def populateTextTranslatorTab(self):
-        translationDirectionLabel = TextLabel(self.textTranslatorTab, text = 'English Plaintext -----> Morse Code Ciphertext', anchor = 'e', pady = (5,10))
+        translationDirectionLabel = TextLabelDynamic(self.textTranslatorTab, Name = 'translationDirectionLabel', anchor = 'e', pady = (5,10))
         translationDirectionLabel.grid(row = 0, column = 0)
+        translationDirectionLabel.setText('English Plaintext -----> Morse Code Ciphertext')
         translationDirectionLabel.tkraise()
 
-        translationDirectionButton = ButtonText(self.textTranslatorTab, text = 'Switch', command = None, pady = (3,10))
+        translationDirectionButton = ButtonText(self.textTranslatorTab, Name = 'translationDirectionButton', text = 'Switch', command = None, pady = (3,10))
         translationDirectionButton.grid(row = 0, column = 1, sticky = 'nw')
         translationDirectionButton.tkraise()
 
-        inputTextLabel = TextLabel(self.textTranslatorTab, text = 'Input English Plaintext:')
+        inputTextLabel = TextLabelDynamic(self.textTranslatorTab, Name ='inputTextLabel')
         inputTextLabel.grid(row = 1, column = 0, sticky = 'nw')
+        inputTextLabel.setText('Input English Plaintext:')
         inputTextLabel.tkraise()
 
-        uploadTextLabel = TextLabel(self.textTranslatorTab, text = 'Or upload a text file:', padx = (45,0))
+        uploadTextLabel = TextLabelStatic(self.textTranslatorTab, Name ='uploadTextLabel', text = 'Or upload a text file:', padx = (45,0))
         uploadTextLabel.grid(row = 1, column = 2, sticky = 's')
         uploadTextLabel.tkraise()
 
-        uploadButton = ButtonIcon(self.textTranslatorTab, filename = 'iconAssets/upload.png', command = None)
+        uploadButton = ButtonIcon(self.textTranslatorTab, Name = 'uploadButton', filename = 'iconAssets/upload.png', command = None)
         uploadButton.grid(row = 2, column = 2, sticky = 'n', padx = (45,0))
         uploadButton.tkraise()
 
-        inputTextArea = TextEntry(self.textTranslatorTab)
+        inputTextArea = TextEntry(self.textTranslatorTab, Name = 'inputTextArea')
         inputTextArea.grid(row = 2, column = 0, sticky = 'nw')
         inputTextArea.tkraise()
 
@@ -86,31 +88,32 @@ class TabBar(ttk.Notebook):
         inputTextShortcutsFrame.grid(row = 2, column = 1, sticky = 'nw')
         inputTextShortcutsFrame.tkraise()
 
-        pasteButton = ButtonIcon(inputTextShortcutsFrame, filename = 'iconAssets/paste.png', command = None)
+        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
         pasteButton.pack(side = 'top', fill = 'x', expand = True)
         pasteButton.tkraise()
 
-        deleteButton = ButtonIcon(inputTextShortcutsFrame, filename = 'iconAssets/delete.png', command = None)
+        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
 
-        translateButton = ButtonText(self.textTranslatorTab, text = 'Translate', command = None, pady = (10,0))
+        translateButton = ButtonText(self.textTranslatorTab, Name = 'translateButton', text = 'Translate', command = None, pady = (10,0))
         translateButton.grid(row = 3, column = 1, sticky = 'nw')
         translateButton.tkraise()
 
-        outputTextLabel = TextLabel(self.textTranslatorTab, text = 'Output Morse Code Ciphertext:', pady = (20,0))
+        outputTextLabel = TextLabelDynamic(self.textTranslatorTab, Name = 'outputTextLabel', pady = (20,0))
         outputTextLabel.grid(row = 3, column = 0, sticky = 'nw')
+        outputTextLabel.setText('Output Morse Code Ciphertext:')
         outputTextLabel.tkraise()
 
-        downloadTextLabel = TextLabel(self.textTranslatorTab, text = 'Download as a text file:', padx = (45,0))
+        downloadTextLabel = TextLabelStatic(self.textTranslatorTab, Name = 'downloadTextLabel', text = 'Download as a text file:', padx = (45,0))
         downloadTextLabel.grid(row = 3, column = 2, sticky = 's')
         downloadTextLabel.tkraise()
 
-        downloadButton = ButtonIcon(self.textTranslatorTab, filename = 'iconAssets/download.png', command = None)
+        downloadButton = ButtonIcon(self.textTranslatorTab, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
         downloadButton.grid(row = 4, column = 2, sticky = 'n', padx = (45,0))
         downloadButton.tkraise()
 
-        outputTextArea = TextEntry(self.textTranslatorTab)
+        outputTextArea = TextEntry(self.textTranslatorTab, Name = 'outputTextArea')
         outputTextArea.grid(row = 4, column = 0, sticky = 'nw')
         outputTextArea.tkraise()
 
@@ -119,11 +122,11 @@ class TabBar(ttk.Notebook):
         outputTextShortcutsFrame.grid(row = 4, column = 1, sticky = 'nw')
         outputTextShortcutsFrame.tkraise()
 
-        copyButton = ButtonIcon(outputTextShortcutsFrame, filename = 'iconAssets/copy.png', command = None)
+        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
         copyButton.pack(side = 'top', fill = 'x', expand = True)
         copyButton.tkraise()
 
-        lightButton = ButtonIcon(outputTextShortcutsFrame, filename = 'iconAssets/light.png', command = None)
+        lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename = 'iconAssets/light.png', command = None)
         lightButton.pack(side = 'bottom', fill = 'x', expand = True)
         lightButton.tkraise()
 
@@ -160,8 +163,29 @@ class Networking:
     pass
 
 
-class TextLabel(tk.Frame):
-    def __init__(self, parent, text = 'MorseMaster', fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 5, padx = 10):
+class TextLabelDynamic(tk.Frame):
+    def __init__(self, parent, Name = 'TextLabelDynamic', fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 5, padx = 10):
+        self.Name = Name
+        self.fontSize = fontSize
+        self.fontType = fontType
+        self.textvariable = tk.StringVar()
+        self.anchor = anchor
+        self.pady = pady
+        self.padx = padx
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, textvariable = self.textvariable, font = (self.fontType, self.fontSize), anchor = self.anchor)
+        label.pack(pady = self.pady, padx = self.padx)
+
+    def setText(self, text):
+        self.textvariable.set(text)
+
+    def getText(self):
+        return self.textvariable.get()
+
+
+class TextLabelStatic(tk.Frame):
+    def __init__(self, parent, Name = 'TextLabelStatic', text = 'MorseMaster', fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 5, padx = 10):
+        self.Name = Name
         self.fontSize = fontSize
         self.fontType = fontType
         self.text = text
@@ -174,7 +198,8 @@ class TextLabel(tk.Frame):
 
 
 class ButtonText(tk.Frame):
-    def __init__(self, parent, command = None, text = 'Button', fontSize = 10, fontType = 'Verdana', pady = 0, padx = 0):
+    def __init__(self, parent, Name = 'ButtonText', command = None, text = 'Button', fontSize = 10, fontType = 'Verdana', pady = 0, padx = 0):
+        self.Name = Name
         self.command = command
         self.text = text
         self.fontSize = fontSize
@@ -182,12 +207,13 @@ class ButtonText(tk.Frame):
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        button = tk.Button(self, text = self.text, font = (self.fontType, self.fontSize, 'bold'), command = self.command)
-        button.pack(pady = self.pady, padx = self.padx)
+        self.button = tk.Button(self, text = self.text, font = (self.fontType, self.fontSize, 'bold'), command = self.command)
+        self.button.pack(pady = self.pady, padx = self.padx)
 
 
 class ButtonIcon(tk.Frame):
-    def __init__(self, parent, command = None, filename = '', iconSize = (1,1), pady = 0, padx = 0):
+    def __init__(self, parent, Name = 'ButtonIcon', command = None, filename = '', iconSize = (1,1), pady = 0, padx = 0):
+        self.Name = Name
         self.command = command
         self.filename = filename
         self.iconSize = iconSize
@@ -195,13 +221,14 @@ class ButtonIcon(tk.Frame):
         self.padx = padx
         icon = tk.PhotoImage(file = (self.filename)).subsample(self.iconSize[0])
         tk.Frame.__init__(self, parent)
-        button = tk.Button(self, image = icon, command = self.command)
-        button.image = icon
-        button.pack(pady = self.pady, padx = self.padx)
+        self.button = tk.Button(self, image = icon, command = self.command)
+        self.button.image = icon
+        self.button.pack(pady = self.pady, padx = self.padx)
 
 
 class TextEntry(tk.Frame):
-    def __init__(self, parent, fontSize = 10, fontType = 'Verdana', width = 40, height = 5, pady = 0, padx = 10):
+    def __init__(self, parent, Name = 'TextEntry', fontSize = 10, fontType = 'Verdana', width = 40, height = 5, pady = 0, padx = 10):
+        self.Name = Name
         self.fontSize = fontSize
         self.fontType = fontType
         self.width = width
@@ -215,10 +242,3 @@ class TextEntry(tk.Frame):
 
 class LightBox:
     pass
-
-
-app = MorseMaster()
-app.iconbitmap('iconAssets/morseMasterIcon.ico')
-app.title('MorseMaster')
-app.minsize(750,350)
-app.mainloop()
