@@ -8,7 +8,7 @@ app = MorseMaster()
 app.iconbitmap('iconAssets/morseMasterIcon.ico')
 app.title('MorseMaster')
 app.minsize(750,350)
-print('_')
+
 
 class TabEventsManager:
     def __init__(self, ref):
@@ -58,7 +58,7 @@ class TextTranslator(TabEventsManager):
     def translate(self):
         inputEntry, outputEntry = self.tabObject['inputTextArea'], self.tabObject['outputTextArea']
         if self.states['textTranslator_MorseToEnglish'] == False:
-            plaintext = inputEntry.getText()
+            plaintext = inputEntry.getText().replace('\n',' ')
             validatedPlaintext = textValidator.validateEnglish(plaintext)
             if validatedPlaintext != False:
                 ciphertext = textParser.parseEnglish(validatedPlaintext)
@@ -104,7 +104,6 @@ class TextTranslator(TabEventsManager):
     def saveFileProcess(self, filePath):
         outputEntry = self.tabObject['outputTextArea']
         with open(filePath.name, 'w') as f:
-            print(outputEntry.getText())
             f.write(outputEntry.getText())
 
 
