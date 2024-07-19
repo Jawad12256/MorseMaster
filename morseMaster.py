@@ -35,6 +35,8 @@ class TextTranslator(TabEventsManager):
         self.tabObject['pasteButton'].setCommand(self.pasteText)
         self.tabObject['deleteButton'].setCommand(self.clearBoxes)
         self.tabObject['copyButton'].setCommand(self.copyText)
+        self.tabObject['uploadButton'].setCommand(self.openFileDialog)
+        self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
 
     def switch(self):
         mainLabel, inputLabel, outputLabel = self.tabObject['translationDirectionLabel'], self.tabObject['inputTextLabel'], self.tabObject['outputTextLabel']
@@ -80,6 +82,30 @@ class TextTranslator(TabEventsManager):
         inputEntry, outputEntry = self.tabObject['inputTextArea'], self.tabObject['outputTextArea']
         inputEntry.clearText()
         outputEntry.clearText()
+
+    def openFileDialog(self):
+        filePath = askopenfilename(title="Select a File", filetypes=[("Text files", "*.txt")])
+        if filePath:
+            self.openFileProcess(filePath)
+            
+    def openFileProcess(self, filePath):
+        inputEntry = self.tabObject['inputTextArea']
+        try:
+            with open(filePath, 'r') as f:
+                inputEntry.setText(f.read())
+        except:
+            pass
+
+    def saveFileDialog(self):
+        filePath = asksaveasfile(defaultextension=".txt", title="Save As", filetypes=[("Text files", "*.txt")])
+        if filePath:
+            self.saveFileProcess(filePath)
+
+    def saveFileProcess(self, filePath):
+        outputEntry = self.tabObject['outputTextArea']
+        with open(filePath.name, 'w') as f:
+            print(outputEntry.getText())
+            f.write(outputEntry.getText())
 
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
