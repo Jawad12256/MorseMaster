@@ -210,6 +210,9 @@ class ButtonText(tk.Frame):
         self.button = tk.Button(self, text = self.text, font = (self.fontType, self.fontSize, 'bold'), command = self.command)
         self.button.pack(pady = self.pady, padx = self.padx)
 
+    def setCommand(self, newCommand):
+        self.button.configure(command = newCommand)
+
 
 class ButtonIcon(tk.Frame):
     def __init__(self, parent, Name = 'ButtonIcon', command = None, filename = '', iconSize = (1,1), pady = 0, padx = 0):
@@ -225,6 +228,9 @@ class ButtonIcon(tk.Frame):
         self.button.image = icon
         self.button.pack(pady = self.pady, padx = self.padx)
 
+    def setCommand(self, newCommand):
+        self.button.configure(command = newCommand)
+
 
 class TextEntry(tk.Frame):
     def __init__(self, parent, Name = 'TextEntry', fontSize = 10, fontType = 'Verdana', width = 40, height = 5, pady = 0, padx = 10):
@@ -236,8 +242,18 @@ class TextEntry(tk.Frame):
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        textBox = ScrolledText(self, font = (self.fontType, self.fontSize), width = self.width, height = self.height)
-        textBox.pack(pady = self.pady, padx = self.padx, fill='y')
+        self.textBox = ScrolledText(self, font = (self.fontType, self.fontSize), width = self.width, height = self.height)
+        self.textBox.pack(pady = self.pady, padx = self.padx, fill='y')
+
+    def setText(self, text):
+        self.textBox.delete('1.0','end')
+        self.textBox.insert(tk.INSERT, text)
+
+    def getText(self):
+        return self.textBox.get('1.0','end-1c')
+    
+    def clearText(self):
+        self.textBox.delete('1.0','end')
 
 
 class LightBox:
