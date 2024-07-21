@@ -142,27 +142,6 @@ class TabBar(ttk.Notebook):
     def populateNetworkingTab(self):
         pass
 
-
-class TextTranslator:
-    pass
-
-
-class SoundTranslator:
-    pass
-
-
-class Keyer:
-    pass
-
-
-class ChallengeMode:
-    pass
-
-
-class Networking:
-    pass
-
-
 class TextLabelDynamic(tk.Frame):
     def __init__(self, parent, Name = 'TextLabelDynamic', fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 5, padx = 10):
         self.Name = Name
