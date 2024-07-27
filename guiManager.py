@@ -1,3 +1,4 @@
+'''GUI MANAGER'''
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from tkinter import ttk

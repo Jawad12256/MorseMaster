@@ -1,3 +1,4 @@
+'''MORSEMASTER MAIN APPLICATION'''
 from guiManager import *
 import textParser, textValidator
 import pyperclip
