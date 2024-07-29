@@ -37,12 +37,11 @@ def validateFrequencies(fftList):
     return True
 
 def findGaps(data, rate):
-    amplitudeThreshold = 0.8
-    windowSize = 5
+    amplitudeThreshold = 0.8 #amplitude threshold hyperparameter
+    windowSize = 5 #smoothing hyperparameter
     amplitudeEnvelope = np.abs(hilbert(data))
     amplitudeEnvelope = list(amplitudeEnvelope)
     smoothedEnvelope = []
-
     for i in range(windowSize,len(amplitudeEnvelope)-windowSize):
         smoothingList = amplitudeEnvelope[i-windowSize:i+windowSize+1]
         smoothedEnvelope.append(max(smoothingList))
@@ -51,8 +50,6 @@ def findGaps(data, rate):
     for i in range(windowSize):
         smoothedEnvelope.insert(0,startCopy)
         smoothedEnvelope.append(endCopy)
-    plt.plot(list(range(0,len(smoothedEnvelope))),smoothedEnvelope)
-    plt.show()
     threshold = np.mean(smoothedEnvelope)*amplitudeThreshold
     gaps = []
     for x in smoothedEnvelope:
@@ -60,7 +57,6 @@ def findGaps(data, rate):
             gaps.append(False)
         else:
             gaps.append(True)
-
     gapTimes = []
     startGap = None
     for i, value in enumerate(gaps):
@@ -71,22 +67,12 @@ def findGaps(data, rate):
             if startGap != None:
                 gapTimes.append((startGap / rate, (i - 1) / rate))
                 startGap = None
-
     if startGap != None:
         gapTimes.append((startGap / rate, (len(gaps) - 1) / rate))
+    return gapTimes
 
-    print('Threshold value:', threshold)
-    print("Detected gaps (start, end) in seconds:", gapTimes)
-
-myWave = sineWave(1, 3, sampleRate) + sineWave(4, 1, sampleRate) + sineWave(7, 0.5, sampleRate)
-
-Y = fft.FFT(myWave, sampleRate)
-Y = filterFrequencies(Y)
+rate, data = wavfile.read('myMorseWave.wav')
+Y = filterFrequencies(fft.FFT(data, rate))
 print(validateFrequencies(Y))
 
-rate, data = wavfile.read('myMorseWave2.wav')
-
-# plt.plot(list(range(0,len(data))),data)
-# plt.show()
-
-findGaps(data, rate)
+print(findGaps(data, rate))
