@@ -31,7 +31,8 @@ def FFTrecurse(x):
 def FFT(x, sampleRate):
     X = FFTrecurse(x)
     N = len(X)
+    mid = N//2
     n = np.arange(N)
     T = N/sampleRate
     freq = n/T
-    return (X,freq)
+    return (X[:mid],freq[:mid])

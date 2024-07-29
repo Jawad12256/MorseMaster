@@ -12,6 +12,7 @@ def sineWave(frequency, ampScale, sampleRate):
 myWave128 = sineWave(1, 3, 128) + sineWave(4, 1, 128) + sineWave(7, 0.5, 128)
 
 Y = fft.FFT(myWave128, 128)
+print(Y[0])
 
 plt.stem(Y[1],abs(Y[0]))
 plt.show()

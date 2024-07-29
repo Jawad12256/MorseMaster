@@ -2,6 +2,8 @@
 from guiManager import *
 import textParser, textValidator
 import pyperclip
+import numpy as np
+import wavio as wv
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfile
 
@@ -107,6 +109,36 @@ class TextTranslator(TabEventsManager):
         with open(filePath.name, 'w') as f:
             f.write(outputEntry.getText())
 
+
+class SoundTranslator(TabEventsManager):
+    def __init__(self, ref):
+        TabEventsManager.__init__(self, ref)
+        self.states = {
+            'textTranslator_MorseToEnglish':False
+        }
+        #set button commands
+    
+    def openFileDialog(self):
+        filePath = askopenfilename(title="Select a File", filetypes=[("Audio files", "*.wav")])
+        if filePath:
+            self.openFileProcess(filePath)
+
+    def openFileProcess(self, filePath):
+        #access object
+        try:
+            #wv.read(filePath)
+            pass
+        except:
+            pass
+    
+    def saveFileDialog(self):
+        filePath = asksaveasfile(defaultextension=".wav", title="Save As", filetypes=[("Audio files", "*.wav")])
+        if filePath:
+            self.saveFileProcess(filePath)
+
+    def saveFileProcess(self, filePath):
+        #access data
+        wv.write(filePath)
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
 
