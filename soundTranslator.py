@@ -25,7 +25,8 @@ def filterFrequencies(fftList):
     return newList
 
 def validateFrequencies(fftList):
-    ampltiudeRatioThreshold = 0.5
+    ampltiudeRatioThreshold = 0.5 #amplitude ratio threshold hyperparameter
+    fftList = filterFrequencies(fftList)
     if len(fftList[0]) == 0:
         return False
     if len(fftList[0]) == 1:
@@ -36,7 +37,7 @@ def validateFrequencies(fftList):
         return False
     return True
 
-def findGaps(data, rate):
+def findGaps(data):
     amplitudeThreshold = 0.8 #amplitude threshold hyperparameter
     windowSize = 5 #smoothing hyperparameter
     amplitudeEnvelope = np.abs(hilbert(data))
@@ -57,7 +58,7 @@ def findGaps(data, rate):
             gaps.append(False)
         else:
             gaps.append(True)
-    gapTimes = []
+    gapFrames = []
     startGap = None
     for i, value in enumerate(gaps):
         if value:
@@ -65,14 +66,29 @@ def findGaps(data, rate):
                 startGap = i
         else:
             if startGap != None:
-                gapTimes.append((startGap / rate, (i - 1) / rate))
+                gapFrames.append((startGap, (i - 1)))
                 startGap = None
     if startGap != None:
-        gapTimes.append((startGap / rate, (len(gaps) - 1) / rate))
-    return gapTimes
+        gapFrames.append((startGap, (len(gaps) - 1)))
+    return gapFrames
 
 rate, data = wavfile.read('myMorseWave.wav')
-Y = filterFrequencies(fft.FFT(data, rate))
-print(validateFrequencies(Y))
 
-print(findGaps(data, rate))
+def isSoundValid(data, rate):
+    try:
+        if len(data) == 0:
+            return False
+        gapFrames = findGaps(data)
+        gapTimes = [(x[0]/rate,x[1]/rate) for x in gapFrames]
+        print(gapTimes)
+
+        sampleStart = 0
+        sampleEnd = len(gapFrames)-1
+        if len(gapFrames) > 0:
+            sampleStart = gapFrames[0][1]
+            if len(gapFrames) > 1:
+                sampleEnd = gapFrames[1][0]
+        if (validateFrequencies(fft.FFT(data[sampleStart:sampleEnd], rate))):
+            pass
+    except:
+        return False
