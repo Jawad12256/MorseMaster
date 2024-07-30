@@ -13,7 +13,7 @@ def sineWave(frequency, ampScale, sampleRate):
     sine = ampScale*np.sin((2 * np.pi) * t * frequency)
     return sine
 
-def filterFrequencies(fftList):
+def filterFrequencies(fftList): #point B2
     fftList = list(fftList)
     fftList[0], fftList[1] = list(fftList[0]), list(fftList[1])
     newList = [[],[]]
@@ -24,7 +24,7 @@ def filterFrequencies(fftList):
             newList[1].append(fftList[1][i])
     return newList
 
-def validateFrequencies(fftList):
+def validateFrequencies(fftList): #point B1.3
     ampltiudeRatioThreshold = 0.5 #amplitude ratio threshold hyperparameter
     fftList = filterFrequencies(fftList)
     if len(fftList[0]) == 0:
@@ -37,7 +37,7 @@ def validateFrequencies(fftList):
         return False
     return True
 
-def findGaps(data):
+def findGaps(data): #point B3
     amplitudeThreshold = 0.8 #amplitude threshold hyperparameter
     windowSize = 5 #smoothing hyperparameter
     amplitudeEnvelope = np.abs(hilbert(data))
@@ -74,14 +74,11 @@ def findGaps(data):
 
 rate, data = wavfile.read('myMorseWave.wav')
 
-def isSoundValid(data, rate):
+def isSoundValid(data, rate): #points B1.1, B1.3
     try:
         if len(data) == 0:
             return False
         gapFrames = findGaps(data)
-        gapTimes = [(x[0]/rate,x[1]/rate) for x in gapFrames]
-        print(gapTimes)
-
         sampleStart = 0
         sampleEnd = len(gapFrames)-1
         if len(gapFrames) > 0:
@@ -89,6 +86,19 @@ def isSoundValid(data, rate):
             if len(gapFrames) > 1:
                 sampleEnd = gapFrames[1][0]
         if (validateFrequencies(fft.FFT(data[sampleStart:sampleEnd], rate))):
-            pass
+            return True
+        else:
+            return False
     except:
         return False
+    
+def processSound(data, rate): #point B3
+    wpm = 10 #words per minute hyperparameter
+    unit = 60/(50*wpm) #unit time length
+    
+    gapFrames = findGaps(data)
+    totalDuration = len(gapFrames)/rate
+
+    gapTimes = [(x[0]/rate,x[1]/rate) for x in gapFrames]
+    gapDurations = [x[1]-x[0] for x in gapTimes]
+    
