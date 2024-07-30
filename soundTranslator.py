@@ -2,17 +2,47 @@
 import numpy as np
 import wavio as wv
 from matplotlib import pyplot as plt
-from scipy.signal import hilbert, argrelextrema
+from scipy.signal import hilbert
 from scipy.io import wavfile
 from sklearn.ensemble import IsolationForest
 import fastFourierTransform as fft
-sampleRate = 128
 print('_')
 
-def sineWave(frequency, ampScale, sampleRate):
-    t = np.arange(0,1,1.0/sampleRate)
+def sineWave(frequency, ampScale, duration, sampleRate=8000): #point B6
+    t = np.arange(0,duration,1.0/sampleRate)
     sine = ampScale*np.sin((2 * np.pi) * t * frequency)
     return sine
+
+def zeroSineWave(duration, sampleRate=8000): #point B6
+    sine = np.zeros(int(round(duration*sampleRate)))
+    return sine
+
+def generateSound(text, frequency, volume, wpm, sampleRate=8000): #point B6
+    unit = 60/(50*wpm)
+    soundDict = {
+        '.':sineWave(frequency, volume, 1*unit, sampleRate),
+        '-':sineWave(frequency, volume, 3*unit, sampleRate),
+        ' ':zeroSineWave(3*unit),
+        ' / ':zeroSineWave(7*unit)
+    }
+    newSound = np.array([])
+    chars = text.split(' / ')
+    for i,w in enumerate(chars):
+        chars[i] = w.split(' ')
+        for j, c in enumerate(chars[i]):
+            chars[i][j] = [symbol for symbol in c]
+            for k, x in enumerate(chars[i][j]):
+                chars[i][j][k] = soundDict[x]
+                if k < len(chars[i][j])-1:
+                    chars[i][j][k] = np.concatenate((chars[i][j][k], zeroSineWave(1*unit)), axis = None)
+            chars[i][j] = np.concatenate(tuple(chars[i][j]), axis = None)
+            if j < len(chars[i])-1:
+                chars[i][j] = np.concatenate((chars[i][j], soundDict[' ']), axis = None)
+        newWord = np.concatenate(tuple(chars[i]), axis = None)
+        if i < len(chars)-1:
+            newWord = np.concatenate((newWord, soundDict[' / ']), axis = None)
+        newSound = np.concatenate((newSound, newWord), axis = None)
+    return newSound
 
 def filterFrequencies(fftList): #point B2
     fftList = list(fftList)
@@ -27,6 +57,7 @@ def filterFrequencies(fftList): #point B2
 
 def validateFrequencies(fftList): #point B1.3
     ampltiudeRatioThreshold = 0.5 #amplitude ratio threshold hyperparameter
+    frequencyTolerance = 10 #frequency tolerance hyperparameter
     fftList = filterFrequencies(fftList)
     if len(fftList[0]) == 0:
         return False
@@ -34,6 +65,8 @@ def validateFrequencies(fftList): #point B1.3
         return True
     pairedList = [[np.abs(fftList[0][i]),fftList[1][i]] for i in range(len(fftList[0]))]
     pairedList.sort(key = lambda x:x[0])
+    while len(pairedList) > 1 and (pairedList[-2][1] > pairedList[-1][1] - frequencyTolerance and pairedList[-2][1] < pairedList[-1][1] + frequencyTolerance):
+        pairedList.pop(-2)
     if pairedList[-2][0]/pairedList[-1][0] > ampltiudeRatioThreshold:
         return False
     return True
@@ -117,7 +150,7 @@ def isSoundValid(data, rate): #points B1.1, B1.3
     except:
         return False
 
-def findUnit(signalDurations):
+def findUnit(signalDurations): #point B3
     cont = 1/len(signalDurations) #contamination hyperparameter
     signals = np.array(signalDurations).reshape(-1, 1)
     isoForest = IsolationForest(contamination=cont)
@@ -151,7 +184,7 @@ def processSound(data, rate, auto=True, wpm=10): #point B3
     #time length definitions
     dit = 1*unit
     dah = 3*unit
-    intraChar = 1.5*unit
+    intraChar = 1*unit
     interChar = 3*unit
     wordBreak = 7*unit
     
@@ -172,5 +205,21 @@ def processSound(data, rate, auto=True, wpm=10): #point B3
         text += c
     return text
 
-rate, data = wavfile.read('myMorseWave2.wav')
+def showWaveform(data, rate): #X7.1
+    plt.plot(np.linspace(0,len(data)/rate,len(data)), data, color='black')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Amplitude')
+    plt.grid(True)
+    plt.yticks([])
+    plt.gca().yaxis.set_visible(False)
+    plt.show()
+
+myWave = np.concatenate((sineWave(600, 1, 0.3), zeroSineWave(0.1), sineWave(600, 1, 0.3), zeroSineWave(0.3), sineWave(600, 1, 0.1), zeroSineWave(0.1), sineWave(600, 1, 0.3), zeroSineWave(0.1), sineWave(600, 1, 0.1)),axis=None)
+myWave2 = generateSound('.. .-. / ... .- ...- .- --. .', 600, 1, 10)
+wv.write('myMorseWave3.wav', myWave2, 8000, sampwidth=3)
+
+rate, data = wavfile.read('myMorseWave3.wav')
+
+print(validateFrequencies(fft.FFT(data,rate)))
 print(processSound(data, rate))
+showWaveform(data, rate)
