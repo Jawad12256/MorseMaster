@@ -118,13 +118,13 @@ def isSoundValid(data, rate): #points B1.1, B1.3
         return False
 
 def findUnit(signalDurations):
-    cont = 0.6/len(signalDurations) #contamination hyperparameter
+    cont = 1/len(signalDurations) #contamination hyperparameter
     signals = np.array(signalDurations).reshape(-1, 1)
     isoForest = IsolationForest(contamination=cont)
     isoForest.fit(signals)
     outliers = isoForest.predict(signals)
     filteredDurations = [d for d, o in zip(signals, outliers) if o == 1]
-    unit = min(filteredDurations)
+    unit = 0.75*min(filteredDurations)
     return unit
 
 def processSound(data, rate, auto=True, wpm=10): #point B3
@@ -132,8 +132,6 @@ def processSound(data, rate, auto=True, wpm=10): #point B3
         unit = 60/(50*wpm) #unit time length determined by wpm
     gapFrames = findGaps(data)
     signalFrames = findSignals(data)
-    for x in signalFrames:
-        print(x)
     gapTimes = [(x[0]/rate,x[1]/rate) for x in gapFrames]
     if gapTimes[0][0] == 0.0:
         gapTimes.pop(0)
@@ -142,17 +140,13 @@ def processSound(data, rate, auto=True, wpm=10): #point B3
     signalDurations = [x[1]-x[0] for x in signalTimes]
     if auto:
         unit = findUnit(signalDurations)
-        print(unit)
-    
+
     durationView = []
-    for i in range(0,len(gapDurations)-1):
+    for i in range(0,len(gapDurations)):
         durationView.append(signalDurations[i])
         durationView.append(gapDurations[i])
     if len(signalDurations) > len(gapDurations):
         durationView.append(signalDurations[-1])
-    
-    for x in durationView:
-        print(x)
 
     #time length definitions
     dit = 1*unit
@@ -180,4 +174,3 @@ def processSound(data, rate, auto=True, wpm=10): #point B3
 
 rate, data = wavfile.read('myMorseWave2.wav')
 print(processSound(data, rate))
-
