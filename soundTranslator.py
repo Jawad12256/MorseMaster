@@ -2,8 +2,9 @@
 import numpy as np
 import wavio as wv
 from matplotlib import pyplot as plt
-from scipy.signal import hilbert
+from scipy.signal import hilbert, argrelextrema
 from scipy.io import wavfile
+from sklearn.ensemble import IsolationForest
 import fastFourierTransform as fft
 sampleRate = 128
 print('_')
@@ -37,7 +38,7 @@ def validateFrequencies(fftList): #point B1.3
         return False
     return True
 
-def findGaps(data): #point B3
+def getEnvelope(data):
     amplitudeThreshold = 0.8 #amplitude threshold hyperparameter
     windowSize = 5 #smoothing hyperparameter
     amplitudeEnvelope = np.abs(hilbert(data))
@@ -52,6 +53,10 @@ def findGaps(data): #point B3
         smoothedEnvelope.insert(0,startCopy)
         smoothedEnvelope.append(endCopy)
     threshold = np.mean(smoothedEnvelope)*amplitudeThreshold
+    return smoothedEnvelope, threshold
+
+def findGaps(data): #point B3
+    smoothedEnvelope, threshold = getEnvelope(data)
     gaps = []
     for x in smoothedEnvelope:
         if x > threshold:
@@ -72,7 +77,27 @@ def findGaps(data): #point B3
         gapFrames.append((startGap, (len(gaps) - 1)))
     return gapFrames
 
-rate, data = wavfile.read('myMorseWave.wav')
+def findSignals(data): #point B3
+    smoothedEnvelope, threshold = getEnvelope(data)
+    signals = []
+    for x in smoothedEnvelope:
+        if x > threshold:
+            signals.append(True)
+        else:
+            signals.append(False)
+    signalFrames = []
+    startSignal = None
+    for i, value in enumerate(signals):
+        if value:
+            if startSignal == None:
+                startSignal = i
+        else:
+            if startSignal != None:
+                signalFrames.append((startSignal, (i - 1)))
+                startSignal = None
+    if startSignal != None:
+        signalFrames.append((startSignal, (len(signals) - 1)))
+    return signalFrames
 
 def isSoundValid(data, rate): #points B1.1, B1.3
     try:
@@ -91,14 +116,68 @@ def isSoundValid(data, rate): #points B1.1, B1.3
             return False
     except:
         return False
-    
-def processSound(data, rate): #point B3
-    wpm = 10 #words per minute hyperparameter
-    unit = 60/(50*wpm) #unit time length
-    
-    gapFrames = findGaps(data)
-    totalDuration = len(gapFrames)/rate
 
+def findUnit(signalDurations):
+    cont = 0.6/len(signalDurations) #contamination hyperparameter
+    signals = np.array(signalDurations).reshape(-1, 1)
+    isoForest = IsolationForest(contamination=cont)
+    isoForest.fit(signals)
+    outliers = isoForest.predict(signals)
+    filteredDurations = [d for d, o in zip(signals, outliers) if o == 1]
+    unit = min(filteredDurations)
+    return unit
+
+def processSound(data, rate, auto=True, wpm=10): #point B3
+    if not auto:
+        unit = 60/(50*wpm) #unit time length determined by wpm
+    gapFrames = findGaps(data)
+    signalFrames = findSignals(data)
+    for x in signalFrames:
+        print(x)
     gapTimes = [(x[0]/rate,x[1]/rate) for x in gapFrames]
+    if gapTimes[0][0] == 0.0:
+        gapTimes.pop(0)
+    signalTimes = [(x[0]/rate,x[1]/rate) for x in signalFrames]
     gapDurations = [x[1]-x[0] for x in gapTimes]
+    signalDurations = [x[1]-x[0] for x in signalTimes]
+    if auto:
+        unit = findUnit(signalDurations)
+        print(unit)
     
+    durationView = []
+    for i in range(0,len(gapDurations)-1):
+        durationView.append(signalDurations[i])
+        durationView.append(gapDurations[i])
+    if len(signalDurations) > len(gapDurations):
+        durationView.append(signalDurations[-1])
+    
+    for x in durationView:
+        print(x)
+
+    #time length definitions
+    dit = 1*unit
+    dah = 3*unit
+    intraChar = 1.5*unit
+    interChar = 3*unit
+    wordBreak = 7*unit
+    
+    textView = []
+    for i, value in enumerate(durationView):
+        if i%2 == 0:
+            if value >= dah:
+                textView.append('-')
+            elif value >= dit:
+                textView.append('.')
+        else:
+            if value >= interChar and value < wordBreak:
+                textView.append(' ')
+            elif value >= wordBreak:
+                textView.append(' / ')
+    text = ''
+    for c in textView:
+        text += c
+    return text
+
+rate, data = wavfile.read('myMorseWave2.wav')
+print(processSound(data, rate))
+
