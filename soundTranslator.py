@@ -1,6 +1,8 @@
 '''SOUND TRANSLATION AND VALIDATION MODULE'''
 import numpy as np
 import wavio as wv
+import winsound
+import pyaudio
 from matplotlib import pyplot as plt
 from scipy.signal import hilbert
 from scipy.io import wavfile
@@ -205,7 +207,7 @@ def processSound(data, rate, auto=True, wpm=10): #point B3
         text += c
     return text
 
-def showWaveform(data, rate): #X7.1
+def showWaveform(data, rate): #point X7.1
     plt.plot(np.linspace(0,len(data)/rate,len(data)), data, color='black')
     plt.xlabel('Time [s]')
     plt.ylabel('Amplitude')
@@ -213,6 +215,9 @@ def showWaveform(data, rate): #X7.1
     plt.yticks([])
     plt.gca().yaxis.set_visible(False)
     plt.show()
+
+def playSound(path): #point B5
+    winsound.PlaySound(path, winsound.SND_FILENAME)
 
 myWave = np.concatenate((sineWave(600, 1, 0.3), zeroSineWave(0.1), sineWave(600, 1, 0.3), zeroSineWave(0.3), sineWave(600, 1, 0.1), zeroSineWave(0.1), sineWave(600, 1, 0.3), zeroSineWave(0.1), sineWave(600, 1, 0.1)),axis=None)
 myWave2 = generateSound('.. .-. / ... .- ...- .- --. .', 600, 1, 10)
@@ -222,4 +227,3 @@ rate, data = wavfile.read('myMorseWave3.wav')
 
 print(validateFrequencies(fft.FFT(data,rate)))
 print(processSound(data, rate))
-showWaveform(data, rate)
