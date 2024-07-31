@@ -136,7 +136,151 @@ class TabBar(ttk.Notebook):
         lightButton.tkraise()
 
     def populateSoundGeneratorTab(self):
-        pass
+        translationDirectionLabel = TextLabelDynamic(self.soundGeneratorTab, Name = 'translationDirectionLabel', anchor = 'w', pady = (5,10))
+        translationDirectionLabel.grid(row = 0, column = 0)
+        translationDirectionLabel.setText('English Plaintext -----> Morse Code Sound File')
+        translationDirectionLabel.tkraise()
+
+        translationDropdown = Dropdown(self.soundGeneratorTab, Name = 'translationDropdown', valueTuple = ('English Plaintext Input', 'Morse Code Ciphertext Input'))
+        translationDropdown.grid(row = 0, column = 2)
+        translationDropdown.setDropdownValue('English Plaintext Input')
+        translationDropdown.tkraise()
+
+        inputTextLabel = TextLabelDynamic(self.soundGeneratorTab, Name ='inputTextLabel')
+        inputTextLabel.grid(row = 1, column = 0, sticky = 'nw')
+        inputTextLabel.setText('Input English Plaintext:')
+        inputTextLabel.tkraise()
+
+        uploadTextLabel = TextLabelStatic(self.soundGeneratorTab, Name ='uploadTextLabel', text = 'Or upload a text file:', padx = (45,0))
+        uploadTextLabel.grid(row = 1, column = 2, sticky = 's')
+        uploadTextLabel.tkraise()
+
+        inputTextArea = TextEntry(self.soundGeneratorTab, Name = 'inputTextArea')
+        inputTextArea.grid(row = 2, column = 0, sticky = 'nw')
+        inputTextArea.tkraise()
+
+        inputTextShortcutsFrame = tk.Frame(self.soundGeneratorTab, width=30, height=85)
+        inputTextShortcutsFrame.pack_propagate(False)
+        inputTextShortcutsFrame.grid(row = 2, column = 1, sticky = 'nw')
+        inputTextShortcutsFrame.tkraise()
+
+        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
+        pasteButton.pack(side = 'top', fill = 'x', expand = True)
+        pasteButton.tkraise()
+
+        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
+        deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
+        deleteButton.tkraise()
+
+        uploadButton = ButtonIcon(self.soundGeneratorTab, Name = 'uploadButton', filename = 'iconAssets/upload.png', command = None)
+        uploadButton.grid(row = 2, column = 2, sticky = 'n', padx = (45,0))
+        uploadButton.tkraise()
+
+        outputTextLabel = TextLabelStatic(self.soundGeneratorTab, Name = 'outputTextLabel', text = 'Output Morse Code sound file:')
+        outputTextLabel.grid(row = 3, column = 0)
+        outputTextLabel.tkraise()
+
+        resetButton = ButtonText(self.soundGeneratorTab, Name = 'resetButton', text = 'Reset', command = None)
+        resetButton.grid(row = 3, column = 1)
+        resetButton.tkraise()
+
+        generateFrame = tk.Frame(self.soundGeneratorTab)
+        generateFrame.grid(row = 3, column = 2)
+        generateFrame.tkraise()
+
+        generateButton = ButtonText(generateFrame, Name = 'generateButton', text = 'Generate', command = None)
+        generateButton.grid(row = 0, column = 0)
+        generateButton.tkraise()
+
+        generateTextLabel = TextLabelDynamic(generateFrame, Name = 'generateTextLabel', colour = 'red')
+        generateTextLabel.grid(row = 0, column = 1)
+        generateTextLabel.setText('Not Generated')
+        generateTextLabel.tkraise()
+
+        sliderFrame = tk.Frame(self.soundGeneratorTab)
+        sliderFrame.grid(row = 4, column = 0)
+        sliderFrame.tkraise()
+
+        frequencyTextLabel = TextLabelStatic(sliderFrame, Name = 'frequencyTextLabel', text = 'Frequency', anchor = 'e')
+        frequencyTextLabel.grid(row = 0, column = 0)
+        frequencyTextLabel.tkraise()
+
+        frequencySlider = Slider(sliderFrame, Name = 'frequencySlider', minValue = 400, maxValue = 1000, defaultValue = 600)
+        frequencySlider.grid(row = 0, column = 1)
+        frequencySlider.tkraise()
+
+        wpmTextLabel = TextLabelStatic(sliderFrame, Name = 'wpmTextLabel', text = 'WPM', anchor = 'e')
+        wpmTextLabel.grid(row = 1, column = 0)
+        wpmTextLabel.tkraise()
+
+        wpmSlider = Slider(sliderFrame, Name = 'wpmSlider', minValue = 5, maxValue = 20, defaultValue = 10)
+        wpmSlider.grid(row = 1, column = 1)
+        wpmSlider.tkraise()
+
+        volumeTextLabel = TextLabelStatic(sliderFrame, Name = 'volumeTextLabel', text = 'Volume', anchor = 'e')
+        volumeTextLabel.grid(row = 2, column = 0)
+        volumeTextLabel.tkraise()
+
+        volumeSlider = Slider(sliderFrame, Name = 'volumeSlider', minValue = 1, maxValue = 100, defaultValue = 50)
+        volumeSlider.grid(row = 2, column = 1)
+        volumeSlider.tkraise()
+
+        sliderTextEntryFrame = tk.Frame(self.soundGeneratorTab)
+        sliderTextEntryFrame.grid(row = 4, column = 1)
+        sliderTextEntryFrame.tkraise()
+
+        frequencyTextEntry = SmallTextEntry(sliderTextEntryFrame, Name = 'frequencyTextEntry')
+        frequencyTextEntry.pack(side = 'top', fill = 'x', expand = True)
+        frequencyTextEntry.tkraise()
+
+        wpmTextEntry = SmallTextEntry(sliderTextEntryFrame, Name = 'wpmTextEntry')
+        wpmTextEntry.pack(fill = 'x', expand = True)
+        wpmTextEntry.tkraise()
+
+        volumeTextEntry = SmallTextEntry(sliderTextEntryFrame, Name = 'frequencyTextEntry')
+        volumeTextEntry.pack(side = 'top', fill = 'x', expand = True)
+        volumeTextEntry.tkraise()
+
+        downloadFrame = tk.Frame(self.soundGeneratorTab)
+        downloadFrame.grid(row = 4, column = 2)
+        downloadFrame.tkraise()
+
+        downloadTextLabel = TextLabelStatic(downloadFrame, Name = 'downloadTextLabel', text = 'Download as a text file:')
+        downloadTextLabel.grid(row = 0, column = 0, sticky = 's')
+        downloadTextLabel.tkraise()
+
+        downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
+        downloadButton.grid(row = 0, column = 1, sticky = 'n')
+        downloadButton.tkraise()
+
+        playbackFrame = tk.Frame(self.soundGeneratorTab)
+        playbackFrame.grid(row = 5, column = 0)
+        playbackFrame.tkraise()
+
+        playbackTextLabel = TextLabelStatic(playbackFrame, Name = 'playbackTextLabel', text = 'Playback:')
+        playbackTextLabel.grid(row = 0, column = 0)
+        playbackFrame.tkraise()
+
+        playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename = 'iconAssets/play.png', command = None)
+        playButton.grid(row = 0, column = 1)
+        playButton.tkraise()
+
+        pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename = 'iconAssets/pause.png', command = None)
+        pauseButton.grid(row = 0, column = 2)
+        pauseButton.tkraise()
+
+        rewindButton = ButtonIcon(playbackFrame, Name = 'rewindButton', filename = 'iconAssets/rewind.png', command = None)
+        rewindButton.grid(row = 0, column = 3)
+        rewindButton.tkraise()
+
+        waveformButton = ButtonIcon(playbackFrame, Name = 'waveformButton', filename = 'iconAssets/waveform.png', command = None)
+        waveformButton.grid(row = 0, column = 4)
+        waveformButton.tkraise()
+
+        playbackTimeTextLabel = TextLabelDynamic(self.soundGeneratorTab, Name = 'playbackTimeTextLabel')
+        playbackTimeTextLabel.grid(row = 5, column = 2)
+        playbackTimeTextLabel.setText('00.00.00 / 00.00.00')
+        playbackTimeTextLabel.tkraise()
 
     def populateSoundDecoderTab(self):
         pass
@@ -151,7 +295,7 @@ class TabBar(ttk.Notebook):
         pass
 
 class TextLabelDynamic(tk.Frame):
-    def __init__(self, parent, Name = 'TextLabelDynamic', fontSize = 10, fontType = 'Verdana', anchor = 'w', colour = 'black', pady = 5, padx = 10):
+    def __init__(self, parent, Name = 'TextLabelDynamic', fontSize = 10, fontType = 'Verdana', colour = 'black', anchor = 'w', pady = 5, padx = 10):
         self.Name = Name
         self.fontSize = fontSize
         self.fontType = fontType
@@ -161,11 +305,14 @@ class TextLabelDynamic(tk.Frame):
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, textvariable = self.textvariable, font = (self.fontType, self.fontSize), anchor = self.anchor, fg = self.colour)
-        label.pack(pady = self.pady, padx = self.padx)
+        self.label = tk.Label(self, textvariable = self.textvariable, font = (self.fontType, self.fontSize), anchor = self.anchor, fg = self.colour)
+        self.label.pack(pady = self.pady, padx = self.padx)
 
     def setText(self, text):
         self.textvariable.set(text)
+
+    def setColour(self, newColour):
+        self.label.configure(fg = newColour)
 
     def getText(self):
         return self.textvariable.get()
@@ -244,6 +391,27 @@ class TextEntry(tk.Frame):
         self.textBox.delete('1.0','end')
 
 
+class SmallTextEntry(tk.Frame):
+    def __init__(self, parent, Name = 'SmallTextEntry', fontSize = 10, fontType = 'Verdana', width = 8, height = 2, pady = 0, padx = 0):
+        self.Name = Name
+        self.fontSize = fontSize
+        self.fontType = fontType
+        self.width = width
+        self.height = height
+        self.pady = pady
+        self.padx = padx
+        tk.Frame.__init__(self, parent)
+        self.textBox = tk.Entry(self, font = (self.fontType, self.fontSize))
+        self.textBox.pack(pady = self.pady, padx = self.padx, ipadx = self.width, ipady = self.height)
+
+    def setText(self, text):
+        self.textBox.delete('1.0','end')
+        self.textBox.insert(tk.INSERT, text)
+
+    def getText(self):
+        return self.textBox.get('1.0','end-1c')
+
+
 class LightBox:
     pass
 
@@ -274,15 +442,17 @@ class Slider(tk.Frame):
 
 
 class Dropdown(tk.Frame):
-    def __init__(self, parent, Name = 'Dropdown', valueTuple = ('Select Option'), width = 30, pady = 0, padx = 0):
+    def __init__(self, parent, Name = 'Dropdown', valueTuple = ('Select Option'), fontSize = 10, fontType = 'Verdana', width = 30, pady = 0, padx = 0):
         self.Name = Name
         self.valueTuple = valueTuple
         self.value = tk.StringVar()
+        self.fontSize = fontSize
+        self.fontType = fontType
         self.width = width
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        self.dropdown = Combobox(self, width = self.width, values = self.valueTuple, textvariable = self.value)
+        self.dropdown = Combobox(self, width = self.width, font = (self.fontType, self.fontSize), values = self.valueTuple, textvariable = self.value)
         self.dropdown.pack(pady = self.pady, padx = self.padx)
 
     def dropdownChanged(self):
@@ -290,3 +460,6 @@ class Dropdown(tk.Frame):
 
     def getDropdownValue(self):
         return self.value.get()
+    
+    def setDropdownValue(self, newValue):
+        self.value.set(newValue)
