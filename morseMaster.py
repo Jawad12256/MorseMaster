@@ -10,7 +10,7 @@ from tkinter.filedialog import asksaveasfile
 app = MorseMaster()
 app.iconbitmap('iconAssets/morseMasterIcon.ico')
 app.title('MorseMaster')
-app.minsize(750,350)
+app.minsize(750,400)
 
 
 class TabEventsManager:

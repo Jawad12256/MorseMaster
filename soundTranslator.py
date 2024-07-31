@@ -153,13 +153,14 @@ def isSoundValid(data, rate): #points B1.1, B1.3
         return False
 
 def findUnit(signalDurations): #point B3
+    unitSlack = 0.75 #unit time length slack hyperparameter
     cont = 1/len(signalDurations) #contamination hyperparameter
     signals = np.array(signalDurations).reshape(-1, 1)
     isoForest = IsolationForest(contamination=cont)
     isoForest.fit(signals)
     outliers = isoForest.predict(signals)
     filteredDurations = [d for d, o in zip(signals, outliers) if o == 1]
-    unit = 0.75*min(filteredDurations)
+    unit = unitSlack*min(filteredDurations)
     return unit
 
 def processSound(data, rate, auto=True, wpm=10): #point B3

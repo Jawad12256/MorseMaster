@@ -1,6 +1,7 @@
 '''GUI MANAGER'''
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
+from tkinter.ttk import Scale, Combobox
 from tkinter import ttk
 
 class MorseMaster(tk.Tk):
@@ -40,19 +41,22 @@ class TabBar(ttk.Notebook):
         super().__init__(app)
         
         self.textTranslatorTab = tk.ttk.Frame(self)
-        self.soundTranslatorTab = tk.ttk.Frame(self)
+        self.soundGeneratorTab = tk.ttk.Frame(self)
+        self.soundDecoderTab = tk.ttk.Frame(self)
         self.keyerTab = tk.ttk.Frame(self)
         self.challengeModeTab = tk.ttk.Frame(self)
         self.networkingTab = tk.ttk.Frame(self)
         
         self.add(self.textTranslatorTab, text='Text Translator')
-        self.add(self.soundTranslatorTab, text='Sound Translator')
+        self.add(self.soundGeneratorTab, text='Sound Generator')
+        self.add(self.soundDecoderTab, text = 'Sound Decoder')
         self.add(self.keyerTab, text='Keyer')
         self.add(self.challengeModeTab, text='Challenge Mode')
         self.add(self.networkingTab, text='Networking')
         
         self.populateTextTranslatorTab()
-        self.populateSoundTranslatorTab()
+        self.populateSoundGeneratorTab()
+        self.populateSoundDecoderTab()
         self.populateKeyerTab()
         self.populateChallengeModeTab()
         self.populateNetworkingTab()
@@ -131,7 +135,10 @@ class TabBar(ttk.Notebook):
         lightButton.pack(side = 'bottom', fill = 'x', expand = True)
         lightButton.tkraise()
 
-    def populateSoundTranslatorTab(self):
+    def populateSoundGeneratorTab(self):
+        pass
+
+    def populateSoundDecoderTab(self):
         pass
 
     def populateKeyerTab(self):
@@ -144,16 +151,17 @@ class TabBar(ttk.Notebook):
         pass
 
 class TextLabelDynamic(tk.Frame):
-    def __init__(self, parent, Name = 'TextLabelDynamic', fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 5, padx = 10):
+    def __init__(self, parent, Name = 'TextLabelDynamic', fontSize = 10, fontType = 'Verdana', anchor = 'w', colour = 'black', pady = 5, padx = 10):
         self.Name = Name
         self.fontSize = fontSize
         self.fontType = fontType
         self.textvariable = tk.StringVar()
         self.anchor = anchor
+        self.colour = colour
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, textvariable = self.textvariable, font = (self.fontType, self.fontSize), anchor = self.anchor)
+        label = tk.Label(self, textvariable = self.textvariable, font = (self.fontType, self.fontSize), anchor = self.anchor, fg = self.colour)
         label.pack(pady = self.pady, padx = self.padx)
 
     def setText(self, text):
@@ -238,3 +246,47 @@ class TextEntry(tk.Frame):
 
 class LightBox:
     pass
+
+
+class Slider(tk.Frame):
+    def __init__(self, parent, Name = 'Slider', orient='horizontal', minValue = 0, maxValue = 100, defaultValue = 50, pady = 0, padx = 0):
+        self.Name = Name
+        self.orient = orient
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.defaultValue = defaultValue
+        self.value = tk.DoubleVar()
+        self.pady = pady
+        self.padx = padx
+        tk.Frame.__init__(self, parent)
+        self.slider = Scale(self, from_ = self.minValue, to = self.maxValue, value = self.defaultValue, variable = self.value, orient = self.orient, command = self.sliderChanged)
+        self.slider.pack(pady = self.pady, padx = self.padx)
+
+    def sliderChanged(self):
+        pass
+
+    def setSliderValue(self, newValue):
+        try:
+            if newValue >= self.slider.from_ and newValue <= self.slider.to:
+                self.value.set(newValue)
+        except:
+            pass
+
+
+class Dropdown(tk.Frame):
+    def __init__(self, parent, Name = 'Dropdown', valueTuple = ('Select Option'), width = 30, pady = 0, padx = 0):
+        self.Name = Name
+        self.valueTuple = valueTuple
+        self.value = tk.StringVar()
+        self.width = width
+        self.pady = pady
+        self.padx = padx
+        tk.Frame.__init__(self, parent)
+        self.dropdown = Combobox(self, width = self.width, values = self.valueTuple, textvariable = self.value)
+        self.dropdown.pack(pady = self.pady, padx = self.padx)
+
+    def dropdownChanged(self):
+        pass
+
+    def getDropdownValue(self):
+        return self.value.get()
