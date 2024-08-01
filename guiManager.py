@@ -136,10 +136,14 @@ class TabBar(ttk.Notebook):
         lightButton.tkraise()
 
     def populateSoundGeneratorTab(self):
-        translationDirectionLabel = TextLabelDynamic(self.soundGeneratorTab, Name = 'translationDirectionLabel', anchor = 'w', pady = (5,10))
+        translationDirectionLabel = TextLabelDynamic(self.soundGeneratorTab, Name = 'translationDirectionLabel', anchor = 'w', pady = (10,10))
         translationDirectionLabel.grid(row = 0, column = 0)
         translationDirectionLabel.setText('English Plaintext -----> Morse Code Sound File')
         translationDirectionLabel.tkraise()
+
+        inputTypeTextLabel = TextLabelStatic(self.soundGeneratorTab, Name = 'inputTypeTextLabel', text = 'Input:', anchor = 'e')
+        inputTypeTextLabel.grid(row = 0, column = 1, sticky = 'e')
+        inputTypeTextLabel.tkraise()
 
         translationDropdown = Dropdown(self.soundGeneratorTab, Name = 'translationDropdown', valueTuple = ('English Plaintext Input', 'Morse Code Ciphertext Input'))
         translationDropdown.grid(row = 0, column = 2)
@@ -151,8 +155,8 @@ class TabBar(ttk.Notebook):
         inputTextLabel.setText('Input English Plaintext:')
         inputTextLabel.tkraise()
 
-        uploadTextLabel = TextLabelStatic(self.soundGeneratorTab, Name ='uploadTextLabel', text = 'Or upload a text file:', padx = (45,0))
-        uploadTextLabel.grid(row = 1, column = 2, sticky = 's')
+        uploadTextLabel = TextLabelStatic(self.soundGeneratorTab, Name ='uploadTextLabel', text = 'Or upload a text file:', padx = (60,0))
+        uploadTextLabel.grid(row = 1, column = 2, sticky = 'sw')
         uploadTextLabel.tkraise()
 
         inputTextArea = TextEntry(self.soundGeneratorTab, Name = 'inputTextArea')
@@ -173,15 +177,15 @@ class TabBar(ttk.Notebook):
         deleteButton.tkraise()
 
         uploadButton = ButtonIcon(self.soundGeneratorTab, Name = 'uploadButton', filename = 'iconAssets/upload.png', command = None)
-        uploadButton.grid(row = 2, column = 2, sticky = 'n', padx = (45,0))
+        uploadButton.grid(row = 2, column = 2, sticky = 'n')
         uploadButton.tkraise()
 
         outputTextLabel = TextLabelStatic(self.soundGeneratorTab, Name = 'outputTextLabel', text = 'Output Morse Code sound file:')
-        outputTextLabel.grid(row = 3, column = 0)
+        outputTextLabel.grid(row = 3, column = 0, sticky = 'nw')
         outputTextLabel.tkraise()
 
         resetButton = ButtonText(self.soundGeneratorTab, Name = 'resetButton', text = 'Reset', command = None)
-        resetButton.grid(row = 3, column = 1)
+        resetButton.grid(row = 3, column = 1, sticky = 'w')
         resetButton.tkraise()
 
         generateFrame = tk.Frame(self.soundGeneratorTab)
@@ -198,11 +202,11 @@ class TabBar(ttk.Notebook):
         generateTextLabel.tkraise()
 
         sliderFrame = tk.Frame(self.soundGeneratorTab)
-        sliderFrame.grid(row = 4, column = 0)
+        sliderFrame.grid(row = 4, column = 0, columnspan = 2, sticky = 'nw')
         sliderFrame.tkraise()
 
         frequencyTextLabel = TextLabelStatic(sliderFrame, Name = 'frequencyTextLabel', text = 'Frequency', anchor = 'e')
-        frequencyTextLabel.grid(row = 0, column = 0)
+        frequencyTextLabel.grid(row = 0, column = 0, sticky = 'w')
         frequencyTextLabel.tkraise()
 
         frequencySlider = Slider(sliderFrame, Name = 'frequencySlider', minValue = 400, maxValue = 1000, defaultValue = 600)
@@ -210,7 +214,7 @@ class TabBar(ttk.Notebook):
         frequencySlider.tkraise()
 
         wpmTextLabel = TextLabelStatic(sliderFrame, Name = 'wpmTextLabel', text = 'WPM', anchor = 'e')
-        wpmTextLabel.grid(row = 1, column = 0)
+        wpmTextLabel.grid(row = 1, column = 0, sticky = 'w')
         wpmTextLabel.tkraise()
 
         wpmSlider = Slider(sliderFrame, Name = 'wpmSlider', minValue = 5, maxValue = 20, defaultValue = 10)
@@ -218,67 +222,63 @@ class TabBar(ttk.Notebook):
         wpmSlider.tkraise()
 
         volumeTextLabel = TextLabelStatic(sliderFrame, Name = 'volumeTextLabel', text = 'Volume', anchor = 'e')
-        volumeTextLabel.grid(row = 2, column = 0)
+        volumeTextLabel.grid(row = 2, column = 0, sticky = 'w')
         volumeTextLabel.tkraise()
 
         volumeSlider = Slider(sliderFrame, Name = 'volumeSlider', minValue = 1, maxValue = 100, defaultValue = 50)
         volumeSlider.grid(row = 2, column = 1)
         volumeSlider.tkraise()
 
-        sliderTextEntryFrame = tk.Frame(self.soundGeneratorTab)
-        sliderTextEntryFrame.grid(row = 4, column = 1)
-        sliderTextEntryFrame.tkraise()
-
-        frequencyTextEntry = SmallTextEntry(sliderTextEntryFrame, Name = 'frequencyTextEntry')
-        frequencyTextEntry.pack(side = 'top', fill = 'x', expand = True)
+        frequencyTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
+        frequencyTextEntry.grid(row = 0, column = 2)
         frequencyTextEntry.tkraise()
 
-        wpmTextEntry = SmallTextEntry(sliderTextEntryFrame, Name = 'wpmTextEntry')
-        wpmTextEntry.pack(fill = 'x', expand = True)
+        wpmTextEntry = SmallTextEntry(sliderFrame, Name = 'wpmTextEntry')
+        wpmTextEntry.grid(row = 1, column = 2)
         wpmTextEntry.tkraise()
 
-        volumeTextEntry = SmallTextEntry(sliderTextEntryFrame, Name = 'frequencyTextEntry')
-        volumeTextEntry.pack(side = 'top', fill = 'x', expand = True)
+        volumeTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
+        volumeTextEntry.grid(row = 2, column = 2)
         volumeTextEntry.tkraise()
 
         downloadFrame = tk.Frame(self.soundGeneratorTab)
         downloadFrame.grid(row = 4, column = 2)
         downloadFrame.tkraise()
 
-        downloadTextLabel = TextLabelStatic(downloadFrame, Name = 'downloadTextLabel', text = 'Download as a text file:')
+        downloadTextLabel = TextLabelStatic(downloadFrame, Name = 'downloadTextLabel', text = 'Download as a .wav file:')
         downloadTextLabel.grid(row = 0, column = 0, sticky = 's')
         downloadTextLabel.tkraise()
 
         downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
-        downloadButton.grid(row = 0, column = 1, sticky = 'n')
+        downloadButton.grid(row = 1, column = 0, sticky = 'n')
         downloadButton.tkraise()
 
-        playbackFrame = tk.Frame(self.soundGeneratorTab)
-        playbackFrame.grid(row = 5, column = 0)
+        playbackFrame = tk.Frame(self.soundGeneratorTab, pady = 15)
+        playbackFrame.grid(row = 5, column = 0, columnspan = 2, sticky = 'w')
         playbackFrame.tkraise()
 
         playbackTextLabel = TextLabelStatic(playbackFrame, Name = 'playbackTextLabel', text = 'Playback:')
-        playbackTextLabel.grid(row = 0, column = 0)
+        playbackTextLabel.grid(row = 0, column = 0, sticky = 'w')
         playbackFrame.tkraise()
 
-        playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename = 'iconAssets/play.png', command = None)
+        playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename = 'iconAssets/play.png', padx = 5 , command = None)
         playButton.grid(row = 0, column = 1)
         playButton.tkraise()
 
-        pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename = 'iconAssets/pause.png', command = None)
+        pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename = 'iconAssets/pause.png', padx = 5, command = None)
         pauseButton.grid(row = 0, column = 2)
         pauseButton.tkraise()
 
-        rewindButton = ButtonIcon(playbackFrame, Name = 'rewindButton', filename = 'iconAssets/rewind.png', command = None)
+        rewindButton = ButtonIcon(playbackFrame, Name = 'rewindButton', filename = 'iconAssets/rewind.png', padx = 5 , command = None)
         rewindButton.grid(row = 0, column = 3)
         rewindButton.tkraise()
 
-        waveformButton = ButtonIcon(playbackFrame, Name = 'waveformButton', filename = 'iconAssets/waveform.png', command = None)
+        waveformButton = ButtonIcon(playbackFrame, Name = 'waveformButton', filename = 'iconAssets/waveform.png', padx = 5, command = None)
         waveformButton.grid(row = 0, column = 4)
         waveformButton.tkraise()
 
-        playbackTimeTextLabel = TextLabelDynamic(self.soundGeneratorTab, Name = 'playbackTimeTextLabel')
-        playbackTimeTextLabel.grid(row = 5, column = 2)
+        playbackTimeTextLabel = TextLabelDynamic(playbackFrame, Name = 'playbackTimeTextLabel', padx = (20,0))
+        playbackTimeTextLabel.grid(row = 0, column = 5)
         playbackTimeTextLabel.setText('00.00.00 / 00.00.00')
         playbackTimeTextLabel.tkraise()
 
@@ -392,17 +392,16 @@ class TextEntry(tk.Frame):
 
 
 class SmallTextEntry(tk.Frame):
-    def __init__(self, parent, Name = 'SmallTextEntry', fontSize = 10, fontType = 'Verdana', width = 8, height = 2, pady = 0, padx = 0):
+    def __init__(self, parent, Name = 'SmallTextEntry', fontSize = 10, fontType = 'Verdana', width = 5, pady = 0, padx = (15,0)):
         self.Name = Name
         self.fontSize = fontSize
         self.fontType = fontType
         self.width = width
-        self.height = height
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        self.textBox = tk.Entry(self, font = (self.fontType, self.fontSize))
-        self.textBox.pack(pady = self.pady, padx = self.padx, ipadx = self.width, ipady = self.height)
+        self.textBox = tk.Entry(self, font = (self.fontType, self.fontSize), width = self.width)
+        self.textBox.pack(pady = self.pady, padx = self.padx)
 
     def setText(self, text):
         self.textBox.delete('1.0','end')
@@ -417,9 +416,10 @@ class LightBox:
 
 
 class Slider(tk.Frame):
-    def __init__(self, parent, Name = 'Slider', orient='horizontal', minValue = 0, maxValue = 100, defaultValue = 50, pady = 0, padx = 0):
+    def __init__(self, parent, Name = 'Slider', orient='horizontal', width = 250, minValue = 0, maxValue = 100, defaultValue = 50, pady = 0, padx = 0):
         self.Name = Name
         self.orient = orient
+        self.width = width
         self.minValue = minValue
         self.maxValue = maxValue
         self.defaultValue = defaultValue
@@ -427,7 +427,7 @@ class Slider(tk.Frame):
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        self.slider = Scale(self, from_ = self.minValue, to = self.maxValue, value = self.defaultValue, variable = self.value, orient = self.orient, command = self.sliderChanged)
+        self.slider = Scale(self, from_ = self.minValue, to = self.maxValue, value = self.defaultValue, variable = self.value, orient = self.orient, length = self.width, command = self.sliderChanged())
         self.slider.pack(pady = self.pady, padx = self.padx)
 
     def sliderChanged(self):
@@ -439,6 +439,12 @@ class Slider(tk.Frame):
                 self.value.set(newValue)
         except:
             pass
+
+    def disableSlider(self):
+        self.slider.configure(state = 'disabled')
+    
+    def enableSlider(self):
+        self.slider.configure(state = 'enabled')
 
 
 class Dropdown(tk.Frame):
