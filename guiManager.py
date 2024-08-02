@@ -180,11 +180,11 @@ class TabBar(ttk.Notebook):
         uploadButton.grid(row = 2, column = 2, sticky = 'n')
         uploadButton.tkraise()
 
-        outputTextLabel = TextLabelStatic(self.soundGeneratorTab, Name = 'outputTextLabel', text = 'Output Morse Code sound file:')
+        outputTextLabel = TextLabelStatic(self.soundGeneratorTab, Name = 'outputTextLabel', text = 'Output Morse Code sound file:', pady = (10,0))
         outputTextLabel.grid(row = 3, column = 0, sticky = 'nw')
         outputTextLabel.tkraise()
 
-        resetButton = ButtonText(self.soundGeneratorTab, Name = 'resetButton', text = 'Reset', command = None)
+        resetButton = ButtonText(self.soundGeneratorTab, Name = 'resetButton', text = 'Reset', pady = (10,0), command = None)
         resetButton.grid(row = 3, column = 1, sticky = 'w')
         resetButton.tkraise()
 
@@ -206,39 +206,45 @@ class TabBar(ttk.Notebook):
         sliderFrame.tkraise()
 
         frequencyTextLabel = TextLabelStatic(sliderFrame, Name = 'frequencyTextLabel', text = 'Frequency', anchor = 'e')
-        frequencyTextLabel.grid(row = 0, column = 0, sticky = 'w')
+        frequencyTextLabel.grid(row = 0, column = 0, sticky = 'sw')
         frequencyTextLabel.tkraise()
 
-        frequencySlider = Slider(sliderFrame, Name = 'frequencySlider', minValue = 400, maxValue = 1000, defaultValue = 600)
-        frequencySlider.grid(row = 0, column = 1)
+        frequencySlider = Slider(sliderFrame, Name = 'frequencySlider', minValue = 400, maxValue = 1000)
+        frequencySlider.grid(row = 0, column = 1, sticky = 'n')
+        frequencySlider.setSliderValue(600)
         frequencySlider.tkraise()
 
         wpmTextLabel = TextLabelStatic(sliderFrame, Name = 'wpmTextLabel', text = 'WPM', anchor = 'e')
-        wpmTextLabel.grid(row = 1, column = 0, sticky = 'w')
+        wpmTextLabel.grid(row = 1, column = 0, sticky = 'sw')
         wpmTextLabel.tkraise()
 
-        wpmSlider = Slider(sliderFrame, Name = 'wpmSlider', minValue = 5, maxValue = 20, defaultValue = 10)
-        wpmSlider.grid(row = 1, column = 1)
+        wpmSlider = Slider(sliderFrame, Name = 'wpmSlider', minValue = 5, maxValue = 20)
+        wpmSlider.grid(row = 1, column = 1, sticky = 'n')
+        wpmSlider.setSliderValue(10)
         wpmSlider.tkraise()
 
         volumeTextLabel = TextLabelStatic(sliderFrame, Name = 'volumeTextLabel', text = 'Volume', anchor = 'e')
-        volumeTextLabel.grid(row = 2, column = 0, sticky = 'w')
+        volumeTextLabel.grid(row = 2, column = 0, sticky = 'sw')
         volumeTextLabel.tkraise()
 
-        volumeSlider = Slider(sliderFrame, Name = 'volumeSlider', minValue = 1, maxValue = 100, defaultValue = 50)
-        volumeSlider.grid(row = 2, column = 1)
+        volumeSlider = Slider(sliderFrame, Name = 'volumeSlider', minValue = 1, maxValue = 100)
+        volumeSlider.grid(row = 2, column = 1, sticky = 'n')
+        volumeSlider.setSliderValue(100)
         volumeSlider.tkraise()
 
         frequencyTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
-        frequencyTextEntry.grid(row = 0, column = 2)
+        frequencyTextEntry.grid(row = 0, column = 2, sticky = 's')
+        frequencyTextEntry.setText('600')
         frequencyTextEntry.tkraise()
 
         wpmTextEntry = SmallTextEntry(sliderFrame, Name = 'wpmTextEntry')
-        wpmTextEntry.grid(row = 1, column = 2)
+        wpmTextEntry.grid(row = 1, column = 2, sticky = 's')
+        wpmTextEntry.setText('10')
         wpmTextEntry.tkraise()
 
         volumeTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
-        volumeTextEntry.grid(row = 2, column = 2)
+        volumeTextEntry.grid(row = 2, column = 2, sticky = 's')
+        volumeTextEntry.setText('100')
         volumeTextEntry.tkraise()
 
         downloadFrame = tk.Frame(self.soundGeneratorTab)
@@ -390,6 +396,9 @@ class TextEntry(tk.Frame):
     def clearText(self):
         self.textBox.delete('1.0','end')
 
+    def setCommand(self, event, newCommand):
+        self.textBox.bind(event, newCommand)
+
 
 class SmallTextEntry(tk.Frame):
     def __init__(self, parent, Name = 'SmallTextEntry', fontSize = 10, fontType = 'Verdana', width = 5, pady = 0, padx = (15,0)):
@@ -404,11 +413,11 @@ class SmallTextEntry(tk.Frame):
         self.textBox.pack(pady = self.pady, padx = self.padx)
 
     def setText(self, text):
-        self.textBox.delete('1.0','end')
+        self.textBox.delete('1','end')
         self.textBox.insert(tk.INSERT, text)
 
     def getText(self):
-        return self.textBox.get('1.0','end-1c')
+        return self.textBox.get('1','end-1c')
 
 
 class LightBox:
@@ -416,29 +425,22 @@ class LightBox:
 
 
 class Slider(tk.Frame):
-    def __init__(self, parent, Name = 'Slider', orient='horizontal', width = 250, minValue = 0, maxValue = 100, defaultValue = 50, pady = 0, padx = 0):
+    def __init__(self, parent, Name = 'Slider', orient='horizontal', width = 250, minValue = 0, maxValue = 100, pady = 0, padx = 0):
         self.Name = Name
         self.orient = orient
         self.width = width
         self.minValue = minValue
         self.maxValue = maxValue
-        self.defaultValue = defaultValue
         self.value = tk.DoubleVar()
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        self.slider = Scale(self, from_ = self.minValue, to = self.maxValue, value = self.defaultValue, variable = self.value, orient = self.orient, length = self.width, command = self.sliderChanged())
+        self.slider = tk.Scale(self, from_ = self.minValue, to = self.maxValue, variable = self.value, orient = self.orient, length = self.width, command = None)
         self.slider.pack(pady = self.pady, padx = self.padx)
 
-    def sliderChanged(self):
-        pass
-
     def setSliderValue(self, newValue):
-        try:
-            if newValue >= self.slider.from_ and newValue <= self.slider.to:
-                self.value.set(newValue)
-        except:
-            pass
+        if newValue >= self.minValue and newValue <= self.maxValue:
+            self.slider.set(newValue)
 
     def disableSlider(self):
         self.slider.configure(state = 'disabled')

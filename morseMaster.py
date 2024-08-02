@@ -40,6 +40,7 @@ class TextTranslator(TabEventsManager):
         self.tabObject['copyButton'].setCommand(self.copyText)
         self.tabObject['uploadButton'].setCommand(self.openFileDialog)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
+        self.tabObject['inputTextArea'].setCommand("<KeyRelease>", (self.translate))
 
     def switch(self):
         mainLabel, inputLabel, outputLabel = self.tabObject['translationDirectionLabel'], self.tabObject['inputTextLabel'], self.tabObject['outputTextLabel']
@@ -58,20 +59,26 @@ class TextTranslator(TabEventsManager):
             outputLabel.setText('Output Morse Code Ciphertext:')
             self.states['textTranslator_MorseToEnglish'] = False
 
-    def translate(self):
+    def translate(self, *args):
         inputEntry, outputEntry = self.tabObject['inputTextArea'], self.tabObject['outputTextArea']
         if self.states['textTranslator_MorseToEnglish'] == False:
             plaintext = inputEntry.getText().replace('\n',' ')
-            validatedPlaintext = textValidator.validateEnglish(plaintext)
-            if validatedPlaintext != False:
-                ciphertext = textParser.parseEnglish(validatedPlaintext)
-                outputEntry.setText(ciphertext)
+            if plaintext == '' or plaintext == ' ':
+                outputEntry.clearText()
+            else:
+                validatedPlaintext = textValidator.validateEnglish(plaintext)
+                if validatedPlaintext != False:
+                    ciphertext = textParser.parseEnglish(validatedPlaintext)
+                    outputEntry.setText(ciphertext)
         else:
             ciphertext = inputEntry.getText()
-            validatedCiphertext = textValidator.validateMorse(ciphertext)
-            if validatedCiphertext != False:
-                plaintext = textParser.parseMorse(validatedCiphertext)
-                outputEntry.setText(plaintext)
+            if ciphertext == '' or ciphertext == ' ':
+                outputEntry.clearText()
+            else:
+                validatedCiphertext = textValidator.validateMorse(ciphertext)
+                if validatedCiphertext != False:
+                    plaintext = textParser.parseMorse(validatedCiphertext)
+                    outputEntry.setText(plaintext)
 
     def pasteText(self):
         inputEntry = self.tabObject['inputTextArea']
