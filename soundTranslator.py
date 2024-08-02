@@ -1,14 +1,10 @@
 '''SOUND TRANSLATION AND VALIDATION MODULE'''
 import numpy as np
-import wavio as wv
 import winsound
-import pyaudio
 from matplotlib import pyplot as plt
 from scipy.signal import hilbert
-from scipy.io import wavfile
 from sklearn.ensemble import IsolationForest
 import fastFourierTransform as fft
-print('_')
 
 def sineWave(frequency, ampScale, duration, sampleRate=8000): #point B6
     t = np.arange(0,duration,1.0/sampleRate)
@@ -219,12 +215,3 @@ def showWaveform(data, rate): #point X7.1
 
 def playSound(path): #point B5
     winsound.PlaySound(path, winsound.SND_FILENAME)
-
-myWave = np.concatenate((sineWave(600, 1, 0.3), zeroSineWave(0.1), sineWave(600, 1, 0.3), zeroSineWave(0.3), sineWave(600, 1, 0.1), zeroSineWave(0.1), sineWave(600, 1, 0.3), zeroSineWave(0.1), sineWave(600, 1, 0.1)),axis=None)
-myWave2 = generateSound('.. .-. / ... .- ...- .- --. .', 600, 1, 10)
-wv.write('myMorseWave3.wav', myWave2, 8000, sampwidth=3)
-
-rate, data = wavfile.read('myMorseWave3.wav')
-
-print(validateFrequencies(fft.FFT(data,rate)))
-print(processSound(data, rate))

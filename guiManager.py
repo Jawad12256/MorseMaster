@@ -1,7 +1,7 @@
 '''GUI MANAGER'''
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
-from tkinter.ttk import Scale, Combobox
+from tkinter.ttk import Combobox
 from tkinter import ttk
 
 class MorseMaster(tk.Tk):
@@ -188,11 +188,11 @@ class TabBar(ttk.Notebook):
         generateFrame.grid(row = 3, column = 2)
         generateFrame.tkraise()
 
-        generateButton = ButtonText(generateFrame, Name = 'generateButton', text = 'Generate', command = None)
+        generateButton = ButtonText(generateFrame, Name = 'generateButton', text = 'Generate', pady = (10,0), command = None)
         generateButton.grid(row = 0, column = 0)
         generateButton.tkraise()
 
-        generateTextLabel = TextLabelDynamic(generateFrame, Name = 'generateTextLabel', colour = 'red')
+        generateTextLabel = TextLabelDynamic(generateFrame, Name = 'generateTextLabel', colour = 'red', pady = (10,0))
         generateTextLabel.grid(row = 0, column = 1)
         generateTextLabel.setText('Not Generated')
         generateTextLabel.tkraise()
@@ -223,7 +223,7 @@ class TabBar(ttk.Notebook):
         volumeTextLabel.grid(row = 2, column = 0, sticky = 'sw')
         volumeTextLabel.tkraise()
 
-        volumeSlider = Slider(sliderFrame, Name = 'volumeSlider', minValue = 1, maxValue = 100)
+        volumeSlider = Slider(sliderFrame, Name = 'volumeSlider', minValue = 1, maxValue = 300)
         volumeSlider.grid(row = 2, column = 1, sticky = 'n')
         volumeSlider.setSliderValue(100)
         volumeSlider.tkraise()
@@ -238,7 +238,7 @@ class TabBar(ttk.Notebook):
         wpmTextEntry.setText('10')
         wpmTextEntry.tkraise()
 
-        volumeTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
+        volumeTextEntry = SmallTextEntry(sliderFrame, Name = 'volumeTextEntry')
         volumeTextEntry.grid(row = 2, column = 2, sticky = 's')
         volumeTextEntry.setText('100')
         volumeTextEntry.tkraise()
@@ -399,24 +399,22 @@ class TextEntry(tk.Frame):
 class SmallTextEntry(tk.Frame):
     def __init__(self, parent, Name = 'SmallTextEntry', fontSize = 10, fontType = 'Verdana', width = 5, pady = 0, padx = (15,0)):
         self.Name = Name
+        self.text = tk.StringVar()
         self.fontSize = fontSize
         self.fontType = fontType
         self.width = width
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        self.textBox = tk.Entry(self, font = (self.fontType, self.fontSize), width = self.width)
+        self.textBox = tk.Entry(self, textvariable = self.text, font = (self.fontType, self.fontSize), width = self.width, command = None)
         self.textBox.pack(pady = self.pady, padx = self.padx)
 
     def setText(self, text):
-        self.textBox.delete('1','end')
+        self.textBox.delete('0','end')
         self.textBox.insert(tk.INSERT, text)
 
     def getText(self):
-        return self.textBox.get('1','end-1c')
-
-    def setCommand(self, event, newCommand):
-        self.textBox.bind(event, newCommand)
+        return self.textBox.get()
 
 
 class LightBox:
@@ -441,11 +439,17 @@ class Slider(tk.Frame):
         if newValue >= self.minValue and newValue <= self.maxValue:
             self.slider.set(newValue)
 
+    def getSliderValue(self):
+        return self.slider.get()
+
     def disableSlider(self):
         self.slider.configure(state = 'disabled')
     
     def enableSlider(self):
         self.slider.configure(state = 'enabled')
+
+    def setCommand(self, newCommand):
+        self.slider.configure(command = newCommand)
 
 
 class Dropdown(tk.Frame):
@@ -459,11 +463,11 @@ class Dropdown(tk.Frame):
         self.pady = pady
         self.padx = padx
         tk.Frame.__init__(self, parent)
-        self.dropdown = Combobox(self, width = self.width, font = (self.fontType, self.fontSize), values = self.valueTuple, textvariable = self.value)
+        self.dropdown = Combobox(self, width = self.width, font = (self.fontType, self.fontSize), values = self.valueTuple, textvariable = self.value, state = 'readonly')
         self.dropdown.pack(pady = self.pady, padx = self.padx)
 
-    def dropdownChanged(self):
-        pass
+    def setCommand(self, event, newCommand):
+        self.dropdown.bind(event, newCommand)
 
     def getDropdownValue(self):
         return self.value.get()
