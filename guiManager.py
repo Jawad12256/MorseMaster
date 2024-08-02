@@ -101,10 +101,6 @@ class TabBar(ttk.Notebook):
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
 
-        translateButton = ButtonText(self.textTranslatorTab, Name = 'translateButton', text = 'Translate', command = None, pady = (10,0))
-        translateButton.grid(row = 3, column = 1, sticky = 'nw')
-        translateButton.tkraise()
-
         outputTextLabel = TextLabelDynamic(self.textTranslatorTab, Name = 'outputTextLabel', pady = (20,0))
         outputTextLabel.grid(row = 3, column = 0, sticky = 'nw')
         outputTextLabel.setText('Output Morse Code Ciphertext:')
@@ -418,6 +414,9 @@ class SmallTextEntry(tk.Frame):
 
     def getText(self):
         return self.textBox.get('1','end-1c')
+
+    def setCommand(self, event, newCommand):
+        self.textBox.bind(event, newCommand)
 
 
 class LightBox:

@@ -34,7 +34,6 @@ class TextTranslator(TabEventsManager):
             'textTranslator_MorseToEnglish':False
         }
         self.tabObject['translationDirectionButton'].setCommand(self.switch)
-        self.tabObject['translateButton'].setCommand(self.translate)
         self.tabObject['pasteButton'].setCommand(self.pasteText)
         self.tabObject['deleteButton'].setCommand(self.clearBoxes)
         self.tabObject['copyButton'].setCommand(self.copyText)
@@ -83,6 +82,7 @@ class TextTranslator(TabEventsManager):
     def pasteText(self):
         inputEntry = self.tabObject['inputTextArea']
         inputEntry.setText(pyperclip.paste())
+        self.translate()
 
     def copyText(self):
         outputEntry = self.tabObject['outputTextArea']
