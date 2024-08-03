@@ -280,7 +280,128 @@ class TabBar(ttk.Notebook):
         waveformButton.tkraise()
 
     def populateSoundDecoderTab(self):
-        pass
+        translationDirectionLabel = TextLabelDynamic(self.soundDecoderTab, Name = 'translationDirectionLabel', anchor = 'w', pady = (10,10))
+        translationDirectionLabel.grid(row = 0, column = 0)
+        translationDirectionLabel.setText('Morse Code Sound File -----> English Plaintext')
+        translationDirectionLabel.tkraise()
+
+        translationDropdown = Dropdown(self.soundDecoderTab, Name = 'translationDropdown', valueTuple = ('English Plaintext Output', 'Morse Code Ciphertext Output'), padx = (10,0))
+        translationDropdown.grid(row = 0, column = 2)
+        translationDropdown.setDropdownValue('English Plaintext Output')
+        translationDropdown.tkraise()
+
+        uploadTextLabel = TextLabelStatic(self.soundDecoderTab, Name ='uploadTextLabel', text = 'Upload Morse Code Sound File:', anchor = 'w', padx = (10,0))
+        uploadTextLabel.grid(row = 1, column = 0, sticky = 'sw')
+        uploadTextLabel.tkraise()
+
+        resetButton = ButtonText(self.soundDecoderTab, Name = 'resetButton', text = 'Reset', pady = (10,0), padx = (60,0), command = None)
+        resetButton.grid(row = 1, column = 1, sticky = 'w')
+        resetButton.tkraise()
+
+        wpmFrame = tk.Frame(self.soundDecoderTab)
+        wpmFrame.grid(row = 2, column = 0, columnspan = 2)
+        wpmFrame.tkraise()
+
+        wpmRadioButtons = RadioButtons(wpmFrame, Name = 'wpmRadioButtons', valueTuple = ('Auto-Determine WPM','WPM'), padx = (10,0), pady = (10,0))
+        wpmRadioButtons.grid(row = 0, column = 0)
+        wpmRadioButtons.tkraise()
+
+        wpmSlider = Slider(wpmFrame, Name = 'wpmSlider', minValue = 5, maxValue = 20, width = 200)
+        wpmSlider.grid(row = 1, column = 1)
+        wpmSlider.setSliderValue(10)
+        wpmSlider.disableSlider()
+        wpmSlider.tkraise()
+
+        wpmTextEntry = SmallTextEntry(wpmFrame, Name = 'wpmTextEntry', pady = (15,0))
+        wpmTextEntry.grid(row = 1, column = 2)
+        wpmTextEntry.setText('10')
+        wpmTextEntry.disableEntry()
+        wpmTextEntry.tkraise()
+
+        translateFrame = tk.Frame(self.soundDecoderTab)
+        translateFrame.grid(row = 2, column = 2)
+        translateFrame.tkraise()
+
+        audioLoadedTextLabel = TextLabelDynamic(translateFrame, Name = 'audioLoadedTextLabel', pady = (15,0))
+        audioLoadedTextLabel.grid(row = 0, column = 0)
+        audioLoadedTextLabel.setText('No Audio Loaded')
+        audioLoadedTextLabel.setColour('red')
+        audioLoadedTextLabel.tkraise()
+
+        translateButton = ButtonText(translateFrame, Name = 'translateButton', text = 'Translate', pady = (10,0), command = None)
+        translateButton.grid(row = 1, column = 0)
+        translateButton.tkraise()
+
+        uploadRecordFrame = tk.Frame(self.soundDecoderTab)
+        uploadRecordFrame.grid(row = 3, column = 0, columnspan = 2)
+        uploadRecordFrame.tkraise()
+
+        uploadSoundFileLabel = TextLabelStatic(uploadRecordFrame, Name = 'uploadSoundFileLabel', text = 'Upload .wav sound file:', pady = (10,0))
+        uploadSoundFileLabel.grid(row = 0, column = 0)
+        uploadSoundFileLabel.tkraise()
+
+        uploadButton = ButtonIcon(uploadRecordFrame, Name = 'uploadButton', filename = 'iconAssets/upload.png', pady = (10,0), command = None)
+        uploadButton.grid(row = 0, column = 1)
+        uploadButton.tkraise()
+
+        recordTextLabel = TextLabelStatic(uploadRecordFrame, Name = 'recordTextLabel', text = 'Or record a sound file:', pady = (10,0), padx = (25,0))
+        recordTextLabel.grid(row = 0, column = 2)
+        recordTextLabel.tkraise()
+
+        recordButton = ButtonIcon(uploadRecordFrame, Name = 'recordButton', filename = 'iconAssets/record.png', pady = (10,0), padx = (15,0), command = None)
+        recordButton.grid(row = 0, column = 3)
+        recordButton.tkraise()
+
+        playbackFrame = tk.Frame(self.soundDecoderTab)
+        playbackFrame.grid(row = 3, column = 2)
+        playbackFrame.tkraise()
+
+        playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename = 'iconAssets/play.png', pady = (10,0), padx = 5, command = None)
+        playButton.grid(row = 0, column = 0)
+        playButton.tkraise()
+
+        pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename = 'iconAssets/pause.png', pady = (10,0), padx = 5, command = None)
+        pauseButton.grid(row = 0, column = 1)
+        pauseButton.tkraise()
+
+        stopButton = ButtonIcon(playbackFrame, Name = 'stopButton', filename = 'iconAssets/stop.png', pady = (10,0), padx = 5 , command = None)
+        stopButton.grid(row = 0, column = 2)
+        stopButton.tkraise()
+
+        outputTextLabel = TextLabelDynamic(self.soundDecoderTab, Name = 'outputTextLabel', pady = (20,0))
+        outputTextLabel.grid(row = 4, column = 0, sticky = 'nw')
+        outputTextLabel.setText('Output English Plaintext:')
+        outputTextLabel.tkraise()
+
+        outputTextArea = TextEntry(self.soundDecoderTab, Name = 'outputTextArea')
+        outputTextArea.grid(row = 5, column = 0, sticky = 'nw')
+        outputTextArea.tkraise()
+
+        outputTextShortcutsFrame = tk.Frame(self.soundDecoderTab, width=30, height=85)
+        outputTextShortcutsFrame.pack_propagate(False)
+        outputTextShortcutsFrame.grid(row = 5, column = 1, sticky = 'nw')
+        outputTextShortcutsFrame.tkraise()
+
+        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
+        copyButton.pack(side = 'top', fill = 'x', expand = True)
+        copyButton.tkraise()
+
+        lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename = 'iconAssets/light.png', command = None)
+        lightButton.pack(side = 'bottom', fill = 'x', expand = True)
+        lightButton.tkraise()
+
+        downloadFrame = tk.Frame(self.soundDecoderTab)
+        downloadFrame.grid(row = 5, column = 2)
+        downloadFrame.tkraise()
+
+        downloadTextLabel = TextLabelStatic(downloadFrame, Name = 'downloadTextLabel', text = 'Download as a .wav file:')
+        downloadTextLabel.grid(row = 0, column = 0, sticky = 's')
+        downloadTextLabel.tkraise()
+
+        downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
+        downloadButton.grid(row = 1, column = 0, sticky = 'n')
+        downloadButton.tkraise()
+
 
     def populateKeyerTab(self):
         pass
@@ -411,6 +532,12 @@ class SmallTextEntry(tk.Frame):
     def getText(self):
         return self.textBox.get()
 
+    def disableEntry(self):
+        self.textBox.configure(state = 'disabled')
+    
+    def enableEntry(self):
+        self.textBox.configure(state = 'active')
+
 
 class LightBox:
     pass
@@ -439,9 +566,13 @@ class Slider(tk.Frame):
 
     def disableSlider(self):
         self.slider.configure(state = 'disabled')
+        self.slider.configure(troughcolor = '#f4f4f4')
+        self.slider.configure(fg = 'grey')
     
     def enableSlider(self):
-        self.slider.configure(state = 'enabled')
+        self.slider.configure(state = 'active')
+        self.slider.configure(troughcolor = 'light grey')
+        self.slider.configure(fg = 'black')
 
     def setCommand(self, newCommand):
         self.slider.configure(command = newCommand)
@@ -469,3 +600,33 @@ class Dropdown(tk.Frame):
     
     def setDropdownValue(self, newValue):
         self.value.set(newValue)
+
+
+class RadioButtons(tk.Frame):
+    def __init__(self, parent, Name = 'RadioButtons', valueTuple = ('Option 1', 'Option 2'), fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0):
+        self.Name = Name
+        self.valueTuple = valueTuple
+        self.value = tk.StringVar(parent, '0')
+        self.fontSize = fontSize
+        self.fontType = fontType
+        self.anchor = anchor
+        self.pady = pady
+        self.padx = padx
+        tk.Frame.__init__(self, parent)
+        self.valueDictionary = {}
+        self.radioButtonsList = []
+        for i in range(len(self.valueTuple)):
+            self.valueDictionary[self.valueTuple[i]] = str(i)
+        for (text, value) in self.valueDictionary.items():
+            self.radioButtonsList.append(tk.Radiobutton(parent, text = text, variable = self.value, value = value, font = (self.fontType, self.fontSize)))
+        for i,x in enumerate(self.radioButtonsList):
+            x.grid(row = i, column = 0, pady = self.pady, padx = self.padx, sticky = 'nw')
+    
+    def setCommand(self, newCommand):
+        for x in self.radioButtonsList:
+            x.configure(command = newCommand)
+
+    def getValue(self):
+        return self.value
+
+    
