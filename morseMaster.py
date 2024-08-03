@@ -4,6 +4,7 @@ import textParser, textValidator, soundTranslator
 import pyperclip
 import numpy as np
 from scipy.io import wavfile
+from just_playback import Playback
 from tkinter.filedialog import askopenfilename, asksaveasfile, asksaveasfilename
 
 app = MorseMaster()
@@ -124,6 +125,7 @@ class SoundGenerator(TabEventsManager):
         }
         self.soundData = None
         self.soundRate = 8000
+        self.playbackManager = Playback()
 
         self.tabObject['translationDropdown'].setCommand('<<ComboboxSelected>>', self.switch)
         self.tabObject['pasteButton'].setCommand(self.pasteText)
@@ -141,6 +143,10 @@ class SoundGenerator(TabEventsManager):
         f.text.trace_add('write', self.matchSliders)
         w.text.trace_add('write', self.matchSliders)
         v.text.trace_add('write', self.matchSliders)
+        self.tabObject['playButton'].setCommand(self.playSoundFile)
+        self.tabObject['pauseButton'].setCommand(self.pauseSoundFile)
+        self.tabObject['stopButton'].setCommand(self.stopSoundFile)
+        self.tabObject['waveformButton'].setCommand(self.waveformSoundFile)
 
     def pasteText(self):
         inputEntry = self.tabObject['inputTextArea']
@@ -240,12 +246,27 @@ class SoundGenerator(TabEventsManager):
         data = self.soundData
         if data.dtype != np.int16:
             if np.issubdtype(data.dtype, np.floating):
+                maxFloat = np.max(np.abs(data))
+                if maxFloat > 0:
+                    data = data / maxFloat
                 maxVal = np.iinfo(np.int16).max
                 data = (data * maxVal).astype(np.int16)
             else:
                 maxVal = np.iinfo(data.dtype).max
                 data = (data / maxVal * np.iinfo(np.int16).max).astype(np.int16)
         wavfile.write(filePath, self.soundRate, data)
+
+    def playSoundFile(self):
+        pass
+
+    def pauseSoundFile(self):
+        pass
+
+    def stopSoundFile(self):
+        pass
+
+    def waveformSoundFile(self):
+        pass
 
 
 class SoundDecoder(TabEventsManager):

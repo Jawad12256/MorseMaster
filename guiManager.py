@@ -271,9 +271,9 @@ class TabBar(ttk.Notebook):
         pauseButton.grid(row = 0, column = 2)
         pauseButton.tkraise()
 
-        rewindButton = ButtonIcon(playbackFrame, Name = 'rewindButton', filename = 'iconAssets/rewind.png', padx = 5 , command = None)
-        rewindButton.grid(row = 0, column = 3)
-        rewindButton.tkraise()
+        stopButton = ButtonIcon(playbackFrame, Name = 'stopButton', filename = 'iconAssets/stop.png', padx = 5 , command = None)
+        stopButton.grid(row = 0, column = 3)
+        stopButton.tkraise()
 
         waveformButton = ButtonIcon(playbackFrame, Name = 'waveformButton', filename = 'iconAssets/waveform.png', padx = 5, command = None)
         waveformButton.grid(row = 0, column = 4)
