@@ -279,11 +279,6 @@ class TabBar(ttk.Notebook):
         waveformButton.grid(row = 0, column = 4)
         waveformButton.tkraise()
 
-        playbackTimeTextLabel = TextLabelDynamic(playbackFrame, Name = 'playbackTimeTextLabel', padx = (20,0))
-        playbackTimeTextLabel.grid(row = 0, column = 5)
-        playbackTimeTextLabel.setText('00.00.00 / 00.00.00')
-        playbackTimeTextLabel.tkraise()
-
     def populateSoundDecoderTab(self):
         pass
 

@@ -3,6 +3,7 @@ from guiManager import *
 import textParser, textValidator, soundTranslator
 import pyperclip
 import numpy as np
+import tempfile
 from scipy.io import wavfile
 from just_playback import Playback
 from tkinter.filedialog import askopenfilename, asksaveasfile, asksaveasfilename
@@ -126,6 +127,7 @@ class SoundGenerator(TabEventsManager):
         self.soundData = None
         self.soundRate = 8000
         self.playbackManager = Playback()
+        self.tempDataFilePath = None
 
         self.tabObject['translationDropdown'].setCommand('<<ComboboxSelected>>', self.switch)
         self.tabObject['pasteButton'].setCommand(self.pasteText)
@@ -178,9 +180,9 @@ class SoundGenerator(TabEventsManager):
         textEntries[2].setText(100)
 
     def generate(self):
-        inputEntry, frequencyEntry, wpmEntry, volumeEntry = self.tabObject['inputTextArea'], self.tabObject['frequencyTextEntry'], self.tabObject['wpmTextEntry'], self.tabObject['volumeTextEntry']
+        inputEntry, frequencySlider, wpmSlider, volumeSlider = self.tabObject['inputTextArea'], self.tabObject['frequencySlider'], self.tabObject['wpmSlider'], self.tabObject['volumeSlider']
         text = inputEntry.getText()
-        frequency, wpm, volume = int(frequencyEntry.getText()), int(wpmEntry.getText()), int(volumeEntry.getText())
+        frequency, wpm, volume = int(frequencySlider.getSliderValue()), int(wpmSlider.getSliderValue()), int(volumeSlider.getSliderValue())/100
         if self.states['soundGenerator_MorseToSound'] == False:
             validatedText = textValidator.validateEnglish(text)
             if validatedText != False:
@@ -189,10 +191,14 @@ class SoundGenerator(TabEventsManager):
         else:
             validatedText = textValidator.validateMorse(text)
             if validatedText != False:
-                self.soundData = soundTranslator.generateSound(ciphertext, frequency, volume, wpm)
+                self.soundData = soundTranslator.generateSound(validatedText, frequency, volume, wpm)
         generateTextLabel = self.tabObject['generateTextLabel']
         generateTextLabel.setText('Generated!')
         generateTextLabel.setColour('green')
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+            wavfile.write(tmpfile.name, self.soundRate, self.normaliseData(self.soundData))
+            self.tempDataFilePath = tmpfile.name
+        self.playbackManager.load_file(self.tempDataFilePath)
         self.states['generated'] = True
 
     def matchSliders(self, *args):
@@ -243,7 +249,10 @@ class SoundGenerator(TabEventsManager):
                 self.saveFileProcess(filePath)
 
     def saveFileProcess(self, filePath):
-        data = self.soundData
+        data = self.normaliseData(self.soundData)
+        wavfile.write(filePath, self.soundRate, data)
+
+    def normaliseData(self, data):
         if data.dtype != np.int16:
             if np.issubdtype(data.dtype, np.floating):
                 maxFloat = np.max(np.abs(data))
@@ -254,19 +263,35 @@ class SoundGenerator(TabEventsManager):
             else:
                 maxVal = np.iinfo(data.dtype).max
                 data = (data / maxVal * np.iinfo(np.int16).max).astype(np.int16)
-        wavfile.write(filePath, self.soundRate, data)
+        return data
 
     def playSoundFile(self):
-        pass
+        if self.states['generated'] == True:
+            if float(self.playbackManager.curr_pos) != 0.0:
+                self.playbackManager.resume()
+            else:
+                self.playbackManager.play()
+        else:
+            pass
 
     def pauseSoundFile(self):
-        pass
+        if self.states['generated'] == True:
+            self.playbackManager.pause()
+        else:
+            pass
 
     def stopSoundFile(self):
-        pass
+        if self.states['generated'] == True:
+            self.playbackManager.stop()
+            self.playbackManager.seek(0)
+        else:
+            pass
 
     def waveformSoundFile(self):
-        pass
+        if self.states['generated'] == True:
+            soundTranslator.showWaveform(self.soundData, self.soundRate)
+        else:
+            pass
 
 
 class SoundDecoder(TabEventsManager):
