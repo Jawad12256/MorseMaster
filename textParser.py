@@ -61,6 +61,8 @@ morseDict = {
 englishDict = dict((b,a) for a,b in morseDict.items())
 
 def parseMorse(text): #points A4, A5
+    if text == False:
+        return False
     phrase = ''
     chars = text.split(' / ')
     for i,c in enumerate(chars):
@@ -73,6 +75,8 @@ def parseMorse(text): #points A4, A5
     return phrase
 
 def parseEnglish(text): #point A2
+    if text == False:
+        return False
     phrase = ''
     chars = text.split(' ')
     for i,c in enumerate(chars):

@@ -113,8 +113,11 @@ class TextTranslator(TabEventsManager):
 
     def saveFileProcess(self, filePath):
         outputEntry = self.tabObject['outputTextArea']
-        with open(filePath.name, 'w') as f:
-            f.write(outputEntry.getText())
+        if outputEntry.getText() != '' and outputEntry.getText() != ' ':
+            with open(filePath.name, 'w') as f:
+                f.write(outputEntry.getText())
+        else:
+            pass
 
 
 class SoundGenerator(TabEventsManager):
@@ -249,8 +252,11 @@ class SoundGenerator(TabEventsManager):
                 self.saveFileProcess(filePath)
 
     def saveFileProcess(self, filePath):
-        data = self.normaliseData(self.soundData)
-        wavfile.write(filePath, self.soundRate, data)
+        if self.soundData != None:
+            data = self.normaliseData(self.soundData)
+            wavfile.write(filePath, self.soundRate, data)
+        else:
+            pass
 
     def normaliseData(self, data):
         if data.dtype != np.int16:
@@ -297,11 +303,141 @@ class SoundGenerator(TabEventsManager):
 class SoundDecoder(TabEventsManager):
     def __init__(self, ref):
         TabEventsManager.__init__(self, ref)
-        self.states = {}
+        self.states = {
+            'soundDecoder_SoundToMorse':False,
+            'wpmAuto':True,
+            'loaded':False
+        }
         self.soundData = None
         self.soundRate = 8000
+        self.playbackManager = Playback()
+        self.tempDataFilePath = None
 
-    #other functions
+        self.tabObject['translationDropdown'].setCommand('<<ComboboxSelected>>', self.switch)
+        self.tabObject['resetButton'].setCommand(self.reset)
+        self.tabObject['wpmRadioButtons'].setCommand(self.updateSliderEntry)
+        self.tabObject['wpmSlider'].setCommand(self.matchTextEntry)
+        w = self.tabObject['wpmTextEntry']
+        w.text.trace_add('write', self.matchSlider)
+        self.tabObject['uploadButton'].setCommand(self.openFileDialog)
+        self.tabObject['recordButton'].setCommand(self.recordStartStop)
+        self.tabObject['translateButton'].setCommand(self.translate)
+        self.tabObject['playButton'].setCommand(self.playSoundFile)
+        self.tabObject['pauseButton'].setCommand(self.pauseSoundFile)
+        self.tabObject['stopButton'].setCommand(self.stopSoundFile)
+        self.tabObject['copyButton'].setCommand(self.copyText)
+        self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
+
+    def switch(self, *args):
+        mainLabel, outputLabel, outputEntry = self.tabObject['translationDirectionLabel'], self.tabObject['outputTextLabel'], self.tabObject['outputTextArea']
+        if self.states['soundDecoder_SoundToMorse'] == False:
+            mainLabel.setText('Morse Code Sound File --> Morse Code Ciphertext')
+            outputLabel.setText('Output Morse Code Ciphertext')
+            validatedText = textValidator.validateEnglish(outputEntry.getText())
+            if validatedText != False:
+                outputEntry.setText(textParser.parseEnglish(validatedText))
+            self.states['soundDecoder_SoundToMorse'] = True
+        else:
+            mainLabel.setText('Morse Code Sound File -----> English Plaintext')
+            outputLabel.setText('Output English Plaintext:')
+            validatedText = textValidator.validateMorse(outputEntry.getText())
+            if validatedText != False:
+                outputEntry.setText(textParser.parseMorse(validatedText))
+            self.states['soundDecoder_SoundToMorse'] = False
+
+    def reset(self):
+        wpmSlider, wpmTextEntry = self.tabObject['wpmSlider'], self.tabObject['wpmTextEntry']
+        wpmSlider.setSliderValue(10)
+        wpmTextEntry.setText('10')
+
+    def updateSliderEntry(self):
+        radioButtons, wpmSlider, wpmTextEntry = self.tabObject['wpmRadioButtons'], self.tabObject['wpmSlider'], self.tabObject['wpmTextEntry']
+        if radioButtons.getValue() == '0':
+            wpmSlider.disableSlider()
+            wpmTextEntry.disableEntry()
+            self.states['wpmAuto'] = True
+        else:
+            wpmSlider.enableSlider()
+            wpmTextEntry.enableEntry()
+            self.states['wpmFalse'] = False
+
+    def matchSlider(self, *args):
+        wpmSlider, wpmTextEntry = self.tabObject['wpmSlider'], self.tabObject['wpmTextEntry']
+        try:
+            wpm = int(wpmTextEntry.getText())
+            wpmSlider.setSliderValue(wpm)
+        except ValueError:
+            pass
+
+    def matchTextEntry(self, *args):
+        wpmSlider, wpmTextEntry = self.tabObject['wpmSlider'], self.tabObject['wpmTextEntry']
+        wpm = str(wpmSlider.getSliderValue())
+        wpmTextEntry.setText(wpm)
+
+    def recordStart(self):
+        pass
+
+    def recordStop(self):
+        pass
+
+    def recordStartStop(self):
+        pass
+
+    def translate(self):
+        if self.states['loaded'] == True:
+            if self.states['wpmAuto'] == True:
+                text = textValidator.validateMorse(soundTranslator.processSound(self.soundData, self.soundRate))
+            else:
+                wpmSlider = self.tabObject['wpmSlider']
+                text = textValidator.validateMorse(soundTranslator.processSound(self.soundData, self.soundRate, auto = False, wpm = int(wpmSlider.getSliderValue())))
+            if self.states['soundDecoder_SoundToMorse'] == False:
+                text = textParser.parseMorse(text)
+            if text != False:
+                outputEntry = self.tabObject['outputTextArea']
+                outputEntry.setText(text)
+            else:
+                pass
+        else:
+            pass
+
+    def normaliseData(self, data):
+        if data.dtype != np.int16:
+            if np.issubdtype(data.dtype, np.floating):
+                maxFloat = np.max(np.abs(data))
+                if maxFloat > 0:
+                    data = data / maxFloat
+                maxVal = np.iinfo(np.int16).max
+                data = (data * maxVal).astype(np.int16)
+            else:
+                maxVal = np.iinfo(data.dtype).max
+                data = (data / maxVal * np.iinfo(np.int16).max).astype(np.int16)
+        return data
+    
+    def playSoundFile(self):
+        if self.states['loaded'] == True:
+            if float(self.playbackManager.curr_pos) != 0.0:
+                self.playbackManager.resume()
+            else:
+                self.playbackManager.play()
+        else:
+            pass
+
+    def pauseSoundFile(self):
+        if self.states['loaded'] == True:
+            self.playbackManager.pause()
+        else:
+            pass
+
+    def stopSoundFile(self):
+        if self.states['loaded'] == True:
+            self.playbackManager.stop()
+            self.playbackManager.seek(0)
+        else:
+            pass
+
+    def copyText(self):
+        outputEntry = self.tabObject['outputTextArea']
+        pyperclip.copy(outputEntry.getText())
 
     def openFileDialog(self):
         filePath = askopenfilename(title="Select a File", filetypes=[("Audio files", "*.wav")])
@@ -311,6 +447,14 @@ class SoundDecoder(TabEventsManager):
     def openFileProcess(self, filePath):
         try:
             self.soundRate, self.soundData = wavfile.read(filePath)
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+                wavfile.write(tmpfile.name, self.soundRate, self.normaliseData(self.soundData))
+                self.tempDataFilePath = tmpfile.name
+            self.playbackManager.load_file(self.tempDataFilePath)
+            audioLoadedTextLabel = self.tabObject['audioLoadedTextLabel']
+            audioLoadedTextLabel.setText('Audio Loaded!')
+            audioLoadedTextLabel.setColour('green')
+            self.states['loaded'] = True
         except:
             pass
     
@@ -323,5 +467,6 @@ class SoundDecoder(TabEventsManager):
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
 soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
+soundDecoder = SoundDecoder(app.tabBar.soundDecoderTab.winfo_children())
 
 app.mainloop()

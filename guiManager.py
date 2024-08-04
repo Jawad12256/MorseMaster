@@ -285,6 +285,10 @@ class TabBar(ttk.Notebook):
         translationDirectionLabel.setText('Morse Code Sound File -----> English Plaintext')
         translationDirectionLabel.tkraise()
 
+        outputTypeTextLabel = TextLabelStatic(self.soundDecoderTab, Name = 'outputTypeTextLabel', text = 'Output:', anchor = 'e', padx = (15,0))
+        outputTypeTextLabel.grid(row = 0, column = 1, sticky = 'e')
+        outputTypeTextLabel.tkraise()
+
         translationDropdown = Dropdown(self.soundDecoderTab, Name = 'translationDropdown', valueTuple = ('English Plaintext Output', 'Morse Code Ciphertext Output'), padx = (10,0))
         translationDropdown.grid(row = 0, column = 2)
         translationDropdown.setDropdownValue('English Plaintext Output')
@@ -294,7 +298,7 @@ class TabBar(ttk.Notebook):
         uploadTextLabel.grid(row = 1, column = 0, sticky = 'sw')
         uploadTextLabel.tkraise()
 
-        resetButton = ButtonText(self.soundDecoderTab, Name = 'resetButton', text = 'Reset', pady = (10,0), padx = (60,0), command = None)
+        resetButton = ButtonText(self.soundDecoderTab, Name = 'resetButton', text = 'Reset', pady = (10,0), padx = (45,0), command = None)
         resetButton.grid(row = 1, column = 1, sticky = 'w')
         resetButton.tkraise()
 
@@ -536,7 +540,7 @@ class SmallTextEntry(tk.Frame):
         self.textBox.configure(state = 'disabled')
     
     def enableEntry(self):
-        self.textBox.configure(state = 'active')
+        self.textBox.configure(state = 'normal')
 
 
 class LightBox:
@@ -627,6 +631,6 @@ class RadioButtons(tk.Frame):
             x.configure(command = newCommand)
 
     def getValue(self):
-        return self.value
+        return self.value.get()
 
     
