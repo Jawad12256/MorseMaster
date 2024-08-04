@@ -9,6 +9,8 @@ import wave, struct
 from scipy.io import wavfile
 from just_playback import Playback
 from pvrecorder import PvRecorder
+from time import sleep
+from tkinter import messagebox, Toplevel, Frame
 from tkinter.filedialog import askopenfilename, asksaveasfile, asksaveasfilename
 
 app = MorseMaster()
@@ -34,19 +36,23 @@ class TextTranslator(TabEventsManager):
     def __init__(self, ref):
         TabEventsManager.__init__(self, ref)
         self.states = {
-            'textTranslator_MorseToEnglish':False
+            'textTranslator_MorseToEnglish':False,
+            'isDisplayingLight':False
         }
+        self.lightThread = None
+
         self.tabObject['translationDirectionButton'].setCommand(self.switch)
         self.tabObject['pasteButton'].setCommand(self.pasteText)
         self.tabObject['deleteButton'].setCommand(self.clearBoxes)
         self.tabObject['copyButton'].setCommand(self.copyText)
+        self.tabObject['lightButton'].setCommand(self.activateLightThread)
         self.tabObject['uploadButton'].setCommand(self.openFileDialog)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
         self.tabObject['inputTextArea'].setCommand("<KeyRelease>", (self.translate))
 
     def switch(self):
         mainLabel, inputLabel, outputLabel = self.tabObject['translationDirectionLabel'], self.tabObject['inputTextLabel'], self.tabObject['outputTextLabel']
-        inputEntry, outputEntry = self.tabObject['inputTextArea'], self.tabObject['outputTextArea']
+        inputEntry, outputEntry, lightButton = self.tabObject['inputTextArea'], self.tabObject['outputTextArea'], self.tabObject['lightButton']
         temp = inputEntry.getText()
         inputEntry.setText(outputEntry.getText())
         outputEntry.setText(temp)
@@ -55,11 +61,13 @@ class TextTranslator(TabEventsManager):
             inputLabel.setText('Input Morse Code Ciphertext')
             outputLabel.setText('Output English Plaintext')
             self.states['textTranslator_MorseToEnglish'] = True
+            lightButton.disableButton()
         else:
             mainLabel.setText('English Plaintext -----> Morse Code Ciphertext')
             inputLabel.setText('Input English Plaintext:')
             outputLabel.setText('Output Morse Code Ciphertext:')
             self.states['textTranslator_MorseToEnglish'] = False
+            lightButton.enableButton()
 
     def translate(self, *args):
         inputEntry, outputEntry = self.tabObject['inputTextArea'], self.tabObject['outputTextArea']
@@ -96,10 +104,71 @@ class TextTranslator(TabEventsManager):
         inputEntry.clearText()
         outputEntry.clearText()
 
+    def activateLightThread(self):
+        if self.states['isDisplayingLight'] == False:
+            self.lightThread = threading.Thread(target = self.showLight)
+            self.lightThread.start()
+
+    def showLight(self):
+        try:
+            outputEntry = self.tabObject['outputTextArea']
+            text = textValidator.validateMorse(outputEntry.getText())
+            if text != False:
+                self.states['isDisplayingLight'] = True
+                text = text.replace(' / ','/')
+                text = text.replace('.','.#')
+                text = text.replace('-','-#')
+                text = text.replace('# ',' ')
+                text = text.replace('#/','/')
+                timeConvert = {
+                    '.':0.480,
+                    '-':1.440,
+                    '#':0.480,
+                    ' ':1.440,
+                    '/':3.360
+                }
+                appLight = Toplevel(app)
+                appLight.iconbitmap('iconAssets/morseMasterIcon.ico')
+                appLight.title('Light Representation')
+                light = Frame(appLight, background = 'white', width = 300, height = 300)
+                light.pack()
+                light.tkraise()
+
+                def lightOn():
+                    light.configure(background = 'white')
+
+                def lightOff():
+                    light.configure(background = 'black')
+                
+                appLight.update()
+                sleep(0.5)
+                lightOff()
+                appLight.update()
+                for i,c in enumerate(text):
+                    sleep(timeConvert[c])
+                    if c in ('.','-'):
+                        lightOn()
+                        appLight.update()
+                    else:
+                        if i < len(text)-1:
+                            lightOff()
+                            appLight.update()
+                sleep(0.5)
+                self.states['isDisplayingLight'] = False
+                appLight.destroy()
+            else:
+                messagebox.showerror('Light Representer Error', 'Cannot represent invalid text output in light form')
+            self.lightThread = None
+        except:
+            self.states['isDisplayingLight'] = False
+            self.lightThread = None
+
     def openFileDialog(self):
         filePath = askopenfilename(title="Select a File", filetypes=[("Text files", "*.txt")])
         if filePath:
             self.openFileProcess(filePath)
+        elif filePath != '':
+            messagebox.showerror('Upload Error', 'Invalid file path')
             
     def openFileProcess(self, filePath):
         inputEntry = self.tabObject['inputTextArea']
@@ -107,12 +176,14 @@ class TextTranslator(TabEventsManager):
             with open(filePath, 'r') as f:
                 inputEntry.setText(f.read())
         except:
-            pass
+            messagebox.showerror('File Read Error', 'Error while trying to read the file contents')
 
     def saveFileDialog(self):
         filePath = asksaveasfile(defaultextension=".txt", title="Save As", filetypes=[("Text files", "*.txt")])
         if filePath:
             self.saveFileProcess(filePath)
+        elif filePath != None:
+            messagebox.showerror('Download Error', 'Invalid file path')
 
     def saveFileProcess(self, filePath):
         outputEntry = self.tabObject['outputTextArea']
@@ -120,7 +191,7 @@ class TextTranslator(TabEventsManager):
             with open(filePath.name, 'w') as f:
                 f.write(outputEntry.getText())
         else:
-            pass
+            messagebox.showerror('Download Error', 'Cannot save empty text output')
 
 
 class SoundGenerator(TabEventsManager):
@@ -189,23 +260,29 @@ class SoundGenerator(TabEventsManager):
         inputEntry, frequencySlider, wpmSlider, volumeSlider = self.tabObject['inputTextArea'], self.tabObject['frequencySlider'], self.tabObject['wpmSlider'], self.tabObject['volumeSlider']
         text = inputEntry.getText()
         frequency, wpm, volume = int(frequencySlider.getSliderValue()), int(wpmSlider.getSliderValue()), int(volumeSlider.getSliderValue())/100
-        if self.states['soundGenerator_MorseToSound'] == False:
-            validatedText = textValidator.validateEnglish(text)
+        if text != '' and text != ' ':
+            if self.states['soundGenerator_MorseToSound'] == False:
+                validatedText = textValidator.validateEnglish(text)
+                if validatedText != False:
+                    ciphertext = textParser.parseEnglish(validatedText)
+                    self.soundData = soundTranslator.generateSound(ciphertext, frequency, volume, wpm)
+            else:
+                validatedText = textValidator.validateMorse(text)
+                if validatedText != False:
+                    self.soundData = soundTranslator.generateSound(validatedText, frequency, volume, wpm)
             if validatedText != False:
-                ciphertext = textParser.parseEnglish(validatedText)
-                self.soundData = soundTranslator.generateSound(ciphertext, frequency, volume, wpm)
+                generateTextLabel = self.tabObject['generateTextLabel']
+                generateTextLabel.setText('Generated!')
+                generateTextLabel.setColour('green')
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+                    wavfile.write(tmpfile.name, self.soundRate, self.normaliseData(self.soundData))
+                    self.tempDataFilePath = tmpfile.name
+                self.playbackManager.load_file(self.tempDataFilePath)
+                self.states['generated'] = True
+            else:
+                messagebox.showerror('Sound Generation Error', 'Invalid text input')
         else:
-            validatedText = textValidator.validateMorse(text)
-            if validatedText != False:
-                self.soundData = soundTranslator.generateSound(validatedText, frequency, volume, wpm)
-        generateTextLabel = self.tabObject['generateTextLabel']
-        generateTextLabel.setText('Generated!')
-        generateTextLabel.setColour('green')
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
-            wavfile.write(tmpfile.name, self.soundRate, self.normaliseData(self.soundData))
-            self.tempDataFilePath = tmpfile.name
-        self.playbackManager.load_file(self.tempDataFilePath)
-        self.states['generated'] = True
+            messagebox.showerror('Sound Generation Error', 'Invalid text input')
 
     def matchSliders(self, *args):
         frequencyEntry, wpmEntry, volumeEntry = self.tabObject['frequencyTextEntry'], self.tabObject['wpmTextEntry'], self.tabObject['volumeTextEntry']
@@ -239,6 +316,8 @@ class SoundGenerator(TabEventsManager):
         filePath = askopenfilename(title="Select a File", filetypes=[("Text files", "*.txt")])
         if filePath:
             self.openFileProcess(filePath)
+        elif filePath != '':
+            messagebox.showerror('Upload Error', 'Invalid file path')
             
     def openFileProcess(self, filePath):
         inputEntry = self.tabObject['inputTextArea']
@@ -246,20 +325,24 @@ class SoundGenerator(TabEventsManager):
             with open(filePath, 'r') as f:
                 inputEntry.setText(f.read())
         except:
-            pass
+            messagebox.showerror('File Read Error', 'Error while trying to read the file contents')
     
     def saveFileDialog(self):
         if self.states['generated'] == True:
             filePath = asksaveasfilename(defaultextension=".wav", title="Save As", filetypes=[("Audio files", "*.wav")])
             if filePath:
                 self.saveFileProcess(filePath)
+            elif filePath != None:
+                messagebox.showerror('Download Error', 'Invalid file path')
+        else:
+            messagebox.showerror('Download Error', 'No generated audio to download')
 
     def saveFileProcess(self, filePath):
         if not(self.soundData is None):
             data = self.normaliseData(self.soundData)
             wavfile.write(filePath, self.soundRate, data)
         else:
-            pass
+            messagebox.showerror('Download Error', 'Cannot save empty sound output')
 
     def normaliseData(self, data):
         if data.dtype != np.int16:
@@ -281,26 +364,26 @@ class SoundGenerator(TabEventsManager):
             else:
                 self.playbackManager.play()
         else:
-            pass
+            messagebox.showerror('Playback Error', 'No generated audio to play')
 
     def pauseSoundFile(self):
         if self.states['generated'] == True:
             self.playbackManager.pause()
         else:
-            pass
+            messagebox.showerror('Playback Error', 'No generated audio to pause')
 
     def stopSoundFile(self):
         if self.states['generated'] == True:
             self.playbackManager.stop()
             self.playbackManager.seek(0)
         else:
-            pass
+            messagebox.showerror('Playback Error', 'No generated audio to stop')
 
     def waveformSoundFile(self):
         if self.states['generated'] == True:
             soundTranslator.showWaveform(self.soundData, self.soundRate)
         else:
-            pass
+            messagebox.showerror('Waveform Error', 'No generated audio to show waveform of')
 
 
 class SoundDecoder(TabEventsManager):
@@ -310,7 +393,8 @@ class SoundDecoder(TabEventsManager):
             'soundDecoder_SoundToMorse':False,
             'wpmAuto':True,
             'loaded':False,
-            'isRecording':False
+            'isRecording':False,
+            'isDisplayingLight':False
         }
         self.soundData = None
         self.soundRate = 8000
@@ -318,6 +402,7 @@ class SoundDecoder(TabEventsManager):
         self.tempDataFilePath = None
         self.recorder = PvRecorder(device_index=-1, frame_length=512)
         self.recordThread = None
+        self.lightThread = None
 
         self.tabObject['translationDropdown'].setCommand('<<ComboboxSelected>>', self.switch)
         self.tabObject['resetButton'].setCommand(self.reset)
@@ -332,16 +417,19 @@ class SoundDecoder(TabEventsManager):
         self.tabObject['pauseButton'].setCommand(self.pauseSoundFile)
         self.tabObject['stopButton'].setCommand(self.stopSoundFile)
         self.tabObject['copyButton'].setCommand(self.copyText)
+        self.tabObject['lightButton'].setCommand(self.showLight)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
 
     def switch(self, *args):
         mainLabel, outputLabel, outputEntry = self.tabObject['translationDirectionLabel'], self.tabObject['outputTextLabel'], self.tabObject['outputTextArea']
+        lightButton = self.tabObject['lightButton']
         if self.states['soundDecoder_SoundToMorse'] == False:
             mainLabel.setText('Morse Code Sound File --> Morse Code Ciphertext')
             outputLabel.setText('Output Morse Code Ciphertext')
             validatedText = textValidator.validateEnglish(outputEntry.getText())
             if validatedText != False:
                 outputEntry.setText(textParser.parseEnglish(validatedText))
+            lightButton.enableButton()
             self.states['soundDecoder_SoundToMorse'] = True
         else:
             mainLabel.setText('Morse Code Sound File -----> English Plaintext')
@@ -349,6 +437,7 @@ class SoundDecoder(TabEventsManager):
             validatedText = textValidator.validateMorse(outputEntry.getText())
             if validatedText != False:
                 outputEntry.setText(textParser.parseMorse(validatedText))
+            lightButton.disableButton()
             self.states['soundDecoder_SoundToMorse'] = False
 
     def reset(self):
@@ -426,9 +515,9 @@ class SoundDecoder(TabEventsManager):
                 outputEntry = self.tabObject['outputTextArea']
                 outputEntry.setText(text)
             else:
-                pass
+                messagebox.showerror('Decoding Error', 'Invalid sound input')
         else:
-            pass
+            messagebox.showerror('Decoding Error', 'No loaded audio to decode')
 
     def normaliseData(self, data):
         if data.dtype != np.int16:
@@ -450,29 +539,34 @@ class SoundDecoder(TabEventsManager):
             else:
                 self.playbackManager.play()
         else:
-            pass
+            messagebox.showerror('Playback Error', 'No loaded audio to play')
 
     def pauseSoundFile(self):
         if self.states['loaded'] == True:
             self.playbackManager.pause()
         else:
-            pass
+            messagebox.showerror('Playback Error', 'No loaded audio to pause')
 
     def stopSoundFile(self):
         if self.states['loaded'] == True:
             self.playbackManager.stop()
             self.playbackManager.seek(0)
         else:
-            pass
+            messagebox.showerror('Playback Error', 'No loaded audio to stop')
 
     def copyText(self):
         outputEntry = self.tabObject['outputTextArea']
         pyperclip.copy(outputEntry.getText())
 
+    def showLight(self):
+        pass
+
     def openFileDialog(self):
         filePath = askopenfilename(title="Select a File", filetypes=[("Audio files", "*.wav")])
         if filePath:
             self.openFileProcess(filePath)
+        elif filePath != '':
+            messagebox.showerror('Upload Error', 'Invalid file path')
 
     def openFileProcess(self, filePath):
         try:
@@ -486,12 +580,14 @@ class SoundDecoder(TabEventsManager):
             audioLoadedTextLabel.setColour('green')
             self.states['loaded'] = True
         except:
-            pass
+            messagebox.showerror('File Read Error', 'Error while reading the file')
     
     def saveFileDialog(self):
         filePath = asksaveasfile(defaultextension=".txt", title="Save As", filetypes=[("Text files", "*.txt")])
         if filePath:
             self.saveFileProcess(filePath)
+        elif filePath != None:
+            messagebox.showerror('Download Error', 'Invalid file path')
 
     def saveFileProcess(self, filePath):
         outputEntry = self.tabObject['outputTextArea']
@@ -499,7 +595,7 @@ class SoundDecoder(TabEventsManager):
             with open(filePath.name, 'w') as f:
                 f.write(outputEntry.getText())
         else:
-            pass
+            messagebox.showerror('Download Error', 'Cannot save empty text output')
 
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())

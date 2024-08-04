@@ -392,6 +392,7 @@ class TabBar(ttk.Notebook):
 
         lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename = 'iconAssets/light.png', command = None)
         lightButton.pack(side = 'bottom', fill = 'x', expand = True)
+        lightButton.disableButton()
         lightButton.tkraise()
 
         downloadFrame = tk.Frame(self.soundDecoderTab)
@@ -492,6 +493,12 @@ class ButtonIcon(tk.Frame):
         newIcon = tk.PhotoImage(file = (newFilename)).subsample(self.iconSize[0])
         self.button.configure(image = newIcon)
         self.button.image = newIcon
+    
+    def disableButton(self):
+        self.button.configure(state = 'disabled')
+    
+    def enableButton(self):
+        self.button.configure(state = 'normal')
 
 
 class TextEntry(tk.Frame):
