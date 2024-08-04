@@ -398,7 +398,7 @@ class TabBar(ttk.Notebook):
         downloadFrame.grid(row = 5, column = 2)
         downloadFrame.tkraise()
 
-        downloadTextLabel = TextLabelStatic(downloadFrame, Name = 'downloadTextLabel', text = 'Download as a .wav file:')
+        downloadTextLabel = TextLabelStatic(downloadFrame, Name = 'downloadTextLabel', text = 'Download as a text file:')
         downloadTextLabel.grid(row = 0, column = 0, sticky = 's')
         downloadTextLabel.tkraise()
 
@@ -488,6 +488,11 @@ class ButtonIcon(tk.Frame):
     def setCommand(self, newCommand):
         self.button.configure(command = newCommand)
 
+    def setImage(self, newFilename):
+        newIcon = tk.PhotoImage(file = (newFilename)).subsample(self.iconSize[0])
+        self.button.configure(image = newIcon)
+        self.button.image = newIcon
+
 
 class TextEntry(tk.Frame):
     def __init__(self, parent, Name = 'TextEntry', fontSize = 10, fontType = 'Verdana', width = 40, height = 5, pady = 0, padx = 10):
@@ -574,7 +579,7 @@ class Slider(tk.Frame):
         self.slider.configure(fg = 'grey')
     
     def enableSlider(self):
-        self.slider.configure(state = 'active')
+        self.slider.configure(state = 'normal')
         self.slider.configure(troughcolor = 'light grey')
         self.slider.configure(fg = 'black')
 

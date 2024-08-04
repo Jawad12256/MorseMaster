@@ -4,8 +4,11 @@ import textParser, textValidator, soundTranslator
 import pyperclip
 import numpy as np
 import tempfile
+import threading
+import wave, struct
 from scipy.io import wavfile
 from just_playback import Playback
+from pvrecorder import PvRecorder
 from tkinter.filedialog import askopenfilename, asksaveasfile, asksaveasfilename
 
 app = MorseMaster()
@@ -252,7 +255,7 @@ class SoundGenerator(TabEventsManager):
                 self.saveFileProcess(filePath)
 
     def saveFileProcess(self, filePath):
-        if self.soundData != None:
+        if not(self.soundData is None):
             data = self.normaliseData(self.soundData)
             wavfile.write(filePath, self.soundRate, data)
         else:
@@ -306,12 +309,15 @@ class SoundDecoder(TabEventsManager):
         self.states = {
             'soundDecoder_SoundToMorse':False,
             'wpmAuto':True,
-            'loaded':False
+            'loaded':False,
+            'isRecording':False
         }
         self.soundData = None
         self.soundRate = 8000
         self.playbackManager = Playback()
         self.tempDataFilePath = None
+        self.recorder = PvRecorder(device_index=-1, frame_length=512)
+        self.recordThread = None
 
         self.tabObject['translationDropdown'].setCommand('<<ComboboxSelected>>', self.switch)
         self.tabObject['resetButton'].setCommand(self.reset)
@@ -375,13 +381,37 @@ class SoundDecoder(TabEventsManager):
         wpmTextEntry.setText(wpm)
 
     def recordStart(self):
-        pass
-
-    def recordStop(self):
-        pass
+        self.soundData = []
+        self.recorder.start()
+        while self.states['isRecording'] == True:
+            frame = self.recorder.read()
+            self.soundData.extend(frame)
+        self.recorder.stop()
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+            with wave.open(tmpfile.name, 'w') as f:
+                f.setparams((1, 2, 16000, 512, "NONE", "NONE"))
+                f.writeframes(struct.pack("h" * len(self.soundData), *self.soundData))
+            self.tempDataFilePath = tmpfile.name
+        self.playbackManager.load_file(self.tempDataFilePath)
+        audioLoadedTextLabel = self.tabObject['audioLoadedTextLabel']
+        audioLoadedTextLabel.setText('Audio Loaded!')
+        audioLoadedTextLabel.setColour('green')
+        self.states['loaded'] = True
+        self.recordThread = None
 
     def recordStartStop(self):
-        pass
+        recordButton = self.tabObject['recordButton']
+        if self.states['isRecording'] == False:
+            self.states['isRecording'] = True
+            recordButton.setImage('iconAssets/recordstop.png')
+            audioLoadedTextLabel = self.tabObject['audioLoadedTextLabel']
+            audioLoadedTextLabel.setText('Recording Audio...')
+            audioLoadedTextLabel.setColour('black')
+            self.recordThread = threading.Thread(target = self.recordStart)
+            self.recordThread.start()
+        else:
+            self.states['isRecording'] = False
+            recordButton.setImage('iconAssets/record.png')
 
     def translate(self):
         if self.states['loaded'] == True:
@@ -459,10 +489,17 @@ class SoundDecoder(TabEventsManager):
             pass
     
     def saveFileDialog(self):
-        pass
+        filePath = asksaveasfile(defaultextension=".txt", title="Save As", filetypes=[("Text files", "*.txt")])
+        if filePath:
+            self.saveFileProcess(filePath)
 
     def saveFileProcess(self, filePath):
-        pass
+        outputEntry = self.tabObject['outputTextArea']
+        if outputEntry.getText() != '' and outputEntry.getText() != ' ':
+            with open(filePath.name, 'w') as f:
+                f.write(outputEntry.getText())
+        else:
+            pass
 
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
