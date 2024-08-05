@@ -419,7 +419,7 @@ class SoundDecoder(TabEventsManager):
         self.tabObject['pauseButton'].setCommand(self.pauseSoundFile)
         self.tabObject['stopButton'].setCommand(self.stopSoundFile)
         self.tabObject['copyButton'].setCommand(self.copyText)
-        self.tabObject['lightButton'].setCommand(self.showLight)
+        self.tabObject['lightButton'].setCommand(self.activateLightThread)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
 
     def switch(self, *args):
@@ -560,8 +560,64 @@ class SoundDecoder(TabEventsManager):
         outputEntry = self.tabObject['outputTextArea']
         pyperclip.copy(outputEntry.getText())
 
+    def activateLightThread(self):
+        if self.states['isDisplayingLight'] == False:
+            self.lightThread = threading.Thread(target = self.showLight)
+            self.lightThread.start()
+
     def showLight(self):
-        pass
+        try:
+            outputEntry = self.tabObject['outputTextArea']
+            text = textValidator.validateMorse(outputEntry.getText())
+            if text != False:
+                self.states['isDisplayingLight'] = True
+                text = text.replace(' / ','/')
+                text = text.replace('.','.#')
+                text = text.replace('-','-#')
+                text = text.replace('# ',' ')
+                text = text.replace('#/','/')
+                timeConvert = {
+                    '.':0.480,
+                    '-':1.440,
+                    '#':0.480,
+                    ' ':1.440,
+                    '/':3.360
+                }
+                appLight = Toplevel(app)
+                appLight.iconbitmap('iconAssets/morseMasterIcon.ico')
+                appLight.title('Light Representation')
+                light = Frame(appLight, background = 'white', width = 300, height = 300)
+                light.pack()
+                light.tkraise()
+
+                def lightOn():
+                    light.configure(background = 'white')
+
+                def lightOff():
+                    light.configure(background = 'black')
+                
+                appLight.update()
+                sleep(0.5)
+                lightOff()
+                appLight.update()
+                for i,c in enumerate(text):
+                    sleep(timeConvert[c])
+                    if c in ('.','-'):
+                        lightOn()
+                        appLight.update()
+                    else:
+                        if i < len(text)-1:
+                            lightOff()
+                            appLight.update()
+                sleep(0.5)
+                self.states['isDisplayingLight'] = False
+                appLight.destroy()
+            else:
+                messagebox.showerror('Light Representer Error', 'Cannot represent invalid text output in light form')
+            self.lightThread = None
+        except:
+            self.states['isDisplayingLight'] = False
+            self.lightThread = None
 
     def openFileDialog(self):
         filePath = askopenfilename(title="Select a File", filetypes=[("Audio files", "*.wav")])
