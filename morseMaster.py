@@ -68,6 +68,7 @@ class TextTranslator(TabEventsManager):
             outputLabel.setText('Output Morse Code Ciphertext:')
             self.states['textTranslator_MorseToEnglish'] = False
             lightButton.enableButton()
+        self.translate()
 
     def translate(self, *args):
         inputEntry, outputEntry = self.tabObject['inputTextArea'], self.tabObject['outputTextArea']
@@ -175,6 +176,7 @@ class TextTranslator(TabEventsManager):
         try:
             with open(filePath, 'r') as f:
                 inputEntry.setText(f.read())
+            self.translate()
         except:
             messagebox.showerror('File Read Error', 'Error while trying to read the file contents')
 
