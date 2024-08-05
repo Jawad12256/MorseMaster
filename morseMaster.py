@@ -484,6 +484,7 @@ class SoundDecoder(TabEventsManager):
                 f.writeframes(struct.pack("h" * len(self.soundData), *self.soundData))
             self.tempDataFilePath = tmpfile.name
         self.playbackManager.load_file(self.tempDataFilePath)
+        self.soundData = np.array([[x] for x in self.soundData])
         audioLoadedTextLabel = self.tabObject['audioLoadedTextLabel']
         audioLoadedTextLabel.setText('Audio Loaded!')
         audioLoadedTextLabel.setColour('green')
