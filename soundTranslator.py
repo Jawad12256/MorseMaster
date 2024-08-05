@@ -2,6 +2,7 @@
 import numpy as np
 import winsound
 from matplotlib import pyplot as plt
+from matplotlib import pylab
 from scipy.signal import hilbert
 from sklearn.ensemble import IsolationForest
 import fastFourierTransform as fft
@@ -206,6 +207,7 @@ def processSound(data, rate, auto=True, wpm=10): #point B3
 
 def showWaveform(data, rate): #point X7.1
     plt.plot(np.linspace(0,len(data)/rate,len(data)), data, color='black')
+    pylab.gcf().canvas.manager.set_window_title('Audio Waveform')
     plt.xlabel('Time [s]')
     plt.ylabel('Amplitude')
     plt.grid(True)
