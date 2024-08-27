@@ -1,6 +1,5 @@
 '''SOUND TRANSLATION AND VALIDATION MODULE'''
 import numpy as np
-import winsound
 from matplotlib import pyplot as plt
 from matplotlib import pylab
 from scipy.signal import hilbert
@@ -55,7 +54,7 @@ def filterFrequencies(fftList): #point B2
     return newList
 
 def validateFrequencies(fftList): #point B1.3
-    ampltiudeRatioThreshold = 0.5 #amplitude ratio threshold hyperparameter
+    amplitudeRatioThreshold = 0.5 #amplitude ratio threshold hyperparameter
     frequencyTolerance = 10 #frequency tolerance hyperparameter
     fftList = filterFrequencies(fftList)
     if len(fftList[0]) == 0:
@@ -66,7 +65,9 @@ def validateFrequencies(fftList): #point B1.3
     pairedList.sort(key = lambda x:x[0])
     while len(pairedList) > 1 and (pairedList[-2][1] > pairedList[-1][1] - frequencyTolerance and pairedList[-2][1] < pairedList[-1][1] + frequencyTolerance):
         pairedList.pop(-2)
-    if pairedList[-2][0]/pairedList[-1][0] > ampltiudeRatioThreshold:
+    if len(fftList[0]) == 1:
+        return True
+    if pairedList[-2][0]/pairedList[-1][0] > amplitudeRatioThreshold:
         return False
     return True
 
@@ -150,7 +151,7 @@ def isSoundValid(data, rate): #points B1.1, B1.3
         return False
 
 def findUnit(signalDurations): #point B3
-    unitSlack = 0.75 #unit time length slack hyperparameter
+    unitSlack = 0.95 #unit time length slack hyperparameter
     cont = 1/len(signalDurations) #contamination hyperparameter
     signals = np.array(signalDurations).reshape(-1, 1)
     isoForest = IsolationForest(contamination=cont)
@@ -214,6 +215,3 @@ def showWaveform(data, rate): #point X7.1
     plt.yticks([])
     plt.gca().yaxis.set_visible(False)
     plt.show()
-
-def playSound(path): #point B5
-    winsound.PlaySound(path, winsound.SND_FILENAME)
