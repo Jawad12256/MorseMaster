@@ -409,7 +409,117 @@ class TabBar(ttk.Notebook):
 
 
     def populateKeyerTab(self):
-        pass
+        translateFrame = tk.Frame(self.keyerTab)
+        translateFrame.grid(row = 0, column = 0)
+        translateFrame.tkraise()
+
+        translationDirectionLabel = TextLabelStatic(translateFrame, Name = 'translationDirectionLabel', text = 'Morse Code Keyer -----> English Plaintext', anchor = 'w', pady = (15,10))
+        translationDirectionLabel.grid(row = 0, column = 0, columnspan = 2, sticky = 'nw')
+        translationDirectionLabel.tkraise()
+
+        paddleModeLabel = TextLabelDynamic(translateFrame, Name = 'paddleModeLabel')
+        paddleModeLabel.grid(row = 1, column = 0)
+        paddleModeLabel.setText('Paddle Mode A')
+        paddleModeLabel.setColour('dark blue')
+        paddleModeLabel.tkraise()
+
+        switchButton = ButtonText(translateFrame, Name = 'switchButton', text = 'Switch Mode', command = None)
+        switchButton.grid(row = 1, column = 1)
+        switchButton.tkraise()
+        
+        sliderFrame = tk.Frame(self.keyerTab)
+        sliderFrame.grid(row = 0, column = 1, columnspan = 2)
+        sliderFrame.tkraise()
+
+        frequencyTextLabel = TextLabelStatic(sliderFrame, Name = 'frequencyTextLabel', text = 'Frequency', anchor = 'e')
+        frequencyTextLabel.grid(row = 0, column = 0, sticky = 'sw')
+        frequencyTextLabel.tkraise()
+
+        frequencySlider = Slider(sliderFrame, Name = 'frequencySlider', minValue = 400, maxValue = 1000, width = 200)
+        frequencySlider.grid(row = 0, column = 1, sticky = 'n')
+        frequencySlider.setSliderValue(600)
+        frequencySlider.tkraise()
+
+        wpmTextLabel = TextLabelStatic(sliderFrame, Name = 'wpmTextLabel', text = 'WPM', anchor = 'e')
+        wpmTextLabel.grid(row = 1, column = 0, sticky = 'sw')
+        wpmTextLabel.tkraise()
+
+        wpmSlider = Slider(sliderFrame, Name = 'wpmSlider', minValue = 5, maxValue = 20, width = 200)
+        wpmSlider.grid(row = 1, column = 1, sticky = 'n')
+        wpmSlider.setSliderValue(10)
+        wpmSlider.tkraise()
+
+        frequencyTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
+        frequencyTextEntry.grid(row = 0, column = 2, sticky = 's')
+        frequencyTextEntry.setText('600')
+        frequencyTextEntry.tkraise()
+
+        wpmTextEntry = SmallTextEntry(sliderFrame, Name = 'wpmTextEntry')
+        wpmTextEntry.grid(row = 1, column = 2, sticky = 's')
+        wpmTextEntry.setText('10')
+        wpmTextEntry.tkraise()
+
+        englishCurrentLabel = TextLabelDynamic(self.keyerTab, Name ='englishCurrentLabel', fontSize = 30)
+        englishCurrentLabel.grid(row = 1, column = 0, columnspan = 3)
+        englishCurrentLabel.setText('')
+        englishCurrentLabel.tkraise()
+
+        morseCurrentLabel = TextLabelDynamic(self.keyerTab, Name ='morseCurrentLabel', fontSize = 30)
+        morseCurrentLabel.grid(row = 2, column = 0, columnspan = 3)
+        morseCurrentLabel.setText('')
+        morseCurrentLabel.tkraise()
+
+        outputTextLabel = TextLabelDynamic(self.keyerTab, Name = 'outputTextLabel', pady = (20,0))
+        outputTextLabel.grid(row = 3, column = 0, sticky = 'nw')
+        outputTextLabel.setText('Output Morse Code Ciphertext:')
+        outputTextLabel.tkraise()
+
+        downloadTextLabel = TextLabelStatic(self.keyerTab, Name = 'downloadTextLabel', text = 'Download as a text file:')
+        downloadTextLabel.grid(row = 3, column = 2, sticky = 's')
+        downloadTextLabel.tkraise()
+
+        downloadButton = ButtonIcon(self.keyerTab, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
+        downloadButton.grid(row = 4, column = 2, sticky = 'n')
+        downloadButton.tkraise()
+
+        outputTextArea = TextEntry(self.keyerTab, Name = 'outputTextArea')
+        outputTextArea.grid(row = 4, column = 0, sticky = 'nw')
+        outputTextArea.tkraise()
+
+        outputTextShortcutsFrame = tk.Frame(self.keyerTab, width=30, height=85)
+        outputTextShortcutsFrame.pack_propagate(False)
+        outputTextShortcutsFrame.grid(row = 4, column = 1, sticky = 'nw')
+        outputTextShortcutsFrame.tkraise()
+
+        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
+        copyButton.pack(side = 'top', fill = 'x', expand = True)
+        copyButton.tkraise()
+
+        deleteButton = ButtonIcon(outputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
+        deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
+        deleteButton.tkraise()
+
+        keyFrame = tk.Frame(self.keyerTab)
+        keyFrame.grid(row = 5, column = 0, columnspan = 2, sticky = 'w')
+        keyFrame.tkraise()
+
+        keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename = 'iconAssets/key.png', command = None, pady = (10,0), padx = (15,0))
+        keyButton1.grid(row = 0, column = 0, sticky = 'w')
+        keyButton1.tkraise()
+
+        keyButton2 = ButtonIcon(keyFrame, Name = 'keyButton2', filename = 'iconAssets/keyDash.png', command = None, pady = (10,0), padx = (15,0))
+        keyButton2.grid(row = 0, column = 1, sticky = 'w')
+        keyButton2.disableButton()
+        keyButton2.tkraise()
+
+        keyTextLabel = TextLabelStatic(keyFrame, Name = 'keyTextLabel', text = 'Tap button or press spacebar / comma / full stop')
+        keyTextLabel.grid(row = 0, column = 2)
+        keyTextLabel.tkraise()
+
+        legendButton = ButtonText(self.keyerTab, Name = 'legendButton', text = 'Show Legend', command = None)
+        legendButton.grid(row = 5, column = 2, sticky = 'w')
+        legendButton.tkraise()
+
 
     def populateChallengeModeTab(self):
         pass

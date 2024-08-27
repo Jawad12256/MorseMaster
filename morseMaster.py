@@ -656,9 +656,12 @@ class SoundDecoder(TabEventsManager):
         else:
             messagebox.showerror('Download Error', 'Cannot save empty text output')
 
+class Keyer(TabEventsManager):
+    pass
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
 soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
 soundDecoder = SoundDecoder(app.tabBar.soundDecoderTab.winfo_children())
+keyer = Keyer(app.tabBar.keyerTab.winfo_children())
 
 app.mainloop()
