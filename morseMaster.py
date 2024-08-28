@@ -6,6 +6,7 @@ import numpy as np
 import tempfile
 import threading
 import wave, struct
+import keyboard
 from scipy.io import wavfile
 from just_playback import Playback
 from pvrecorder import PvRecorder
@@ -656,8 +657,29 @@ class SoundDecoder(TabEventsManager):
         else:
             messagebox.showerror('Download Error', 'Cannot save empty text output')
 
+
 class Keyer(TabEventsManager):
-    pass
+    def __init__(self, ref):
+        TabEventsManager.__init__(self, ref)
+        self.states = {
+            'paddleMode':'A',
+        }
+
+        self.tabObject['keyButton1'].setCommand(self.keyA)
+        app.tabBar.keyerTab.bind_all('<Button-1>', lambda event: event.widget.focus_set())
+        # app.tabBar.keyerTab.bind_all('<space>', self.keyA)
+        # app.tabBar.keyerTab.bind_all('.', self.keyA)
+        # app.tabBar.keyerTab.bind_all(',', self.keyA)
+        
+        
+
+    def keyA(self, *args):
+        if app.tabBar.tab(app.tabBar.select(), "text") == 'Keyer' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
+            keyButton1 = self.tabObject['keyButton1']
+            keyButton1.focus_set()
+            print('beep!')
+
+
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
 soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())

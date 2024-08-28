@@ -578,7 +578,7 @@ class ButtonText(tk.Frame):
         self.button = tk.Button(self, text = self.text, font = (self.fontType, self.fontSize, 'bold'), command = self.command)
         self.button.pack(pady = self.pady, padx = self.padx)
 
-    def setCommand(self, newCommand):
+    def setCommand(self, newCommand, *args):
         self.button.configure(command = newCommand)
 
 
@@ -596,7 +596,7 @@ class ButtonIcon(tk.Frame):
         self.button.image = icon
         self.button.pack(pady = self.pady, padx = self.padx)
 
-    def setCommand(self, newCommand):
+    def setCommand(self, newCommand, *args):
         self.button.configure(command = newCommand)
 
     def setImage(self, newFilename):
