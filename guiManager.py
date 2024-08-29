@@ -599,6 +599,9 @@ class ButtonIcon(tk.Frame):
     def setCommand(self, newCommand, *args):
         self.button.configure(command = newCommand)
 
+    def setBinding(self, event, command, *args):
+        self.button.bind(event, command)
+
     def setImage(self, newFilename):
         newIcon = tk.PhotoImage(file = (newFilename)).subsample(self.iconSize[0])
         self.button.configure(image = newIcon)

@@ -23,6 +23,7 @@ app.minsize(750,400)
 def killAll():
     keyer.listener.stop()
     keyer.keyboardThread = None
+    keyer.wordTerminatorThread = None
     app.destroy()
 
 app.protocol('WM_DELETE_WINDOW', killAll)
@@ -671,36 +672,104 @@ class Keyer(TabEventsManager):
         TabEventsManager.__init__(self, ref)
         self.states = {
             'paddleMode':'A',
+            'isKeying':False,
         }
         self.keyDownTimes = {}
+        self.keyUpTime = -1
         self.keyboardThread = threading.Thread(target = self.activateKeyboardListener)
+        self.keyboardThread.daemon = True
         self.keyboardThread.start()
+        self.wordTerminatorThread = threading.Thread(target = self.activateWordTerminatorThread)
+        self.wordTerminatorThread.daemon = True
+        self.wordTerminatorThread.start()
 
-        self.tabObject['keyButton1'].setCommand(self.button1Down)
+        self.tabObject['keyButton1'].setBinding('<Button-1>', self.button1Down)
+        self.tabObject['keyButton1'].setBinding('<ButtonRelease-1>', self.button1Up)
         app.tabBar.keyerTab.bind_all('<Button-1>', lambda event: event.widget.focus_set())
-
 
     def activateKeyboardListener(self):
         with keyboard.Listener(on_press = self.keyDown, on_release = self.keyUp) as self.listener:
             self.listener.join()
 
     def button1Down(self, *args):
-        if app.tabBar.tab(app.tabBar.select(), "text") == 'Keyer' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
-            keyButton1 = self.tabObject['keyButton1']
-            keyButton1.focus_set()
-            print('beep!')
-            return False
+        T = time.time()
+        if self.keyUpTime != -1:
+            t = self.keyUpTime
+            duration = round(T - t, 2)
+            self.updateDisplay(duration, None, True)
+        self.keyDownTimes['button1'] = T
+
+    def button1Up(self, *args):
+        t = self.keyDownTimes.pop('button1')
+        T = time.time()
+        duration = round(T - t, 2)
+        self.keyUpTime = T
+        self.updateDisplay(duration, 'button1', False)
         
     def keyDown(self, key):
-        if key not in self.keyDownTimes:
-            self.keyDownTimes[key] = time.time()
+        if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Keyer' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
+            T = time.time()
+            if self.keyUpTime != -1:
+                t = self.keyUpTime
+                duration = round(T - t, 2)
+                isKey = False
+                if hasattr(key, 'char'):
+                    if key.char in ('.',','):
+                        isKey = True
+                        keyName = key.char
+                elif hasattr(key, 'name'):
+                    if key.name == 'space':
+                        isKey = True
+                        keyName = key.name
+                if isKey:
+                    self.updateDisplay(duration, keyName, True)
+            self.keyDownTimes[key] = T
     
     def keyUp(self, key):
         if key in self.keyDownTimes:
             t = self.keyDownTimes.pop(key)
-            duration = round(time.time() - t, 2)
-            print(duration)
+            T = time.time()
+            duration = round(T - t, 2)
+            isKey = False
+            if hasattr(key, 'char'):
+                if key.char in ('.',','):
+                    isKey = True
+                    keyName = key.char
+            elif hasattr(key, 'name'):
+                if key.name == 'space':
+                    isKey = True
+                    keyName = key.name
+            if isKey:
+                self.updateDisplay(duration, keyName, False)
+            self.keyUpTime = T
 
+    def activateWordTerminatorThread(self):
+        while True:
+            time.sleep(0.01)
+            if self.states['isKeying'] == True:
+                t = self.keyUpTime
+                if t != -1:
+                    T = time.time()
+                    unit = self.getUnit()
+                    if T - t >= float(7*unit):
+                        self.keyDownTimes = {}
+                        self.keyUpTime = -1
+                        self.states['isKeying'] = False
+                        print('Terminated!')
+
+
+    def updateDisplay(self, duration, keyName, isGap):
+        self.states['isKeying'] = True
+        if self.states['paddleMode'] == 'A':
+            unit = self.getUnit()
+            print(duration)
+            print(isGap)
+    
+    def getUnit(self):
+        wpmSlider = self.tabObject['wpmSlider']
+        wpm = wpmSlider.getSliderValue()
+        unit = 60/(50*wpm)
+        return unit
 
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
