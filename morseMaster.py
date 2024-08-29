@@ -6,11 +6,12 @@ import numpy as np
 import tempfile
 import threading
 import wave, struct
-import keyboard
+import time
+from pynput import keyboard
 from scipy.io import wavfile
 from just_playback import Playback
 from pvrecorder import PvRecorder
-from time import sleep
+
 from tkinter import messagebox, Toplevel, Frame
 from tkinter.filedialog import askopenfilename, asksaveasfile, asksaveasfilename
 
@@ -18,6 +19,13 @@ app = MorseMaster()
 app.iconbitmap('iconAssets/morseMasterIcon.ico')
 app.title('MorseMaster')
 app.minsize(750,400)
+
+def killAll():
+    keyer.listener.stop()
+    keyer.keyboardThread = None
+    app.destroy()
+
+app.protocol('WM_DELETE_WINDOW', killAll)
 
 class TabEventsManager:
     def __init__(self, ref):
@@ -143,11 +151,11 @@ class TextTranslator(TabEventsManager):
                     light.configure(background = 'black')
                 
                 appLight.update()
-                sleep(0.5)
+                time.sleep(0.5)
                 lightOff()
                 appLight.update()
                 for i,c in enumerate(text):
-                    sleep(timeConvert[c])
+                    time.sleep(timeConvert[c])
                     if c in ('.','-'):
                         lightOn()
                         appLight.update()
@@ -155,7 +163,7 @@ class TextTranslator(TabEventsManager):
                         if i < len(text)-1:
                             lightOff()
                             appLight.update()
-                sleep(0.5)
+                time.sleep(0.5)
                 self.states['isDisplayingLight'] = False
                 appLight.destroy()
             else:
@@ -599,11 +607,11 @@ class SoundDecoder(TabEventsManager):
                     light.configure(background = 'black')
                 
                 appLight.update()
-                sleep(0.5)
+                time.sleep(0.5)
                 lightOff()
                 appLight.update()
                 for i,c in enumerate(text):
-                    sleep(timeConvert[c])
+                    time.sleep(timeConvert[c])
                     if c in ('.','-'):
                         lightOn()
                         appLight.update()
@@ -611,7 +619,7 @@ class SoundDecoder(TabEventsManager):
                         if i < len(text)-1:
                             lightOff()
                             appLight.update()
-                sleep(0.5)
+                time.sleep(0.5)
                 self.states['isDisplayingLight'] = False
                 appLight.destroy()
             else:
@@ -664,20 +672,34 @@ class Keyer(TabEventsManager):
         self.states = {
             'paddleMode':'A',
         }
+        self.keyDownTimes = {}
+        self.keyboardThread = threading.Thread(target = self.activateKeyboardListener)
+        self.keyboardThread.start()
 
-        self.tabObject['keyButton1'].setCommand(self.keyA)
+        self.tabObject['keyButton1'].setCommand(self.button1Down)
         app.tabBar.keyerTab.bind_all('<Button-1>', lambda event: event.widget.focus_set())
-        # app.tabBar.keyerTab.bind_all('<space>', self.keyA)
-        # app.tabBar.keyerTab.bind_all('.', self.keyA)
-        # app.tabBar.keyerTab.bind_all(',', self.keyA)
-        
-        
 
-    def keyA(self, *args):
+
+    def activateKeyboardListener(self):
+        with keyboard.Listener(on_press = self.keyDown, on_release = self.keyUp) as self.listener:
+            self.listener.join()
+
+    def button1Down(self, *args):
         if app.tabBar.tab(app.tabBar.select(), "text") == 'Keyer' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
             keyButton1 = self.tabObject['keyButton1']
             keyButton1.focus_set()
             print('beep!')
+            return False
+        
+    def keyDown(self, key):
+        if key not in self.keyDownTimes:
+            self.keyDownTimes[key] = time.time()
+    
+    def keyUp(self, key):
+        if key in self.keyDownTimes:
+            t = self.keyDownTimes.pop(key)
+            duration = round(time.time() - t, 2)
+            print(duration)
 
 
 
