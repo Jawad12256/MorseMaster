@@ -471,7 +471,7 @@ class TabBar(ttk.Notebook):
 
         outputTextLabel = TextLabelDynamic(self.keyerTab, Name = 'outputTextLabel', pady = (20,0))
         outputTextLabel.grid(row = 3, column = 0, sticky = 'nw')
-        outputTextLabel.setText('Output Morse Code Ciphertext:')
+        outputTextLabel.setText('Output English Plaintext:')
         outputTextLabel.tkraise()
 
         downloadTextLabel = TextLabelStatic(self.keyerTab, Name = 'downloadTextLabel', text = 'Download as a text file:')
@@ -580,6 +580,12 @@ class ButtonText(tk.Frame):
 
     def setCommand(self, newCommand, *args):
         self.button.configure(command = newCommand)
+
+    def disableButton(self):
+        self.button.configure(state = 'disabled')
+    
+    def enableButton(self):
+        self.button.configure(state = 'normal')
 
 
 class ButtonIcon(tk.Frame):

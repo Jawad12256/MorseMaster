@@ -74,6 +74,16 @@ def parseMorse(text): #points A4, A5
     phrase = phrase[:-1]
     return phrase
 
+def parseMorseKeying(text):
+    word = ''
+    chars = text.split(' ')
+    for c in chars:
+        if c in englishDict.keys():
+            word += englishDict[c]
+        else:
+            word += '[?]'
+    return word
+
 def parseEnglish(text): #point A2
     if text == False:
         return False

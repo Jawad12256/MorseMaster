@@ -686,6 +686,9 @@ class Keyer(TabEventsManager):
         self.tabObject['keyButton1'].setBinding('<Button-1>', self.button1Down)
         self.tabObject['keyButton1'].setBinding('<ButtonRelease-1>', self.button1Up)
         app.tabBar.keyerTab.bind_all('<Button-1>', lambda event: event.widget.focus_set())
+        self.tabObject['deleteButton'].setCommand(self.clearBoxes)
+        self.tabObject['copyButton'].setCommand(self.copyText)
+        self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
 
     def activateKeyboardListener(self):
         with keyboard.Listener(on_press = self.keyDown, on_release = self.keyUp) as self.listener:
@@ -747,23 +750,44 @@ class Keyer(TabEventsManager):
         while True:
             time.sleep(0.01)
             if self.states['isKeying'] == True:
+                self.tabObject['switchButton'].disableButton()
+                self.tabObject['frequencySlider'].disableSlider()
+                self.tabObject['wpmSlider'].disableSlider()
+                self.tabObject['frequencyTextEntry'].disableEntry()
+                self.tabObject['wpmTextEntry'].disableEntry()
                 t = self.keyUpTime
                 if t != -1:
                     T = time.time()
                     unit = self.getUnit()
-                    if T - t >= float(7*unit):
+                    if T - t >= float(8*unit):
                         self.keyDownTimes = {}
                         self.keyUpTime = -1
+                        self.tabObject['outputTextArea'].setText(self.tabObject['outputTextArea'].getText() + self.tabObject['englishCurrentLabel'].getText() + ' ')
+                        self.tabObject['englishCurrentLabel'].setText('')
+                        self.tabObject['morseCurrentLabel'].setText('')
+                        self.tabObject['switchButton'].enableButton()
+                        self.tabObject['frequencySlider'].enableSlider()
+                        self.tabObject['wpmSlider'].enableSlider()
+                        self.tabObject['frequencyTextEntry'].enableEntry()
+                        self.tabObject['wpmTextEntry'].enableEntry()
                         self.states['isKeying'] = False
-                        print('Terminated!')
 
 
     def updateDisplay(self, duration, keyName, isGap):
+        englishCurrentLabel, morseCurrentLabel = self.tabObject['englishCurrentLabel'], self.tabObject['morseCurrentLabel']
         self.states['isKeying'] = True
         if self.states['paddleMode'] == 'A':
             unit = self.getUnit()
-            print(duration)
-            print(isGap)
+            if isGap:
+                if duration > 2.5*unit:
+                    morseCurrentLabel.setText(morseCurrentLabel.getText() + ' ')
+            else:
+                if duration > 2*unit:
+                    newText = morseCurrentLabel.getText() + '-'
+                else:
+                    newText = morseCurrentLabel.getText() + '.'
+                morseCurrentLabel.setText(newText)
+                englishCurrentLabel.setText(textParser.parseMorseKeying(newText))
     
     def getUnit(self):
         wpmSlider = self.tabObject['wpmSlider']
@@ -771,6 +795,28 @@ class Keyer(TabEventsManager):
         unit = 60/(50*wpm)
         return unit
 
+    def copyText(self):
+        outputEntry = self.tabObject['outputTextArea']
+        pyperclip.copy(outputEntry.getText())
+
+    def clearBoxes(self):
+        outputEntry= self.tabObject['outputTextArea']
+        outputEntry.clearText()
+
+    def saveFileDialog(self):
+        filePath = asksaveasfile(defaultextension=".txt", title="Save As", filetypes=[("Text files", "*.txt")])
+        if filePath:
+            self.saveFileProcess(filePath)
+        elif filePath != None:
+            messagebox.showerror('Download Error', 'Invalid file path')
+
+    def saveFileProcess(self, filePath):
+        outputEntry = self.tabObject['outputTextArea']
+        if outputEntry.getText() != '' and outputEntry.getText() != ' ':
+            with open(filePath.name, 'w') as f:
+                f.write(outputEntry.getText())
+        else:
+            messagebox.showerror('Download Error', 'Cannot save empty text output')
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
 soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
