@@ -7,6 +7,9 @@ import tempfile
 import threading
 import wave, struct
 import time
+import os
+from pygame import mixer, sndarray
+os.system('cls' if os.name == 'nt' else "printf '\033c'")
 from pynput import keyboard
 from scipy.io import wavfile
 from just_playback import Playback
@@ -673,9 +676,16 @@ class Keyer(TabEventsManager):
         self.states = {
             'paddleMode':'A',
             'isKeying':False,
+            'doBeep':False,
+            'doStartBeep':False,
         }
         self.keyDownTimes = {}
         self.keyUpTime = -1
+        mixer.init()
+        self.beepSound = self.getBeepSound(600)
+        self.beepThread = threading.Thread(target = self.activateBeep)
+        self.beepThread.daemon = True
+        self.beepThread.start()
         self.keyboardThread = threading.Thread(target = self.activateKeyboardListener)
         self.keyboardThread.daemon = True
         self.keyboardThread.start()
@@ -686,13 +696,37 @@ class Keyer(TabEventsManager):
         self.tabObject['keyButton1'].setBinding('<Button-1>', self.button1Down)
         self.tabObject['keyButton1'].setBinding('<ButtonRelease-1>', self.button1Up)
         app.tabBar.keyerTab.bind_all('<Button-1>', lambda event: event.widget.focus_set())
+        self.tabObject['frequencySlider'].setCommand(self.matchTextEntries)
+        self.tabObject['wpmSlider'].setCommand(self.matchTextEntries)
+        f = self.tabObject['frequencyTextEntry']
+        w = self.tabObject['wpmTextEntry']
+        f.text.trace_add('write', self.matchSliders)
+        w.text.trace_add('write', self.matchSliders)
         self.tabObject['deleteButton'].setCommand(self.clearBoxes)
         self.tabObject['copyButton'].setCommand(self.copyText)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
 
+    def getBeepSound(self, frequency):
+        beepSoundData = np.sin(2 * np.pi * frequency * (np.linspace(0, 20, 882000)))
+        beepSoundData = beepSoundData / np.max(np.abs(beepSoundData))
+        beepSoundData = np.column_stack((beepSoundData, beepSoundData))
+        beepSound = sndarray.make_sound((beepSoundData * 32767).astype(np.int16))
+        return beepSound
+
     def activateKeyboardListener(self):
         with keyboard.Listener(on_press = self.keyDown, on_release = self.keyUp) as self.listener:
             self.listener.join()
+
+    def activateBeep(self):
+        while True:
+            time.sleep(0.01)
+            if self.states['doStartBeep'] == True:
+                self.states['doStartBeep'] = False
+                sound = mixer.Sound(self.beepSound)
+                sound.play()
+            if self.states['doBeep'] == False:
+                if mixer.get_busy():
+                    sound.stop()
 
     def button1Down(self, *args):
         T = time.time()
@@ -701,6 +735,7 @@ class Keyer(TabEventsManager):
             duration = round(T - t, 2)
             self.updateDisplay(duration, None, True)
         self.keyDownTimes['button1'] = T
+        self.states['doBeep'], self.states['doStartBeep'] = True, True
 
     def button1Up(self, *args):
         t = self.keyDownTimes.pop('button1')
@@ -708,24 +743,26 @@ class Keyer(TabEventsManager):
         duration = round(T - t, 2)
         self.keyUpTime = T
         self.updateDisplay(duration, 'button1', False)
+        self.states['doBeep'] = False
         
     def keyDown(self, key):
         if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Keyer' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
             T = time.time()
-            if self.keyUpTime != -1:
-                t = self.keyUpTime
-                duration = round(T - t, 2)
-                isKey = False
-                if hasattr(key, 'char'):
-                    if key.char in ('.',','):
-                        isKey = True
-                        keyName = key.char
-                elif hasattr(key, 'name'):
-                    if key.name == 'space':
-                        isKey = True
-                        keyName = key.name
-                if isKey:
+            isKey = False
+            if hasattr(key, 'char'):
+                if key.char in ('.',','):
+                    isKey = True
+                    keyName = key.char
+            elif hasattr(key, 'name'):
+                if key.name == 'space':
+                    isKey = True
+                    keyName = key.name
+            if isKey:
+                if self.keyUpTime != -1:
+                    t = self.keyUpTime
+                    duration = round(T - t, 2)
                     self.updateDisplay(duration, keyName, True)
+                self.states['doBeep'], self.states['doStartBeep'] = True, True
             self.keyDownTimes[key] = T
     
     def keyUp(self, key):
@@ -744,6 +781,7 @@ class Keyer(TabEventsManager):
                     keyName = key.name
             if isKey:
                 self.updateDisplay(duration, keyName, False)
+                self.states['doBeep'] = False
             self.keyUpTime = T
 
     def activateWordTerminatorThread(self):
@@ -755,11 +793,14 @@ class Keyer(TabEventsManager):
                 self.tabObject['wpmSlider'].disableSlider()
                 self.tabObject['frequencyTextEntry'].disableEntry()
                 self.tabObject['wpmTextEntry'].disableEntry()
-                t = self.keyUpTime
-                if t != -1:
+                ut = self.keyUpTime
+                dt = 0.0
+                if len(self.keyDownTimes.values()) > 0:
+                    dt = max(self.keyDownTimes.values())
+                if ut != -1:
                     T = time.time()
                     unit = self.getUnit()
-                    if T - t >= float(8*unit):
+                    if T - ut >= float(8*unit) and T - dt >= float(8*unit):
                         self.keyDownTimes = {}
                         self.keyUpTime = -1
                         self.tabObject['outputTextArea'].setText(self.tabObject['outputTextArea'].getText() + self.tabObject['englishCurrentLabel'].getText() + ' ')
@@ -771,7 +812,6 @@ class Keyer(TabEventsManager):
                         self.tabObject['frequencyTextEntry'].enableEntry()
                         self.tabObject['wpmTextEntry'].enableEntry()
                         self.states['isKeying'] = False
-
 
     def updateDisplay(self, duration, keyName, isGap):
         englishCurrentLabel, morseCurrentLabel = self.tabObject['englishCurrentLabel'], self.tabObject['morseCurrentLabel']
@@ -794,13 +834,38 @@ class Keyer(TabEventsManager):
         wpm = wpmSlider.getSliderValue()
         unit = 60/(50*wpm)
         return unit
+    
+    def matchSliders(self, *args):
+        frequencyEntry, wpmEntry = self.tabObject['frequencyTextEntry'], self.tabObject['wpmTextEntry']
+        frequency, wpm = frequencyEntry.getText(), wpmEntry.getText(),
+        sliders = [self.tabObject['frequencySlider'], self.tabObject['wpmSlider']]
+        try:
+            frequency = float(frequency)
+            sliders[0].setSliderValue(frequency)
+            if frequency >= 400 and frequency <= 1000:
+                self.beepSound = self.getBeepSound(int(frequency))
+        except ValueError:
+            pass
+        try:
+            wpm = float(wpm)
+            sliders[1].setSliderValue(wpm)
+        except ValueError:
+            pass
+
+    def matchTextEntries(self, *args):
+        sliders = [self.tabObject['frequencySlider'], self.tabObject['wpmSlider']]
+        frequency, wpm = str(sliders[0].getSliderValue()), str(sliders[1].getSliderValue())
+        frequencyEntry, wpmEntry = self.tabObject['frequencyTextEntry'], self.tabObject['wpmTextEntry']
+        frequencyEntry.setText(frequency)
+        self.beepSound = self.getBeepSound(int(frequency))
+        wpmEntry.setText(wpm)
 
     def copyText(self):
         outputEntry = self.tabObject['outputTextArea']
         pyperclip.copy(outputEntry.getText())
 
     def clearBoxes(self):
-        outputEntry= self.tabObject['outputTextArea']
+        outputEntry = self.tabObject['outputTextArea']
         outputEntry.clearText()
 
     def saveFileDialog(self):
