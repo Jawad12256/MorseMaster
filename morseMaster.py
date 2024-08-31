@@ -15,7 +15,7 @@ from scipy.io import wavfile
 from just_playback import Playback
 from pvrecorder import PvRecorder
 
-from tkinter import messagebox, Toplevel, Frame
+from tkinter import messagebox, Toplevel, Frame, Label
 from tkinter.filedialog import askopenfilename, asksaveasfile, asksaveasfilename
 
 app = MorseMaster()
@@ -711,6 +711,7 @@ class Keyer(TabEventsManager):
         self.tabObject['deleteButton'].setCommand(self.clearBoxes)
         self.tabObject['copyButton'].setCommand(self.copyText)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
+        self.tabObject['legendButton'].setCommand(self.showLegend)
 
     def getBeepSound(self, frequency):
         beepSoundData = np.sin(2 * np.pi * frequency * (np.linspace(0, 20, 882000)))
@@ -990,6 +991,36 @@ class Keyer(TabEventsManager):
                 f.write(outputEntry.getText())
         else:
             messagebox.showerror('Download Error', 'Cannot save empty text output')
+
+    def showLegend(self):
+        app.focus_set()
+        englishChars = list(textParser.morseDict.keys())
+        morseChars = list(textParser.morseDict.values())
+        column1 = [englishChars[i] + '   ' + morseChars[i] for i in range(0,19)]
+        column2 = [englishChars[i] + '   ' + morseChars[i] for i in range(19,38)]
+        column3 = [englishChars[i] + '   ' + morseChars[i] for i in range(38,len(englishChars))]
+        appLegend = Toplevel(app)
+        appLegend.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appLegend.title('Legend')
+        frame1, frame2, frame3 = Frame(appLegend), Frame(appLegend), Frame(appLegend)
+        frame1.grid(row = 0, column = 0, sticky = 'n', padx = (5,30))
+        frame2.grid(row = 0, column = 1, sticky = 'n', padx = 30)
+        frame3.grid(row = 0, column = 2, sticky = 'n', padx = (30,5))
+        frame1.tkraise()
+        frame2.tkraise()
+        frame3.tkraise()
+        for c in column1:
+            newLabel = Label(frame1, text = c, font = ('Verdana', 10), anchor = 'w')
+            newLabel.pack()
+            newLabel.tkraise()
+        for c in column2:
+            newLabel = Label(frame2, text = c, font = ('Verdana', 10), anchor = 'w')
+            newLabel.pack()
+            newLabel.tkraise()
+        for c in column3:
+            newLabel = Label(frame3, text = c, font = ('Verdana', 10), anchor = 'w')
+            newLabel.pack()
+            newLabel.tkraise()
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
 soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
