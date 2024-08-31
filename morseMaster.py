@@ -678,6 +678,9 @@ class Keyer(TabEventsManager):
             'isKeying':False,
             'doBeep':False,
             'doStartBeep':False,
+            'isBlockingBeep':False,
+            'doStartBeepType':False,
+            'isBlockingRelease':False,
         }
         self.keyDownTimes = {}
         self.keyUpTime = -1
@@ -695,7 +698,10 @@ class Keyer(TabEventsManager):
 
         self.tabObject['keyButton1'].setBinding('<Button-1>', self.button1Down)
         self.tabObject['keyButton1'].setBinding('<ButtonRelease-1>', self.button1Up)
+        self.tabObject['keyButton2'].setBinding('<Button-1>', self.button2Down)
+        self.tabObject['keyButton2'].setBinding('<ButtonRelease-1>', self.button2Up)
         app.tabBar.keyerTab.bind_all('<Button-1>', lambda event: event.widget.focus_set())
+        self.tabObject['switchButton'].setCommand(self.switch)
         self.tabObject['frequencySlider'].setCommand(self.matchTextEntries)
         self.tabObject['wpmSlider'].setCommand(self.matchTextEntries)
         f = self.tabObject['frequencyTextEntry']
@@ -720,69 +726,135 @@ class Keyer(TabEventsManager):
     def activateBeep(self):
         while True:
             time.sleep(0.01)
-            if self.states['doStartBeep'] == True:
-                self.states['doStartBeep'] = False
-                sound = mixer.Sound(self.beepSound)
-                sound.play()
-            if self.states['doBeep'] == False:
-                if mixer.get_busy():
-                    sound.stop()
+            if self.states['paddleMode'] == 'A':
+                if self.states['doStartBeep'] == True:
+                    self.states['doStartBeep'] = False
+                    sound = mixer.Sound(self.beepSound)
+                    sound.play()
+                if self.states['doBeep'] == False:
+                    if mixer.get_busy():
+                        sound.stop()
+            else:
+                if self.states['doStartBeepType'] != False:
+                    self.states['isBlockingBeep'] = True
+                    if self.states['doStartBeepType'] == '.':
+                        sound = mixer.Sound(self.beepSound)
+                        sound.play()
+                        time.sleep(self.getUnit())
+                        sound.stop()
+                    else:
+                        sound = mixer.Sound(self.beepSound)
+                        sound.play()
+                        time.sleep(self.getUnit()*2.5)
+                        sound.stop()
+                    self.states['isBlockingBeep'] = False
+                    self.states['doStartBeepType'] = False
 
     def button1Down(self, *args):
-        T = time.time()
-        if self.keyUpTime != -1:
-            t = self.keyUpTime
-            duration = round(T - t, 2)
-            self.updateDisplay(duration, None, True)
-        self.keyDownTimes['button1'] = T
-        self.states['doBeep'], self.states['doStartBeep'] = True, True
+        if self.states['isBlockingBeep'] == False:
+            T = time.time()
+            duration = 0
+            if self.keyUpTime != -1:
+                t = self.keyUpTime
+                duration = round(T - t, 2)
+            self.keyDownTimes['button1'] = T
+            if self.states['paddleMode'] == 'A':
+                self.updateDisplay(duration, None, True)
+                self.states['doBeep'], self.states['doStartBeep'] = True, True
+            else:
+                self.updateDisplay(duration, None, True)
+                self.states['doStartBeepType'] = '.'
+        else:
+            self.states['isBlockingRelease'] = True
 
     def button1Up(self, *args):
-        t = self.keyDownTimes.pop('button1')
-        T = time.time()
-        duration = round(T - t, 2)
-        self.keyUpTime = T
-        self.updateDisplay(duration, 'button1', False)
-        self.states['doBeep'] = False
-        
-    def keyDown(self, key):
-        if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Keyer' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
-            T = time.time()
-            isKey = False
-            if hasattr(key, 'char'):
-                if key.char in ('.',','):
-                    isKey = True
-                    keyName = key.char
-            elif hasattr(key, 'name'):
-                if key.name == 'space':
-                    isKey = True
-                    keyName = key.name
-            if isKey:
-                if self.keyUpTime != -1:
-                    t = self.keyUpTime
-                    duration = round(T - t, 2)
-                    self.updateDisplay(duration, keyName, True)
-                self.states['doBeep'], self.states['doStartBeep'] = True, True
-            self.keyDownTimes[key] = T
-    
-    def keyUp(self, key):
-        if key in self.keyDownTimes:
-            t = self.keyDownTimes.pop(key)
+        if self.states['isBlockingRelease'] == False:
+            t = self.keyDownTimes.pop('button1')
             T = time.time()
             duration = round(T - t, 2)
-            isKey = False
-            if hasattr(key, 'char'):
-                if key.char in ('.',','):
-                    isKey = True
-                    keyName = key.char
-            elif hasattr(key, 'name'):
-                if key.name == 'space':
-                    isKey = True
-                    keyName = key.name
-            if isKey:
-                self.updateDisplay(duration, keyName, False)
-                self.states['doBeep'] = False
             self.keyUpTime = T
+            self.updateDisplay(duration, 'button1', False)
+            if self.states['paddleMode'] == 'A':
+                self.states['doBeep'] = False
+        else:
+            self.states['isBlockingRelease'] = False
+
+    def button2Down(self, *args):
+        if self.states['isBlockingBeep'] == False:
+            T = time.time()
+            duration = 0
+            if self.keyUpTime != -1:
+                t = self.keyUpTime
+                duration = round(T - t, 2)
+            self.keyDownTimes['button2'] = T
+            self.updateDisplay(duration, None, True)
+            self.states['doStartBeepType'] = '-'
+        else:
+            self.states['isBlockingRelease'] = True
+
+    def button2Up(self, *args):
+        if self.states['isBlockingRelease'] == False:
+            t = self.keyDownTimes.pop('button2')
+            T = time.time()
+            duration = round(T - t, 2)
+            self.keyUpTime = T
+            self.updateDisplay(duration, 'button2', False)
+        else:
+            self.states['isBlockingRelease'] = False
+
+    def keyDown(self, key):
+        if self.states['isBlockingBeep'] == False:
+            if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Keyer' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
+                T = time.time()
+                isKey = False
+                if hasattr(key, 'char'):
+                    if key.char in ('.',','):
+                        isKey = True
+                        keyName = key.char
+                elif hasattr(key, 'name'):
+                    if key.name == 'space' and self.states['paddleMode'] == 'A':
+                        isKey = True
+                        keyName = key.name
+                if isKey:
+                    if self.keyUpTime != -1:
+                        t = self.keyUpTime
+                        duration = round(T - t, 2)
+                        self.updateDisplay(duration, keyName, True)
+                    if self.states['paddleMode'] == 'A':
+                        self.states['doBeep'], self.states['doStartBeep'] = True, True
+                    else:
+                        if keyName == '.':
+                            self.states['doStartBeepType'] = '-'
+                        else:
+                            self.states['doStartBeepType'] = '.'
+                self.keyDownTimes[key] = T
+        else:
+            self.states['isBlockingRelease'] = True
+    
+    def keyUp(self, key):
+        if self.states['isBlockingRelease'] == False:
+            if key in self.keyDownTimes:
+                t = self.keyDownTimes.pop(key)
+                T = time.time()
+                duration = round(T - t, 2)
+                isKey = False
+                if hasattr(key, 'char'):
+                    if key.char in ('.',','):
+                        isKey = True
+                        keyName = key.char
+                elif hasattr(key, 'name'):
+                    if key.name == 'space' and self.states['paddleMode'] == 'A':
+                        isKey = True
+                        keyName = key.name
+                if isKey:
+                    if self.states['paddleMode'] == 'A':
+                        self.updateDisplay(duration, keyName, False)
+                        self.states['doBeep'] = False
+                    else:
+                        self.updateDisplay(duration, keyName, False)
+                self.keyUpTime = T
+        else:
+            self.states['isBlockingRelease'] = False
 
     def activateWordTerminatorThread(self):
         while True:
@@ -812,6 +884,11 @@ class Keyer(TabEventsManager):
                         self.tabObject['frequencyTextEntry'].enableEntry()
                         self.tabObject['wpmTextEntry'].enableEntry()
                         self.states['isKeying'] = False
+                        self.states['doBeep'] = False
+                        self.states['doStartBeep'] = False
+                        self.states['isBlockingBeep'] = False
+                        self.states['doStartBeepType'] = False
+                        self.states['isBlockingRelease'] = False
 
     def updateDisplay(self, duration, keyName, isGap):
         englishCurrentLabel, morseCurrentLabel = self.tabObject['englishCurrentLabel'], self.tabObject['morseCurrentLabel']
@@ -828,12 +905,40 @@ class Keyer(TabEventsManager):
                     newText = morseCurrentLabel.getText() + '.'
                 morseCurrentLabel.setText(newText)
                 englishCurrentLabel.setText(textParser.parseMorseKeying(newText))
+        else:
+            unit = self.getUnit()
+            if isGap:
+                if duration > 2.5*unit:
+                    morseCurrentLabel.setText(morseCurrentLabel.getText() + ' ')
+            else:
+                if keyName in (',', 'button1'):
+                    newText = morseCurrentLabel.getText() + '.'
+                else:
+                    newText = morseCurrentLabel.getText() + '-'
+                morseCurrentLabel.setText(newText)
+                englishCurrentLabel.setText(textParser.parseMorseKeying(newText))
     
     def getUnit(self):
         wpmSlider = self.tabObject['wpmSlider']
         wpm = wpmSlider.getSliderValue()
         unit = 60/(50*wpm)
         return unit
+
+    def switch(self):
+        paddleModeLabel, keyButton2, keyTextLabel = self.tabObject['paddleModeLabel'], self.tabObject['keyButton2'], self.tabObject['keyTextLabel']
+        if self.states['paddleMode'] == 'A':
+            self.states['paddleMode'] = 'B'
+            paddleModeLabel.setText('Paddle Mode B')
+            paddleModeLabel.setColour('Green')
+            keyButton2.enableButton()
+            keyTextLabel.setText('Tap buttons or press comma / full stop')
+        else:
+            self.states['paddleMode'] = 'A'
+            paddleModeLabel.setText('Paddle Mode A')
+            paddleModeLabel.setColour('Dark Blue')
+            keyButton2.disableButton()
+            keyTextLabel.setText('Tap button or press spacebar / comma / full stop')
+        app.focus_set()
     
     def matchSliders(self, *args):
         frequencyEntry, wpmEntry = self.tabObject['frequencyTextEntry'], self.tabObject['wpmTextEntry']
@@ -863,12 +968,15 @@ class Keyer(TabEventsManager):
     def copyText(self):
         outputEntry = self.tabObject['outputTextArea']
         pyperclip.copy(outputEntry.getText())
+        app.focus_set()
 
     def clearBoxes(self):
         outputEntry = self.tabObject['outputTextArea']
         outputEntry.clearText()
+        app.focus_set()
 
     def saveFileDialog(self):
+        app.focus_set()
         filePath = asksaveasfile(defaultextension=".txt", title="Save As", filetypes=[("Text files", "*.txt")])
         if filePath:
             self.saveFileProcess(filePath)

@@ -420,7 +420,7 @@ class TabBar(ttk.Notebook):
         paddleModeLabel = TextLabelDynamic(translateFrame, Name = 'paddleModeLabel')
         paddleModeLabel.grid(row = 1, column = 0)
         paddleModeLabel.setText('Paddle Mode A')
-        paddleModeLabel.setColour('dark blue')
+        paddleModeLabel.setColour('Dark Blue')
         paddleModeLabel.tkraise()
 
         switchButton = ButtonText(translateFrame, Name = 'switchButton', text = 'Switch Mode', command = None)
@@ -512,7 +512,8 @@ class TabBar(ttk.Notebook):
         keyButton2.disableButton()
         keyButton2.tkraise()
 
-        keyTextLabel = TextLabelStatic(keyFrame, Name = 'keyTextLabel', text = 'Tap button or press spacebar / comma / full stop')
+        keyTextLabel = TextLabelDynamic(keyFrame, Name = 'keyTextLabel')
+        keyTextLabel.setText('Tap button or press spacebar / comma / full stop')
         keyTextLabel.grid(row = 0, column = 2)
         keyTextLabel.tkraise()
 
