@@ -890,6 +890,7 @@ class Keyer(TabEventsManager):
                         self.states['isBlockingBeep'] = False
                         self.states['doStartBeepType'] = False
                         self.states['isBlockingRelease'] = False
+                        mixer.stop()
 
     def updateDisplay(self, duration, keyName, isGap):
         englishCurrentLabel, morseCurrentLabel = self.tabObject['englishCurrentLabel'], self.tabObject['morseCurrentLabel']
