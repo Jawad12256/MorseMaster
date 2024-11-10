@@ -1023,9 +1023,14 @@ class Keyer(TabEventsManager):
             newLabel.pack()
             newLabel.tkraise()
 
+
+class ChallengeMode(TabEventsManager):
+    pass
+
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
 soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
 soundDecoder = SoundDecoder(app.tabBar.soundDecoderTab.winfo_children())
 keyer = Keyer(app.tabBar.keyerTab.winfo_children())
+challengeMode = ChallengeMode(app.tabBar.challengeModeTab.winfo_children())
 
 app.mainloop()

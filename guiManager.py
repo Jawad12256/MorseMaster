@@ -523,7 +523,122 @@ class TabBar(ttk.Notebook):
 
 
     def populateChallengeModeTab(self):
-        pass
+        translateFrame = tk.Frame(self.challengeModeTab)
+        translateFrame.grid(row = 0, column = 0)
+        translateFrame.tkraise()
+
+        challengeModeLabel = TextLabelStatic(translateFrame, Name = 'challengeModeLabel', text = 'Challenge Mode', anchor = 'w', pady = (15,10))
+        challengeModeLabel.grid(row = 0, column = 0, columnspan = 2, sticky = 'nw')
+        challengeModeLabel.tkraise()
+
+        paddleModeLabel = TextLabelDynamic(translateFrame, Name = 'paddleModeLabel')
+        paddleModeLabel.grid(row = 1, column = 0)
+        paddleModeLabel.setText('Paddle Mode A')
+        paddleModeLabel.setColour('Dark Blue')
+        paddleModeLabel.tkraise()
+
+        switchButton = ButtonText(translateFrame, Name = 'switchButton', text = 'Switch Mode', command = None)
+        switchButton.grid(row = 1, column = 1)
+        switchButton.tkraise()
+        
+        sliderFrame = tk.Frame(self.challengeModeTab)
+        sliderFrame.grid(row = 0, column = 1, columnspan = 2)
+        sliderFrame.tkraise()
+
+        frequencyTextLabel = TextLabelStatic(sliderFrame, Name = 'frequencyTextLabel', text = 'Frequency', anchor = 'e')
+        frequencyTextLabel.grid(row = 0, column = 0, sticky = 'sw')
+        frequencyTextLabel.tkraise()
+
+        frequencySlider = Slider(sliderFrame, Name = 'frequencySlider', minValue = 400, maxValue = 1000, width = 200)
+        frequencySlider.grid(row = 0, column = 1, sticky = 'n')
+        frequencySlider.setSliderValue(600)
+        frequencySlider.tkraise()
+
+        wpmTextLabel = TextLabelStatic(sliderFrame, Name = 'wpmTextLabel', text = 'WPM', anchor = 'e')
+        wpmTextLabel.grid(row = 1, column = 0, sticky = 'sw')
+        wpmTextLabel.tkraise()
+
+        wpmSlider = Slider(sliderFrame, Name = 'wpmSlider', minValue = 5, maxValue = 20, width = 200)
+        wpmSlider.grid(row = 1, column = 1, sticky = 'n')
+        wpmSlider.setSliderValue(10)
+        wpmSlider.tkraise()
+
+        frequencyTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
+        frequencyTextEntry.grid(row = 0, column = 2, sticky = 's')
+        frequencyTextEntry.setText('600')
+        frequencyTextEntry.tkraise()
+
+        wpmTextEntry = SmallTextEntry(sliderFrame, Name = 'wpmTextEntry')
+        wpmTextEntry.grid(row = 1, column = 2, sticky = 's')
+        wpmTextEntry.setText('10')
+        wpmTextEntry.tkraise()
+
+        settingsFrame = tk.Frame(self.challengeModeTab, padx = 15)
+        settingsFrame.grid(row = 1, column = 0, columnspan = 3)
+        settingsFrame.tkraise()
+
+        wordListButton = ButtonText(settingsFrame, Name = 'wordListButton', text = 'Word List Settings', padx = 5, pady = 10, command = None)
+        wordListButton.grid(row = 0, column = 0)
+        wordListButton.tkraise()
+
+        modeSettingsButton = ButtonText(settingsFrame, Name = 'modeSettingsButton', text = 'Challenge Mode Settings', padx = 5, pady = 10, command = None)
+        modeSettingsButton.grid(row = 0, column = 1)
+        modeSettingsButton.tkraise()
+
+        startButton = ButtonText(settingsFrame, Name = 'startButton', text = 'Start Challenge Mode', padx = 5, pady = 10, command = None)
+        startButton.grid(row = 0, column = 2)
+        startButton.tkraise()
+
+        endButton = ButtonText(settingsFrame, Name = 'endButton', text = 'End Challenge Mode', padx = 5, pady = 10, command = None)
+        endButton.grid(row = 0, column = 3)
+        endButton.tkraise()
+
+        englishCurrentLabel = TextLabelDynamic(self.challengeModeTab, Name ='englishCurrentLabel', fontSize = 30)
+        englishCurrentLabel.grid(row = 2, column = 0, columnspan = 3)
+        englishCurrentLabel.setText('')
+        englishCurrentLabel.tkraise()
+
+        morseCurrentLabel = TextLabelDynamic(self.challengeModeTab, Name ='morseCurrentLabel', fontSize = 30)
+        morseCurrentLabel.grid(row = 3, column = 0, columnspan = 3)
+        morseCurrentLabel.setText('')
+        morseCurrentLabel.tkraise()
+
+        timerLabel = TextLabelDynamic(self.challengeModeTab, Name ='timerLabel', fontSize = 30)
+        timerLabel.grid(row = 4, column = 0, columnspan = 3)
+        timerLabel.setText('')
+        timerLabel.tkraise()
+
+        counterLabel = TextLabelDynamic(self.challengeModeTab, Name ='counterLabel', fontSize = 30)
+        counterLabel.grid(row = 5, column = 1)
+        counterLabel.setText('')
+        counterLabel.tkraise()
+
+        statsButton = ButtonText(self.challengeModeTab, Name = 'statsButton', text = 'See Challenge Stats', command = None)
+        statsButton.grid(row = 5, column = 2)
+        statsButton.tkraise()
+
+        keyFrame = tk.Frame(self.challengeModeTab)
+        keyFrame.grid(row = 6, column = 0, columnspan = 2, sticky = 'w')
+        keyFrame.tkraise()
+
+        keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename = 'iconAssets/key.png', command = None, pady = (10,0), padx = (15,0))
+        keyButton1.grid(row = 0, column = 0, sticky = 'w')
+        keyButton1.tkraise()
+
+        keyButton2 = ButtonIcon(keyFrame, Name = 'keyButton2', filename = 'iconAssets/keyDash.png', command = None, pady = (10,0), padx = (15,0))
+        keyButton2.grid(row = 0, column = 1, sticky = 'w')
+        keyButton2.disableButton()
+        keyButton2.tkraise()
+
+        keyTextLabel = TextLabelDynamic(keyFrame, Name = 'keyTextLabel')
+        keyTextLabel.setText('Tap button or press spacebar / comma / full stop')
+        keyTextLabel.grid(row = 0, column = 2)
+        keyTextLabel.tkraise()
+
+        legendButton = ButtonText(self.challengeModeTab, Name = 'legendButton', text = 'Show Legend', command = None)
+        legendButton.grid(row = 6, column = 2, sticky = 'w')
+        legendButton.tkraise()
+
 
     def populateNetworkingTab(self):
         pass
@@ -765,4 +880,28 @@ class RadioButtons(tk.Frame):
     def getValue(self):
         return self.value.get()
 
-    
+class Checkbox(tk.Frame):
+    def __init__(self):
+        pass
+
+    def setValue(self):
+        pass
+
+    def getValue(self):
+        pass
+
+class Spinbox(tk.Frame):
+    def __init__(self):
+        pass
+
+    def setValue(self):
+        pass
+
+    def getValue(self):
+        pass
+
+    def disableSpinbox(self):
+        pass
+
+    def enableSpinbox(self):
+        pass
