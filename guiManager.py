@@ -527,17 +527,17 @@ class TabBar(ttk.Notebook):
         translateFrame.grid(row = 0, column = 0)
         translateFrame.tkraise()
 
-        challengeModeLabel = TextLabelStatic(translateFrame, Name = 'challengeModeLabel', text = 'Challenge Mode', anchor = 'w', pady = (15,10))
+        challengeModeLabel = TextLabelStatic(translateFrame, Name = 'challengeModeLabel', text = 'Challenge Mode', anchor = 'w', pady = (15,10), padx = (50,0))
         challengeModeLabel.grid(row = 0, column = 0, columnspan = 2, sticky = 'nw')
         challengeModeLabel.tkraise()
 
-        paddleModeLabel = TextLabelDynamic(translateFrame, Name = 'paddleModeLabel')
+        paddleModeLabel = TextLabelDynamic(translateFrame, Name = 'paddleModeLabel', padx = (0,20))
         paddleModeLabel.grid(row = 1, column = 0)
         paddleModeLabel.setText('Paddle Mode A')
         paddleModeLabel.setColour('Dark Blue')
         paddleModeLabel.tkraise()
 
-        switchButton = ButtonText(translateFrame, Name = 'switchButton', text = 'Switch Mode', command = None)
+        switchButton = ButtonText(translateFrame, Name = 'switchButton', text = 'Switch Mode', padx = (20,0), command = None)
         switchButton.grid(row = 1, column = 1)
         switchButton.tkraise()
         
@@ -603,12 +603,12 @@ class TabBar(ttk.Notebook):
         morseCurrentLabel.setText('')
         morseCurrentLabel.tkraise()
 
-        timerLabel = TextLabelDynamic(self.challengeModeTab, Name ='timerLabel', fontSize = 30)
+        timerLabel = TextLabelDynamic(self.challengeModeTab, Name ='timerLabel', fontSize = 18)
         timerLabel.grid(row = 4, column = 0, columnspan = 3)
         timerLabel.setText('')
         timerLabel.tkraise()
 
-        counterLabel = TextLabelDynamic(self.challengeModeTab, Name ='counterLabel', fontSize = 30)
+        counterLabel = TextLabelDynamic(self.challengeModeTab, Name ='counterLabel', fontSize = 18)
         counterLabel.grid(row = 5, column = 1)
         counterLabel.setText('')
         counterLabel.tkraise()
@@ -618,7 +618,7 @@ class TabBar(ttk.Notebook):
         statsButton.tkraise()
 
         keyFrame = tk.Frame(self.challengeModeTab)
-        keyFrame.grid(row = 6, column = 0, columnspan = 2, sticky = 'w')
+        keyFrame.grid(row = 6, column = 0, columnspan = 2, sticky = 'nw')
         keyFrame.tkraise()
 
         keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename = 'iconAssets/key.png', command = None, pady = (10,0), padx = (15,0))
