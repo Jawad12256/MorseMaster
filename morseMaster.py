@@ -1367,9 +1367,18 @@ class ChallengeMode(TabEventsManager):
             newLabel.tkraise()
 
     def wordListSettings(self):
+        app.focus_set()
         appWLS = Toplevel(app)
         appWLS.iconbitmap('iconAssets/morseMasterIcon.ico')
         appWLS.title('Word List Settings')
+        wordListTextPrompt = Label(appWLS, text = 'Enter Word List:', font = ('Verdana', 10), anchor = 'w')
+        WLSentry = TextEntry(appWLS) #add function support
+        WLSdropdown = Dropdown(appWLS)
+        cancelButton = ButtonText(appWLS)
+        okButton = ButtonText(appWLS)
+
+        wordListTextPrompt.grid(row = 0, column = 0, sticky = 'n')
+        wordListTextPrompt.tkraise()
         
 
 
