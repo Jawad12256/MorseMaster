@@ -251,12 +251,13 @@ class SoundGenerator(TabEventsManager):
         inputEntry.clearText()
 
     def switch(self, *args):
-        mainLabel, inputLabel = self.tabObject['translationDirectionLabel'], self.tabObject['inputTextLabel']
-        if self.states['soundGenerator_MorseToSound'] == False:
+        mainLabel, inputLabel, translationDropdown = self.tabObject['translationDirectionLabel'], self.tabObject['inputTextLabel'], self.tabObject['translationDropdown']
+        currentValue = translationDropdown.getDropdownValue()
+        if self.states['soundGenerator_MorseToSound'] == False and currentValue == 'Morse Code Ciphertext Input':
             mainLabel.setText('Morse Code Ciphertext --> Morse Code Sound File')
             inputLabel.setText('Input Morse Code Ciphertext')
             self.states['soundGenerator_MorseToSound'] = True
-        else:
+        elif self.states['soundGenerator_MorseToSound'] == True and currentValue == 'English Plaintext Input':
             mainLabel.setText('English Plaintext -----> Morse Code Sound File')
             inputLabel.setText('Input English Plaintext:')
             self.states['soundGenerator_MorseToSound'] = False
@@ -436,9 +437,10 @@ class SoundDecoder(TabEventsManager):
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
 
     def switch(self, *args):
-        mainLabel, outputLabel, outputEntry = self.tabObject['translationDirectionLabel'], self.tabObject['outputTextLabel'], self.tabObject['outputTextArea']
+        mainLabel, outputLabel, outputEntry, translationDropdown = self.tabObject['translationDirectionLabel'], self.tabObject['outputTextLabel'], self.tabObject['outputTextArea'], self.tabObject['translationDropdown']
         lightButton = self.tabObject['lightButton']
-        if self.states['soundDecoder_SoundToMorse'] == False:
+        currentValue = translationDropdown.getDropdownValue()
+        if self.states['soundDecoder_SoundToMorse'] == False and currentValue == 'Morse Code Ciphertext Output':
             mainLabel.setText('Morse Code Sound File --> Morse Code Ciphertext')
             outputLabel.setText('Output Morse Code Ciphertext')
             validatedText = textValidator.validateEnglish(outputEntry.getText())
@@ -446,7 +448,7 @@ class SoundDecoder(TabEventsManager):
                 outputEntry.setText(textParser.parseEnglish(validatedText))
             lightButton.enableButton()
             self.states['soundDecoder_SoundToMorse'] = True
-        else:
+        elif self.states['soundDecoder_SoundToMorse'] == True and currentValue == 'English Plaintext Output':
             mainLabel.setText('Morse Code Sound File -----> English Plaintext')
             outputLabel.setText('Output English Plaintext:')
             validatedText = textValidator.validateMorse(outputEntry.getText())
@@ -700,7 +702,12 @@ class Keyer(TabEventsManager):
         self.tabObject['keyButton1'].setBinding('<ButtonRelease-1>', self.button1Up)
         self.tabObject['keyButton2'].setBinding('<Button-1>', self.button2Down)
         self.tabObject['keyButton2'].setBinding('<ButtonRelease-1>', self.button2Up)
-        app.tabBar.keyerTab.bind_all('<Button-1>', lambda event: event.widget.focus_set())
+        def tryFocusSet(event):
+            try:
+                event.widget.focus_set()
+            except:
+                pass
+        app.tabBar.keyerTab.bind_all('<Button-1>', lambda event: tryFocusSet(event))
         self.tabObject['switchButton'].setCommand(self.switch)
         self.tabObject['frequencySlider'].setCommand(self.matchTextEntries)
         self.tabObject['wpmSlider'].setCommand(self.matchTextEntries)
@@ -1025,7 +1032,346 @@ class Keyer(TabEventsManager):
 
 
 class ChallengeMode(TabEventsManager):
-    pass
+    def __init__(self, ref):
+        TabEventsManager.__init__(self, ref)
+        self.states = {
+            'paddleMode':'A',
+            'isKeying':False,
+            'doBeep':False,
+            'doStartBeep':False,
+            'isBlockingBeep':False,
+            'doStartBeepType':False,
+            'isBlockingRelease':False,
+        }
+        self.keyDownTimes = {}
+        mixer.init()
+        self.keyUpTime = -1
+        self.beepSound = self.getBeepSound(600)
+        self.beepThread = threading.Thread(target = self.activateBeep)
+        self.beepThread.daemon = True
+        self.beepThread.start()
+        self.keyboardThread = threading.Thread(target = self.activateKeyboardListener)
+        self.keyboardThread.daemon = True
+        self.keyboardThread.start()
+        self.wordTerminatorThread = threading.Thread(target = self.activateWordTerminatorThread)
+        self.wordTerminatorThread.daemon = True
+        self.wordTerminatorThread.start()
+
+        self.tabObject['keyButton1'].setBinding('<Button-1>', self.button1Down)
+        self.tabObject['keyButton1'].setBinding('<ButtonRelease-1>', self.button1Up)
+        self.tabObject['keyButton2'].setBinding('<Button-1>', self.button2Down)
+        self.tabObject['keyButton2'].setBinding('<ButtonRelease-1>', self.button2Up)
+        def tryFocusSet(event):
+            try:
+                event.widget.focus_set()
+            except:
+                pass
+        app.tabBar.challengeModeTab.bind_all('<Button-1>', lambda event: tryFocusSet(event))
+        self.tabObject['switchButton'].setCommand(self.switch)
+        self.tabObject['wordListButton'].setCommand(self.wordListSettings)
+        self.tabObject['frequencySlider'].setCommand(self.matchTextEntries)
+        self.tabObject['wpmSlider'].setCommand(self.matchTextEntries)
+        f = self.tabObject['frequencyTextEntry']
+        w = self.tabObject['wpmTextEntry']
+        f.text.trace_add('write', self.matchSliders)
+        w.text.trace_add('write', self.matchSliders)
+        self.tabObject['legendButton'].setCommand(self.showLegend)
+
+    def getBeepSound(self, frequency):
+        beepSoundData = np.sin(2 * np.pi * frequency * (np.linspace(0, 20, 882000)))
+        beepSoundData = beepSoundData / np.max(np.abs(beepSoundData))
+        beepSoundData = np.column_stack((beepSoundData, beepSoundData))
+        beepSound = sndarray.make_sound((beepSoundData * 32767).astype(np.int16))
+        return beepSound
+
+    def activateKeyboardListener(self):
+        with keyboard.Listener(on_press = self.keyDown, on_release = self.keyUp) as self.listener:
+            self.listener.join()
+
+    def activateBeep(self):
+        while True:
+            time.sleep(0.01)
+            if self.states['paddleMode'] == 'A':
+                if self.states['doStartBeep'] == True:
+                    self.states['doStartBeep'] = False
+                    try:
+                        sound = mixer.Sound(self.beepSound)
+                        sound.play()
+                    except:
+                        pass
+                if self.states['doBeep'] == False:
+                    if mixer.get_busy():
+                        try:
+                            sound.stop()
+                        except:
+                            pass
+            else:
+                if self.states['doStartBeepType'] != False:
+                    self.states['isBlockingBeep'] = True
+                    if self.states['doStartBeepType'] == '.':
+                        sound = mixer.Sound(self.beepSound)
+                        sound.play()
+                        time.sleep(self.getUnit())
+                        sound.stop()
+                    else:
+                        sound = mixer.Sound(self.beepSound)
+                        sound.play()
+                        time.sleep(self.getUnit()*2.5)
+                        sound.stop()
+                    self.states['isBlockingBeep'] = False
+                    self.states['doStartBeepType'] = False
+
+    def button1Down(self, *args):
+        if self.states['isBlockingBeep'] == False:
+            T = time.time()
+            duration = 0
+            if self.keyUpTime != -1:
+                t = self.keyUpTime
+                duration = round(T - t, 2)
+            self.keyDownTimes['button1'] = T
+            if self.states['paddleMode'] == 'A':
+                self.updateDisplay(duration, None, True)
+                self.states['doBeep'], self.states['doStartBeep'] = True, True
+            else:
+                self.updateDisplay(duration, None, True)
+                self.states['doStartBeepType'] = '.'
+        else:
+            self.states['isBlockingRelease'] = True
+
+    def button1Up(self, *args):
+        if self.states['isBlockingRelease'] == False:
+            t = self.keyDownTimes.pop('button1')
+            T = time.time()
+            duration = round(T - t, 2)
+            self.keyUpTime = T
+            self.updateDisplay(duration, 'button1', False)
+            if self.states['paddleMode'] == 'A':
+                self.states['doBeep'] = False
+        else:
+            self.states['isBlockingRelease'] = False
+
+    def button2Down(self, *args):
+        if self.states['isBlockingBeep'] == False:
+            T = time.time()
+            duration = 0
+            if self.keyUpTime != -1:
+                t = self.keyUpTime
+                duration = round(T - t, 2)
+            self.keyDownTimes['button2'] = T
+            self.updateDisplay(duration, None, True)
+            self.states['doStartBeepType'] = '-'
+        else:
+            self.states['isBlockingRelease'] = True
+
+    def button2Up(self, *args):
+        if self.states['isBlockingRelease'] == False:
+            t = self.keyDownTimes.pop('button2')
+            T = time.time()
+            duration = round(T - t, 2)
+            self.keyUpTime = T
+            self.updateDisplay(duration, 'button2', False)
+        else:
+            self.states['isBlockingRelease'] = False
+
+    def keyDown(self, key):
+        if self.states['isBlockingBeep'] == False:
+            if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Challenge Mode' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
+                T = time.time()
+                isKey = False
+                if hasattr(key, 'char'):
+                    if key.char in ('.',','):
+                        isKey = True
+                        keyName = key.char
+                elif hasattr(key, 'name'):
+                    if key.name == 'space' and self.states['paddleMode'] == 'A':
+                        isKey = True
+                        keyName = key.name
+                if isKey:
+                    if self.keyUpTime != -1:
+                        t = self.keyUpTime
+                        duration = round(T - t, 2)
+                        self.updateDisplay(duration, keyName, True)
+                    if self.states['paddleMode'] == 'A':
+                        self.states['doBeep'], self.states['doStartBeep'] = True, True
+                    else:
+                        if keyName == '.':
+                            self.states['doStartBeepType'] = '-'
+                        else:
+                            self.states['doStartBeepType'] = '.'
+                self.keyDownTimes[key] = T
+        else:
+            self.states['isBlockingRelease'] = True
+    
+    def keyUp(self, key):
+        if self.states['isBlockingRelease'] == False:
+            if key in self.keyDownTimes:
+                t = self.keyDownTimes.pop(key)
+                T = time.time()
+                duration = round(T - t, 2)
+                isKey = False
+                if hasattr(key, 'char'):
+                    if key.char in ('.',','):
+                        isKey = True
+                        keyName = key.char
+                elif hasattr(key, 'name'):
+                    if key.name == 'space' and self.states['paddleMode'] == 'A':
+                        isKey = True
+                        keyName = key.name
+                if isKey:
+                    if self.states['paddleMode'] == 'A':
+                        self.updateDisplay(duration, keyName, False)
+                        self.states['doBeep'] = False
+                    else:
+                        self.updateDisplay(duration, keyName, False)
+                self.keyUpTime = T
+        else:
+            self.states['isBlockingRelease'] = False
+
+    def activateWordTerminatorThread(self):
+        while True:
+            time.sleep(0.01)
+            if self.states['isKeying'] == True:
+                self.tabObject['switchButton'].disableButton()
+                self.tabObject['frequencySlider'].disableSlider()
+                self.tabObject['wpmSlider'].disableSlider()
+                self.tabObject['frequencyTextEntry'].disableEntry()
+                self.tabObject['wpmTextEntry'].disableEntry()
+                ut = self.keyUpTime
+                dt = 0.0
+                if len(self.keyDownTimes.values()) > 0:
+                    dt = max(self.keyDownTimes.values())
+                if ut != -1:
+                    T = time.time()
+                    unit = self.getUnit()
+                    if T - ut >= float(8*unit) and T - dt >= float(8*unit):
+                        self.keyDownTimes = {}
+                        self.keyUpTime = -1
+                        self.tabObject['englishCurrentLabel'].setText('')
+                        self.tabObject['morseCurrentLabel'].setText('')
+                        self.tabObject['switchButton'].enableButton()
+                        self.tabObject['frequencySlider'].enableSlider()
+                        self.tabObject['wpmSlider'].enableSlider()
+                        self.tabObject['frequencyTextEntry'].enableEntry()
+                        self.tabObject['wpmTextEntry'].enableEntry()
+                        self.states['isKeying'] = False
+                        self.states['doBeep'] = False
+                        self.states['doStartBeep'] = False
+                        self.states['isBlockingBeep'] = False
+                        self.states['doStartBeepType'] = False
+                        self.states['isBlockingRelease'] = False
+                        mixer.stop()
+
+    def updateDisplay(self, duration, keyName, isGap):
+        englishCurrentLabel, morseCurrentLabel = self.tabObject['englishCurrentLabel'], self.tabObject['morseCurrentLabel']
+        self.states['isKeying'] = True
+        if self.states['paddleMode'] == 'A':
+            unit = self.getUnit()
+            if isGap:
+                if duration > 2.5*unit:
+                    morseCurrentLabel.setText(morseCurrentLabel.getText() + ' ')
+            else:
+                if duration > 2*unit:
+                    newText = morseCurrentLabel.getText() + '-'
+                else:
+                    newText = morseCurrentLabel.getText() + '.'
+                morseCurrentLabel.setText(newText)
+                englishCurrentLabel.setText(textParser.parseMorseKeying(newText))
+        else:
+            unit = self.getUnit()
+            if isGap:
+                if duration > 2.5*unit:
+                    morseCurrentLabel.setText(morseCurrentLabel.getText() + ' ')
+            else:
+                if keyName in (',', 'button1'):
+                    newText = morseCurrentLabel.getText() + '.'
+                else:
+                    newText = morseCurrentLabel.getText() + '-'
+                morseCurrentLabel.setText(newText)
+                englishCurrentLabel.setText(textParser.parseMorseKeying(newText))
+    
+    def getUnit(self):
+        wpmSlider = self.tabObject['wpmSlider']
+        wpm = wpmSlider.getSliderValue()
+        unit = 60/(50*wpm)
+        return unit
+
+    def switch(self):
+        paddleModeLabel, keyButton2, keyTextLabel = self.tabObject['paddleModeLabel'], self.tabObject['keyButton2'], self.tabObject['keyTextLabel']
+        if self.states['paddleMode'] == 'A':
+            self.states['paddleMode'] = 'B'
+            paddleModeLabel.setText('Paddle Mode B')
+            paddleModeLabel.setColour('Green')
+            keyButton2.enableButton()
+            keyTextLabel.setText('Tap buttons or press comma / full stop')
+        else:
+            self.states['paddleMode'] = 'A'
+            paddleModeLabel.setText('Paddle Mode A')
+            paddleModeLabel.setColour('Dark Blue')
+            keyButton2.disableButton()
+            keyTextLabel.setText('Tap button or press spacebar / comma / full stop')
+        app.focus_set()
+
+    def matchSliders(self, *args):
+        frequencyEntry, wpmEntry = self.tabObject['frequencyTextEntry'], self.tabObject['wpmTextEntry']
+        frequency, wpm = frequencyEntry.getText(), wpmEntry.getText(),
+        sliders = [self.tabObject['frequencySlider'], self.tabObject['wpmSlider']]
+        try:
+            frequency = float(frequency)
+            sliders[0].setSliderValue(frequency)
+            if frequency >= 400 and frequency <= 1000:
+                self.beepSound = self.getBeepSound(int(frequency))
+        except ValueError:
+            pass
+        try:
+            wpm = float(wpm)
+            sliders[1].setSliderValue(wpm)
+        except ValueError:
+            pass
+
+    def matchTextEntries(self, *args):
+        sliders = [self.tabObject['frequencySlider'], self.tabObject['wpmSlider']]
+        frequency, wpm = str(sliders[0].getSliderValue()), str(sliders[1].getSliderValue())
+        frequencyEntry, wpmEntry = self.tabObject['frequencyTextEntry'], self.tabObject['wpmTextEntry']
+        frequencyEntry.setText(frequency)
+        self.beepSound = self.getBeepSound(int(frequency))
+        wpmEntry.setText(wpm)
+
+    def showLegend(self):
+        app.focus_set()
+        englishChars = list(textParser.morseDict.keys())
+        morseChars = list(textParser.morseDict.values())
+        column1 = [englishChars[i] + '   ' + morseChars[i] for i in range(0,19)]
+        column2 = [englishChars[i] + '   ' + morseChars[i] for i in range(19,38)]
+        column3 = [englishChars[i] + '   ' + morseChars[i] for i in range(38,len(englishChars))]
+        appLegend = Toplevel(app)
+        appLegend.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appLegend.title('Legend')
+        frame1, frame2, frame3 = Frame(appLegend), Frame(appLegend), Frame(appLegend)
+        frame1.grid(row = 0, column = 0, sticky = 'n', padx = (5,30))
+        frame2.grid(row = 0, column = 1, sticky = 'n', padx = 30)
+        frame3.grid(row = 0, column = 2, sticky = 'n', padx = (30,5))
+        frame1.tkraise()
+        frame2.tkraise()
+        frame3.tkraise()
+        for c in column1:
+            newLabel = Label(frame1, text = c, font = ('Verdana', 10), anchor = 'w')
+            newLabel.pack()
+            newLabel.tkraise()
+        for c in column2:
+            newLabel = Label(frame2, text = c, font = ('Verdana', 10), anchor = 'w')
+            newLabel.pack()
+            newLabel.tkraise()
+        for c in column3:
+            newLabel = Label(frame3, text = c, font = ('Verdana', 10), anchor = 'w')
+            newLabel.pack()
+            newLabel.tkraise()
+
+    def wordListSettings(self):
+        appWLS = Toplevel(app)
+        appWLS.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appWLS.title('Word List Settings')
+        
+
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
 soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
