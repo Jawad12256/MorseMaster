@@ -1374,12 +1374,47 @@ class ChallengeMode(TabEventsManager):
         wordListTextPrompt = Label(appWLS, text = 'Enter Word List:', font = ('Verdana', 10), anchor = 'w')
         WLSentry = TextEntry(appWLS) #add function support
         WLSdropdown = Dropdown(appWLS)
-        cancelButton = ButtonText(appWLS)
+        cancelButton = ButtonText(appWLS, command = cancel)
         okButton = ButtonText(appWLS)
 
         wordListTextPrompt.grid(row = 0, column = 0, sticky = 'n')
+        cancelButton.grid(row = 4, column = 0)
         wordListTextPrompt.tkraise()
+        cancelButton.tkraise()
+
+
+        def ok():
+            pass
+
+        def cancel():
+            appWLS.destroy()
         
+
+class MenuBarManager:
+    def __init__(self, app):
+        app.menuBar.options.add_command(label = 'Word List Settings', command = self.wordListSettings)
+
+    def wordListSettings(self):
+        def ok():
+            pass
+
+        def cancel():
+            appWLS.destroy()
+        
+        app.focus_set()
+        appWLS = Toplevel(app)
+        appWLS.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appWLS.title('Word List Settings')
+        wordListTextPrompt = Label(appWLS, text = 'Enter Word List:', font = ('Verdana', 10), anchor = 'w')
+        WLSentry = TextEntry(appWLS) #add function support
+        WLSdropdown = Dropdown(appWLS)
+        cancelButton = ButtonText(appWLS, text = 'Cancel', command = cancel)
+        okButton = ButtonText(appWLS)
+
+        wordListTextPrompt.grid(row = 0, column = 0, sticky = 'n')
+        cancelButton.grid(row = 4, column = 0)
+        wordListTextPrompt.tkraise()
+        cancelButton.tkraise()
 
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
@@ -1387,5 +1422,6 @@ soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
 soundDecoder = SoundDecoder(app.tabBar.soundDecoderTab.winfo_children())
 keyer = Keyer(app.tabBar.keyerTab.winfo_children())
 challengeMode = ChallengeMode(app.tabBar.challengeModeTab.winfo_children())
+menuBarManager = MenuBarManager(app)
 
 app.mainloop()

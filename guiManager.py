@@ -23,17 +23,17 @@ class MenuBar:
     def __init__(self, app):
         self.menubar = tk.Menu(app)
 
-        file = tk.Menu(self.menubar, tearoff = 0)
-        self.menubar.add_cascade(label = 'File', menu = file)
-        file.add_command(label = 'Exit', command = app.destroy)
+        self.file = tk.Menu(self.menubar, tearoff = 0)
+        self.menubar.add_cascade(label = 'File', menu = self.file)
+        self.file.add_command(label = 'Exit', command = app.destroy)
 
-        options = tk.Menu(self.menubar, tearoff = 0)
-        self.menubar.add_cascade(label='Options', menu = options)
+        self.options = tk.Menu(self.menubar, tearoff = 0)
+        self.menubar.add_cascade(label='Options', menu = self.options)
 
-        help_ = tk.Menu(self.menubar, tearoff = 0)
-        self.menubar.add_cascade(label = 'Help', menu = help_)
-        help_.add_command(label = 'MorseMaster Help', command = None)
-        help_.add_command(label = 'About MorseMaster', command = None)
+        self.help_ = tk.Menu(self.menubar, tearoff = 0)
+        self.menubar.add_cascade(label = 'Help', menu = self.help_)
+        self.help_.add_command(label = 'MorseMaster Help', command = None)
+        self.help_.add_command(label = 'About MorseMaster', command = None)
 
 
 class TabBar(ttk.Notebook):
