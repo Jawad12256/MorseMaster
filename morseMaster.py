@@ -856,6 +856,7 @@ class Keyer(TabEventsManager):
                         keyName = key.name
                 if isKey:
                     if self.states['paddleMode'] == 'A':
+                        time.sleep(0.001)
                         self.updateDisplay(duration, keyName, False)
                         self.states['doBeep'] = False
                     else:
@@ -1042,8 +1043,13 @@ class ChallengeMode(TabEventsManager):
             'isBlockingBeep':False,
             'doStartBeepType':False,
             'isBlockingRelease':False,
+            'acceptFullWordOnly':False,
+            'randomiseWordOrder':False,
+            'limitWordCount':False,
+            'challengeModeStarted':False
         }
         self.keyDownTimes = {}
+        self.wordList = self.parseWordList('wordLists/wordList1.txt')
         mixer.init()
         self.keyUpTime = -1
         self.beepSound = self.getBeepSound(600)
@@ -1175,7 +1181,7 @@ class ChallengeMode(TabEventsManager):
 
     def keyDown(self, key):
         if self.states['isBlockingBeep'] == False:
-            if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Challenge Mode' and not(str(self.tabObject['outputTextArea']) in str(app.focus_get())):
+            if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Challenge Mode':
                 T = time.time()
                 isKey = False
                 if hasattr(key, 'char'):
@@ -1367,34 +1373,6 @@ class ChallengeMode(TabEventsManager):
             newLabel.tkraise()
 
     def wordListSettings(self):
-        app.focus_set()
-        appWLS = Toplevel(app)
-        appWLS.iconbitmap('iconAssets/morseMasterIcon.ico')
-        appWLS.title('Word List Settings')
-        wordListTextPrompt = Label(appWLS, text = 'Enter Word List:', font = ('Verdana', 10), anchor = 'w')
-        WLSentry = TextEntry(appWLS) #add function support
-        WLSdropdown = Dropdown(appWLS)
-        cancelButton = ButtonText(appWLS, command = cancel)
-        okButton = ButtonText(appWLS)
-
-        wordListTextPrompt.grid(row = 0, column = 0, sticky = 'n')
-        cancelButton.grid(row = 4, column = 0)
-        wordListTextPrompt.tkraise()
-        cancelButton.tkraise()
-
-
-        def ok():
-            pass
-
-        def cancel():
-            appWLS.destroy()
-        
-
-class MenuBarManager:
-    def __init__(self, app):
-        app.menuBar.options.add_command(label = 'Word List Settings', command = self.wordListSettings)
-
-    def wordListSettings(self):
         def ok():
             pass
 
@@ -1411,10 +1389,37 @@ class MenuBarManager:
         cancelButton = ButtonText(appWLS, text = 'Cancel', command = cancel)
         okButton = ButtonText(appWLS)
 
-        wordListTextPrompt.grid(row = 0, column = 0, sticky = 'n')
+        wordListTextPrompt.grid(row = 0, column = 0, columnspan = 2, sticky = 'n')
+        WLSentry.grid(row = 1, column = 0, columnspan = 2)
         cancelButton.grid(row = 4, column = 0)
         wordListTextPrompt.tkraise()
+        WLSentry.tkraise()
         cancelButton.tkraise()
+        
+    def parseWordList(self, filePath):
+        try:
+            f = open(filePath, 'r')
+            contents = f.read()
+            contents = contents.replace('\n',' ')
+            if contents.replace(' ','') == '':
+                messagebox.showerror('File Read Error', 'Error while reading the file')
+            else:
+                wordList = contents.split(' ')
+                return wordList
+        except:
+            messagebox.showerror('File Read Error', 'Error while reading the file')
+
+
+class MenuBarManager:
+    def __init__(self, app):
+        app.menuBar.options.add_command(label = 'Word List Settings', command = self.wordListSettings)
+        app.menuBar.help_.add_command(label = 'Show Legend', command = self.showLegend)
+
+    def wordListSettings(self):
+        challengeMode.wordListSettings()
+
+    def showLegend(self):
+        keyer.showLegend()
 
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
