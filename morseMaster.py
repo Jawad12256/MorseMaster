@@ -1049,7 +1049,8 @@ class ChallengeMode(TabEventsManager):
             'challengeModeStarted':False
         }
         self.keyDownTimes = {}
-        self.wordList = self.parseWordList('wordLists/wordList1.txt')
+        self.currentWordList = self.parseWordList('wordLists/wordList1.txt')
+        self.currentWordListType = 'Challenge List 1 - Easy'
         mixer.init()
         self.keyUpTime = -1
         self.beepSound = self.getBeepSound(600)
@@ -1374,29 +1375,98 @@ class ChallengeMode(TabEventsManager):
 
     def wordListSettings(self):
         def ok():
-            pass
+            #OK button to modify word list variable
+            if self.checkTextEntry(WLSentry.getText()):
+                self.currentWordList = [word for word in WLSentry.getText().replace('\n',' ').split(' ')]
+                self.currentWordListType = WLSdropdown.getDropdownValue()
+                appWLS.destroy()
+                print(self.currentWordList)
+            else:
+                messagebox.showerror('Word List Error', 'Invalid format for word list')
+        
+        def overwriteWithTemplate(*args):
+            #overwrite text entry contents with the template word lists when selected
+            dropdownValue = WLSdropdown.getDropdownValue()
+            if dropdownValue == 'Challenge List 1 - Easy':
+                text = '\n'.join(self.parseWordList('wordLists/wordList1.txt'))
+                WLSentry.setText(text)
+            elif dropdownValue == 'Challenge List 2 - Intermediate':
+                text = '\n'.join(self.parseWordList('wordLists/wordList2.txt'))
+                WLSentry.setText(text)
+            elif dropdownValue == 'Challenge List 3 - Hard':
+                text = '\n'.join(self.parseWordList('wordLists/wordList3.txt'))
+                WLSentry.setText(text)
 
         def cancel():
             appWLS.destroy()
+
+        def defaultToCustomWordList(*args):
+            WLSdropdown.setDropdownValue('Custom Word List')
+
+        def openFileProcess(filePath):
+            try:
+                with open(filePath, 'r') as f:
+                    WLSentry.setText(f.read())
+                    uploadTextPrompt.setColour('green')
+                    uploadTextPrompt.setText('File Uploaded')
+                    defaultToCustomWordList()
+                    appWLS.lift()
+            except:
+                messagebox.showerror('File Read Error', 'Error while trying to read the file contents')
+
+        def openFileDialog(*args):
+            filePath = askopenfilename(title="Select a File", filetypes=[("Text files", "*.txt")])
+            if filePath:
+                openFileProcess(filePath)
+            elif filePath != '':
+                messagebox.showerror('Upload Error', 'Invalid file path')
         
         app.focus_set()
         appWLS = Toplevel(app)
         appWLS.iconbitmap('iconAssets/morseMasterIcon.ico')
         appWLS.title('Word List Settings')
         wordListTextPrompt = Label(appWLS, text = 'Enter Word List:', font = ('Verdana', 10), anchor = 'w')
-        WLSentry = TextEntry(appWLS) #add function support
-        WLSdropdown = Dropdown(appWLS)
+        WLSentry = TextEntry(appWLS)
+        WLSentry.setCommand('<Button-1>', defaultToCustomWordList)
+        #this binding ensures that the dropdown automatically switches to 'Custom Word List' upon clicking the entry boxes
+        currentText = '\n'.join(self.currentWordList)
+        WLSentry.setText(currentText)
+        WLSdropdown = Dropdown(appWLS, valueTuple = ('Challenge List 1 - Easy', 'Challenge List 2 - Intermediate', 'Challenge List 3 - Hard', 'Custom Word List'))
+        WLSdropdown.setDropdownValue(self.currentWordListType)
+        WLSdropdown.setCommand('<<ComboboxSelected>>', overwriteWithTemplate)
+        #this binding ensures that the entry box is overwritten with the template word lists when they are selected
+        uploadButton = ButtonIcon(appWLS, filename = 'iconAssets/upload.png', command = openFileDialog)
+        uploadTextPrompt = TextLabelDynamic(appWLS, colour = 'red')
+        uploadTextPrompt.setText('No File Uploaded')
         cancelButton = ButtonText(appWLS, text = 'Cancel', command = cancel)
-        okButton = ButtonText(appWLS)
+        okButton = ButtonText(appWLS, text = 'OK', command = ok)
 
-        wordListTextPrompt.grid(row = 0, column = 0, columnspan = 2, sticky = 'n')
-        WLSentry.grid(row = 1, column = 0, columnspan = 2)
-        cancelButton.grid(row = 4, column = 0)
+        wordListTextPrompt.grid(row = 0, column = 0, columnspan = 2, sticky = 'nw', pady = (5,0), padx = 10)
+        WLSentry.grid(row = 1, column = 0, columnspan = 2, pady = (10,20))
+        WLSdropdown.grid(row = 2, column = 0, columnspan = 2, pady = (0,20))
+        uploadButton.grid(row = 3, column = 0, pady = (0,20))
+        uploadTextPrompt.grid(row = 3, column = 1, pady = (0, 20), padx = (20,0), sticky = 'w')
+        okButton.grid(row = 4, column = 1, padx = (0, 40), pady = (0, 10))
+        cancelButton.grid(row = 4, column = 0, pady = (0, 10))
         wordListTextPrompt.tkraise()
+        uploadTextPrompt.tkraise()
+        WLSdropdown.tkraise()
         WLSentry.tkraise()
+        okButton.tkraise()
         cancelButton.tkraise()
-        
+
+    def sanitiseWordList(self, wordList):
+        #sanitisation in case of invalid input for English plaintext
+        newWordList = []
+        for word in wordList:
+            newWord = textValidator.validateEnglish(word)
+            if newWord:
+                newWordList.append(newWord)
+        return newWordList
+
     def parseWordList(self, filePath):
+        #parse the word list from the text file and validate that it follows the proper data formatting
+        #show warning messagebox if validation fails
         try:
             f = open(filePath, 'r')
             contents = f.read()
@@ -1405,9 +1475,25 @@ class ChallengeMode(TabEventsManager):
                 messagebox.showerror('File Read Error', 'Error while reading the file')
             else:
                 wordList = contents.split(' ')
-                return wordList
+                wordList = self.sanitiseWordList(wordList)
+                if wordList == []:
+                    messagebox.showerror('File Read Error', 'Error while reading the file')
+                else:
+                    return wordList
         except:
             messagebox.showerror('File Read Error', 'Error while reading the file')
+    
+    def checkTextEntry(self, textEntry):
+        #checks if word list in the text entry box is not empty and contains only valid characters
+        textEntry = textEntry.replace('\n', ' ')
+        if textEntry.replace(' ','') == '':
+            return False
+        wordList = [word for word in textEntry.split(' ')]
+        for word in wordList:
+            if textValidator.validateEnglish(word) != word:
+                return False
+        return True
+
 
 
 class MenuBarManager:
