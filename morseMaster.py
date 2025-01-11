@@ -1398,12 +1398,15 @@ class ChallengeMode(TabEventsManager):
                 WLSentry.setText(text)
 
         def cancel():
+            #Cancel button to destroy window without saving any changes to the variables
             appWLS.destroy()
 
         def defaultToCustomWordList(*args):
+            #default to custom word list on initialisation
             WLSdropdown.setDropdownValue('Custom Word List')
 
         def openFileProcess(filePath):
+            #Reads in text from text file, and writes it straight to the text box
             try:
                 with open(filePath, 'r') as f:
                     WLSentry.setText(f.read())
@@ -1415,6 +1418,7 @@ class ChallengeMode(TabEventsManager):
                 messagebox.showerror('File Read Error', 'Error while trying to read the file contents')
 
         def openFileDialog(*args):
+            #checks file path is valid, then calls openFileProcess on that filepath
             filePath = askopenfilename(title="Select a File", filetypes=[("Text files", "*.txt")])
             if filePath:
                 openFileProcess(filePath)
