@@ -1556,6 +1556,35 @@ class ChallengeMode(TabEventsManager):
         noOfWordsSpinbox.tkraise()
         cancelButton.tkraise()
         okButton.tkraise()
+    
+    def startChallengeMode(self):
+        #initialise Challenge Mode
+        #enable keying options, start the timer, and begin asking words
+        pass
+
+    def displayNextWord(self):
+        #get the next word from the word list
+        #display this on the screen, updating GUI as appropriate
+        pass
+
+    def checkFullAnswer(self):
+        #trace back the user input to check if they keyed the correct word
+        #checks for full answer only
+        pass
+    
+    def checkPartialAnswer(self):
+        #trace back the user input to check if they keyed the correct word
+        #checks for partial answer
+        pass
+
+    def endChallengeMode(self):
+        #ends Challenge Mode and returns to default tab settings
+        pass
+    
+    def challengeModeStats(self):
+        #displays statistics (if available) on the previous challenge mode playthrough this session
+        #alsi keeps track of the best time
+        pass
 
 
 class MenuBarManager:
