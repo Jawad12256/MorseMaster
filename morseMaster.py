@@ -1046,11 +1046,12 @@ class ChallengeMode(TabEventsManager):
             'acceptFullWordOnly':False,
             'randomiseWordOrder':False,
             'limitWordCount':False,
-            'challengeModeStarted':False
+            'challengeModeStarted':False,
         }
         self.keyDownTimes = {}
         self.currentWordList = self.parseWordList('wordLists/wordList1.txt')
         self.currentWordListType = 'Challenge List 1 - Easy'
+        self.wordLimit = 10
         mixer.init()
         self.keyUpTime = -1
         self.beepSound = self.getBeepSound(600)
@@ -1076,6 +1077,7 @@ class ChallengeMode(TabEventsManager):
         app.tabBar.challengeModeTab.bind_all('<Button-1>', lambda event: tryFocusSet(event))
         self.tabObject['switchButton'].setCommand(self.switch)
         self.tabObject['wordListButton'].setCommand(self.wordListSettings)
+        self.tabObject['modeSettingsButton'].setCommand(self.challengeModeSettings)
         self.tabObject['frequencySlider'].setCommand(self.matchTextEntries)
         self.tabObject['wpmSlider'].setCommand(self.matchTextEntries)
         f = self.tabObject['frequencyTextEntry']
@@ -1380,7 +1382,6 @@ class ChallengeMode(TabEventsManager):
                 self.currentWordList = [word for word in WLSentry.getText().replace('\n',' ').split(' ')]
                 self.currentWordListType = WLSdropdown.getDropdownValue()
                 appWLS.destroy()
-                print(self.currentWordList)
             else:
                 messagebox.showerror('Word List Error', 'Invalid format for word list')
         
@@ -1498,15 +1499,69 @@ class ChallengeMode(TabEventsManager):
                 return False
         return True
 
+    def challengeModeSettings(self):
+        def ok():
+            #OK button to modify challenge mode states
+            acceptFullWordOnly = None
+            randomiseWordOrder = None
+            limitWordCount = None
+            limitWordCountValue = None
+            self.states['acceptFullWordOnly'] = acceptFullWordOnly
+            self.states['randomiseWordOrder'] = randomiseWordOrder
+            self.states['limitWordCount'] = limitWordCount
+            self.wordLimit = limitWordCountValue
+
+        def cancel():
+            #Cancel buutton to destroy subwindow without saving any changes to the variables
+            appCMS.destroy()
+
+        def matchSpinbox():
+            newState = limitWordCountCheckbox.getValue()
+            if newState == True:
+                noOfWordsSpinbox.enableSpinbox()
+            else:
+                noOfWordsSpinbox.disableSpinbox()
+        
+        app.focus_set()
+        appCMS = Toplevel(app)
+        appCMS.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appCMS.title('Word List Settings')
+        acceptFullWordOnlyCheckbox = Checkbox(appCMS, text = 'Accept full word only', initialState = True)
+        randomiseWordOrderCheckbox = Checkbox(appCMS, text = 'Randomise word order', initialState = False)
+        limitWordCountCheckbox = Checkbox(appCMS, text = 'Limit number of words', initialState = False, command = matchSpinbox)
+        noOfWordsTextPrompt = Label(appCMS, text = 'Number of words:', font = ('Verdana', 10), anchor = 'e')
+        noOfWordsSpinbox = Spinbox(appCMS, initialValue = 10)
+        cancelButton = ButtonText(appCMS, text = 'Cancel', command = cancel)
+        okButton = ButtonText(appCMS, text = 'OK', command = ok)
+
+        acceptFullWordOnlyCheckbox.grid(row = 0, column = 0, columnspan = 2, padx = (20,15), pady = (20,0))
+        randomiseWordOrderCheckbox.grid(row = 1, column = 0, columnspan = 2, padx = (20,15), pady = (5,0))
+        limitWordCountCheckbox.grid(row = 2, column = 0, columnspan = 2, padx = (20,15), pady = (5,0))
+        noOfWordsTextPrompt.grid(row = 3, column = 0, padx = (40,0), pady = (5,0))
+        noOfWordsSpinbox.grid(row = 3, column = 1, pady = (3,0), padx = (0,10))
+        cancelButton.grid(row = 4, column = 0, padx = (25,0), pady = (15,15), sticky = 'w')
+        okButton.grid(row = 4, column = 1, padx = (0,20), pady = (15,15), sticky = 'w')
+
+        acceptFullWordOnlyCheckbox.tkraise()
+        randomiseWordOrderCheckbox.tkraise()
+        limitWordCountCheckbox.tkraise()
+        noOfWordsTextPrompt.tkraise()
+        noOfWordsSpinbox.tkraise()
+        cancelButton.tkraise()
+        okButton.tkraise()
 
 
 class MenuBarManager:
     def __init__(self, app):
         app.menuBar.options.add_command(label = 'Word List Settings', command = self.wordListSettings)
+        app.menuBar.options.add_command(label = 'Challenge Mode Settings', command = self.challengeModeSettings)
         app.menuBar.help_.add_command(label = 'Show Legend', command = self.showLegend)
 
     def wordListSettings(self):
         challengeMode.wordListSettings()
+
+    def challengeModeSettings(self):
+        challengeMode.challengeModeSettings()
 
     def showLegend(self):
         keyer.showLegend()

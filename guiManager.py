@@ -881,27 +881,62 @@ class RadioButtons(tk.Frame):
         return self.value.get()
 
 class Checkbox(tk.Frame):
-    def __init__(self):
-        pass
+    #checkbox GUI element
+    def __init__(self, parent, Name = 'Checkbox', initialState = False, command = None, text = 'Checkbox', fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0):
+        self.Name = Name
+        self.text = text
+        self.command = command
+        self.boolVariable = tk.BooleanVar()
+        self.boolVariable.set(initialState)
+        self.fontSize = fontSize
+        self.fontType = fontType
+        self.anchor = anchor
+        self.pady = pady
+        self.padx = padx
+        tk.Frame.__init__(self, parent)
+        self.checkbox = tk.Checkbutton(self, text = self.text, command = self.command, variable = self.boolVariable, onvalue = 1, offvalue = 0, font = (self.fontType, self.fontSize))
+        self.checkbox.pack(pady = self.pady, padx = self.padx)
 
-    def setValue(self):
-        pass
+    def setValue(self, newValue):
+        #setter method for boolVariable
+        self.boolVariable.set(newValue)
 
     def getValue(self):
-        pass
+        #getter method for boolVariable
+        return self.boolVariable.get()
 
 class Spinbox(tk.Frame):
-    def __init__(self):
-        pass
+    def __init__(self, parent, Name = 'Spinbox', width = 3, initialValue = 0, minValue = 0, maxValue = 1000, fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0):
+        self.Name = Name
+        self.intVariable = tk.IntVar()
+        self.intVariable.set(initialValue)
+        self.width = width
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.fontSize = fontSize
+        self.fontType = fontType
+        self.anchor = anchor
+        self.pady = pady
+        self.padx = padx
+        tk.Frame.__init__(self, parent)
+        self.spinbox = tk.Spinbox(self, from_ = self.minValue, to = self.maxValue, width = self.width, font = (self.fontType, self.fontSize))
+        self.spinbox.pack(pady = self.pady, padx = self.padx)
+        self.disableSpinbox()
 
-    def setValue(self):
-        pass
+    def setValue(self, newValue):
+        #setter method for intVariable
+        self.intVariable.set(newValue)
 
     def getValue(self):
-        pass
+        #getter method for intVariable
+        return self.intVariable.get()
 
     def disableSpinbox(self):
-        pass
+        self.spinbox.configure(state = 'disabled')
+        self.spinbox.configure(bg = '#f4f4f4')
+        self.spinbox.configure(fg = 'grey')
 
     def enableSpinbox(self):
-        pass
+        self.spinbox.configure(state = 'normal')
+        self.spinbox.configure(bg = 'light grey')
+        self.spinbox.configure(fg = 'black')
