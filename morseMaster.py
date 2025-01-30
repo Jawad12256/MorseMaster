@@ -1502,14 +1502,15 @@ class ChallengeMode(TabEventsManager):
     def challengeModeSettings(self):
         def ok():
             #OK button to modify challenge mode states
-            acceptFullWordOnly = None
-            randomiseWordOrder = None
-            limitWordCount = None
-            limitWordCountValue = None
+            acceptFullWordOnly = acceptFullWordOnlyCheckbox.getValue()
+            randomiseWordOrder = randomiseWordOrderCheckbox.getValue()
+            limitWordCount = limitWordCountCheckbox.getValue()
+            limitWordCountValue = noOfWordsSpinbox.getValue()
             self.states['acceptFullWordOnly'] = acceptFullWordOnly
             self.states['randomiseWordOrder'] = randomiseWordOrder
             self.states['limitWordCount'] = limitWordCount
             self.wordLimit = limitWordCountValue
+            appCMS.destroy()
 
         def cancel():
             #Cancel buutton to destroy subwindow without saving any changes to the variables
@@ -1530,7 +1531,13 @@ class ChallengeMode(TabEventsManager):
         randomiseWordOrderCheckbox = Checkbox(appCMS, text = 'Randomise word order', initialState = False)
         limitWordCountCheckbox = Checkbox(appCMS, text = 'Limit number of words', initialState = False, command = matchSpinbox)
         noOfWordsTextPrompt = Label(appCMS, text = 'Number of words:', font = ('Verdana', 10), anchor = 'e')
-        noOfWordsSpinbox = Spinbox(appCMS, initialValue = 10)
+        noOfWordsSpinbox = Spinbox(appCMS)
+        acceptFullWordOnlyCheckbox.setValue(self.states['acceptFullWordOnly'])
+        randomiseWordOrderCheckbox.setValue(self.states['randomiseWordOrder'])
+        limitWordCountCheckbox.setValue(self.states['limitWordCount'])
+        noOfWordsSpinbox.setValue(self.wordLimit)
+        if not self.states['limitWordCount']:
+            noOfWordsSpinbox.disableSpinbox()
         cancelButton = ButtonText(appCMS, text = 'Cancel', command = cancel)
         okButton = ButtonText(appCMS, text = 'OK', command = ok)
 

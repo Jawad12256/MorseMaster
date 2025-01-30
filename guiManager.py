@@ -906,10 +906,8 @@ class Checkbox(tk.Frame):
         return self.boolVariable.get()
 
 class Spinbox(tk.Frame):
-    def __init__(self, parent, Name = 'Spinbox', width = 3, initialValue = 0, minValue = 0, maxValue = 1000, fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0):
+    def __init__(self, parent, Name = 'Spinbox', width = 3, minValue = 0, maxValue = 1000, fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0):
         self.Name = Name
-        self.intVariable = tk.IntVar()
-        self.intVariable.set(initialValue)
         self.width = width
         self.minValue = minValue
         self.maxValue = maxValue
@@ -921,15 +919,15 @@ class Spinbox(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.spinbox = tk.Spinbox(self, from_ = self.minValue, to = self.maxValue, width = self.width, font = (self.fontType, self.fontSize))
         self.spinbox.pack(pady = self.pady, padx = self.padx)
-        self.disableSpinbox()
 
     def setValue(self, newValue):
-        #setter method for intVariable
-        self.intVariable.set(newValue)
+        #setter method for spinbox
+        self.spinbox.delete('0', 'end')
+        self.spinbox.insert(0, newValue)
 
     def getValue(self):
-        #getter method for intVariable
-        return self.intVariable.get()
+        #getter method for spinbox
+        return self.spinbox.get()
 
     def disableSpinbox(self):
         self.spinbox.configure(state = 'disabled')
