@@ -1047,11 +1047,15 @@ class ChallengeMode(TabEventsManager):
             'randomiseWordOrder':False,
             'limitWordCount':False,
             'challengeModeStarted':False,
+            'doStartTimer':False,
         }
         self.keyDownTimes = {}
         self.currentWordList = self.parseWordList('wordLists/wordList1.txt')
         self.currentWordListType = 'Challenge List 1 - Easy'
         self.wordLimit = 10
+        self.timerTime = 0.0
+        self.startTime = 0.0
+        self.lastResultTime = 0.0
         mixer.init()
         self.keyUpTime = -1
         self.beepSound = self.getBeepSound(600)
@@ -1064,6 +1068,9 @@ class ChallengeMode(TabEventsManager):
         self.wordTerminatorThread = threading.Thread(target = self.activateWordTerminatorThread)
         self.wordTerminatorThread.daemon = True
         self.wordTerminatorThread.start()
+        self.timerThread = threading.Thread(target = self.activateTimer)
+        self.timerThread.daemon = True
+        self.timerThread.start()
 
         self.tabObject['keyButton1'].setBinding('<Button-1>', self.button1Down)
         self.tabObject['keyButton1'].setBinding('<ButtonRelease-1>', self.button1Up)
@@ -1084,6 +1091,8 @@ class ChallengeMode(TabEventsManager):
         w = self.tabObject['wpmTextEntry']
         f.text.trace_add('write', self.matchSliders)
         w.text.trace_add('write', self.matchSliders)
+        self.tabObject['startButton'].setCommand(self.startChallengeMode)
+        self.tabObject['endButton'].setCommand(self.endChallengeMode)
         self.tabObject['legendButton'].setCommand(self.showLegend)
 
     def getBeepSound(self, frequency):
@@ -1131,110 +1140,116 @@ class ChallengeMode(TabEventsManager):
                     self.states['doStartBeepType'] = False
 
     def button1Down(self, *args):
-        if self.states['isBlockingBeep'] == False:
-            T = time.time()
-            duration = 0
-            if self.keyUpTime != -1:
-                t = self.keyUpTime
-                duration = round(T - t, 2)
-            self.keyDownTimes['button1'] = T
-            if self.states['paddleMode'] == 'A':
-                self.updateDisplay(duration, None, True)
-                self.states['doBeep'], self.states['doStartBeep'] = True, True
+        if self.states['challengeModeStarted'] == True:
+            if self.states['isBlockingBeep'] == False:
+                T = time.time()
+                duration = 0
+                if self.keyUpTime != -1:
+                    t = self.keyUpTime
+                    duration = round(T - t, 2)
+                self.keyDownTimes['button1'] = T
+                if self.states['paddleMode'] == 'A':
+                    self.updateDisplay(duration, None, True)
+                    self.states['doBeep'], self.states['doStartBeep'] = True, True
+                else:
+                    self.updateDisplay(duration, None, True)
+                    self.states['doStartBeepType'] = '.'
             else:
-                self.updateDisplay(duration, None, True)
-                self.states['doStartBeepType'] = '.'
-        else:
-            self.states['isBlockingRelease'] = True
+                self.states['isBlockingRelease'] = True
 
     def button1Up(self, *args):
-        if self.states['isBlockingRelease'] == False:
-            t = self.keyDownTimes.pop('button1')
-            T = time.time()
-            duration = round(T - t, 2)
-            self.keyUpTime = T
-            self.updateDisplay(duration, 'button1', False)
-            if self.states['paddleMode'] == 'A':
-                self.states['doBeep'] = False
-        else:
-            self.states['isBlockingRelease'] = False
+        if self.states['challengeModeStarted'] == True:
+            if self.states['isBlockingRelease'] == False:
+                t = self.keyDownTimes.pop('button1')
+                T = time.time()
+                duration = round(T - t, 2)
+                self.keyUpTime = T
+                self.updateDisplay(duration, 'button1', False)
+                if self.states['paddleMode'] == 'A':
+                    self.states['doBeep'] = False
+            else:
+                self.states['isBlockingRelease'] = False
 
     def button2Down(self, *args):
-        if self.states['isBlockingBeep'] == False:
-            T = time.time()
-            duration = 0
-            if self.keyUpTime != -1:
-                t = self.keyUpTime
-                duration = round(T - t, 2)
-            self.keyDownTimes['button2'] = T
-            self.updateDisplay(duration, None, True)
-            self.states['doStartBeepType'] = '-'
-        else:
-            self.states['isBlockingRelease'] = True
+        if self.states['challengeModeStarted'] == True:
+            if self.states['isBlockingBeep'] == False:
+                T = time.time()
+                duration = 0
+                if self.keyUpTime != -1:
+                    t = self.keyUpTime
+                    duration = round(T - t, 2)
+                self.keyDownTimes['button2'] = T
+                self.updateDisplay(duration, None, True)
+                self.states['doStartBeepType'] = '-'
+            else:
+                self.states['isBlockingRelease'] = True
 
     def button2Up(self, *args):
-        if self.states['isBlockingRelease'] == False:
-            t = self.keyDownTimes.pop('button2')
-            T = time.time()
-            duration = round(T - t, 2)
-            self.keyUpTime = T
-            self.updateDisplay(duration, 'button2', False)
-        else:
-            self.states['isBlockingRelease'] = False
-
-    def keyDown(self, key):
-        if self.states['isBlockingBeep'] == False:
-            if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Challenge Mode':
-                T = time.time()
-                isKey = False
-                if hasattr(key, 'char'):
-                    if key.char in ('.',','):
-                        isKey = True
-                        keyName = key.char
-                elif hasattr(key, 'name'):
-                    if key.name == 'space' and self.states['paddleMode'] == 'A':
-                        isKey = True
-                        keyName = key.name
-                if isKey:
-                    if self.keyUpTime != -1:
-                        t = self.keyUpTime
-                        duration = round(T - t, 2)
-                        self.updateDisplay(duration, keyName, True)
-                    if self.states['paddleMode'] == 'A':
-                        self.states['doBeep'], self.states['doStartBeep'] = True, True
-                    else:
-                        if keyName == '.':
-                            self.states['doStartBeepType'] = '-'
-                        else:
-                            self.states['doStartBeepType'] = '.'
-                self.keyDownTimes[key] = T
-        else:
-            self.states['isBlockingRelease'] = True
-    
-    def keyUp(self, key):
-        if self.states['isBlockingRelease'] == False:
-            if key in self.keyDownTimes:
-                t = self.keyDownTimes.pop(key)
+        if self.states['challengeModeStarted'] == True:
+            if self.states['isBlockingRelease'] == False:
+                t = self.keyDownTimes.pop('button2')
                 T = time.time()
                 duration = round(T - t, 2)
-                isKey = False
-                if hasattr(key, 'char'):
-                    if key.char in ('.',','):
-                        isKey = True
-                        keyName = key.char
-                elif hasattr(key, 'name'):
-                    if key.name == 'space' and self.states['paddleMode'] == 'A':
-                        isKey = True
-                        keyName = key.name
-                if isKey:
-                    if self.states['paddleMode'] == 'A':
-                        self.updateDisplay(duration, keyName, False)
-                        self.states['doBeep'] = False
-                    else:
-                        self.updateDisplay(duration, keyName, False)
                 self.keyUpTime = T
-        else:
-            self.states['isBlockingRelease'] = False
+                self.updateDisplay(duration, 'button2', False)
+            else:
+                self.states['isBlockingRelease'] = False
+
+    def keyDown(self, key):
+        if self.states['challengeModeStarted'] == True:
+            if self.states['isBlockingBeep'] == False:
+                if key not in self.keyDownTimes and app.tabBar.tab(app.tabBar.select(), "text") == 'Challenge Mode':
+                    T = time.time()
+                    isKey = False
+                    if hasattr(key, 'char'):
+                        if key.char in ('.',','):
+                            isKey = True
+                            keyName = key.char
+                    elif hasattr(key, 'name'):
+                        if key.name == 'space' and self.states['paddleMode'] == 'A':
+                            isKey = True
+                            keyName = key.name
+                    if isKey:
+                        if self.keyUpTime != -1:
+                            t = self.keyUpTime
+                            duration = round(T - t, 2)
+                            self.updateDisplay(duration, keyName, True)
+                        if self.states['paddleMode'] == 'A':
+                            self.states['doBeep'], self.states['doStartBeep'] = True, True
+                        else:
+                            if keyName == '.':
+                                self.states['doStartBeepType'] = '-'
+                            else:
+                                self.states['doStartBeepType'] = '.'
+                    self.keyDownTimes[key] = T
+            else:
+                self.states['isBlockingRelease'] = True
+    
+    def keyUp(self, key):
+        if self.states['challengeModeStarted'] == True:
+            if self.states['isBlockingRelease'] == False:
+                if key in self.keyDownTimes:
+                    t = self.keyDownTimes.pop(key)
+                    T = time.time()
+                    duration = round(T - t, 2)
+                    isKey = False
+                    if hasattr(key, 'char'):
+                        if key.char in ('.',','):
+                            isKey = True
+                            keyName = key.char
+                    elif hasattr(key, 'name'):
+                        if key.name == 'space' and self.states['paddleMode'] == 'A':
+                            isKey = True
+                            keyName = key.name
+                    if isKey:
+                        if self.states['paddleMode'] == 'A':
+                            self.updateDisplay(duration, keyName, False)
+                            self.states['doBeep'] = False
+                        else:
+                            self.updateDisplay(duration, keyName, False)
+                    self.keyUpTime = T
+            else:
+                self.states['isBlockingRelease'] = False
 
     def activateWordTerminatorThread(self):
         while True:
@@ -1560,7 +1575,32 @@ class ChallengeMode(TabEventsManager):
     def startChallengeMode(self):
         #initialise Challenge Mode
         #enable keying options, start the timer, and begin asking words
-        pass
+        self.states['challengeModeStarted'] = True
+        self.toggleTimer()
+        self.states['doStartTimer'] = True
+
+    def toggleTimer(self):
+        #toggles timer to reset and start, or stop
+        #depends on the challenge mode started state
+        timer = self.tabObject['timerLabel']
+        if self.states['challengeModeStarted'] == True:
+            self.startTime = time.time()
+            timer.setText('0.0')
+            self.states['doStartTimer'] = True
+        else:
+            self.states['doStartTimer'] = False
+            self.lastResultTime = float(timer.getText())
+
+    def activateTimer(self):
+        #manages timer thread to ensure the correct time is displayed
+        timer = self.tabObject['timerLabel']
+        while True:
+            time.sleep(0.005)
+            if self.states['challengeModeStarted'] == True and self.states['doStartTimer'] == True:
+                newTime = time.time()
+                timeDifference = round(newTime - self.startTime, 2)
+                timer.setText(str(timeDifference))
+
 
     def displayNextWord(self):
         #get the next word from the word list
@@ -1579,7 +1619,8 @@ class ChallengeMode(TabEventsManager):
 
     def endChallengeMode(self):
         #ends Challenge Mode and returns to default tab settings
-        pass
+        self.states['challengeModeStarted'] = False
+        self.states['doStartTimer'] = False
     
     def challengeModeStats(self):
         #displays statistics (if available) on the previous challenge mode playthrough this session
