@@ -1093,6 +1093,7 @@ class ChallengeMode(TabEventsManager):
         w.text.trace_add('write', self.matchSliders)
         self.tabObject['startButton'].setCommand(self.startChallengeMode)
         self.tabObject['endButton'].setCommand(self.endChallengeMode)
+        self.tabObject['endButton'].disableButton()
         self.tabObject['legendButton'].setCommand(self.showLegend)
 
     def getBeepSound(self, frequency):
@@ -1575,6 +1576,9 @@ class ChallengeMode(TabEventsManager):
     def startChallengeMode(self):
         #initialise Challenge Mode
         #enable keying options, start the timer, and begin asking words
+        app.focus_set()
+        self.tabObject['startButton'].disableButton()
+        self.tabObject['endButton'].enableButton()
         self.states['challengeModeStarted'] = True
         self.toggleTimer()
         self.states['doStartTimer'] = True
@@ -1619,6 +1623,8 @@ class ChallengeMode(TabEventsManager):
 
     def endChallengeMode(self):
         #ends Challenge Mode and returns to default tab settings
+        self.tabObject['startButton'].enableButton()
+        self.tabObject['endButton'].disableButton()
         self.states['challengeModeStarted'] = False
         self.states['doStartTimer'] = False
     
