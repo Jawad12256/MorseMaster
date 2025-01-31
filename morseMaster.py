@@ -8,6 +8,7 @@ import threading
 import wave, struct
 import time
 import os
+import random
 from pygame import mixer, sndarray
 os.system('cls' if os.name == 'nt' else "printf '\033c'")
 from pynput import keyboard
@@ -1051,11 +1052,15 @@ class ChallengeMode(TabEventsManager):
         }
         self.keyDownTimes = {}
         self.currentWordList = self.parseWordList('wordLists/wordList1.txt')
+        self.finalWordList = []
+        self.wordListPointer = 0
+        self.currentWord = ''
         self.currentWordListType = 'Challenge List 1 - Easy'
         self.wordLimit = 10
         self.timerTime = 0.0
         self.startTime = 0.0
         self.lastResultTime = 0.0
+        self.bestTime = None
         mixer.init()
         self.keyUpTime = -1
         self.beepSound = self.getBeepSound(600)
@@ -1271,7 +1276,7 @@ class ChallengeMode(TabEventsManager):
                     if T - ut >= float(8*unit) and T - dt >= float(8*unit):
                         self.keyDownTimes = {}
                         self.keyUpTime = -1
-                        self.tabObject['englishCurrentLabel'].setText('')
+                        morseText = self.tabObject['morseCurrentLabel'].getText()
                         self.tabObject['morseCurrentLabel'].setText('')
                         self.tabObject['switchButton'].enableButton()
                         self.tabObject['frequencySlider'].enableSlider()
@@ -1285,9 +1290,10 @@ class ChallengeMode(TabEventsManager):
                         self.states['doStartBeepType'] = False
                         self.states['isBlockingRelease'] = False
                         mixer.stop()
+                        self.checkAnswer(morseText)
 
     def updateDisplay(self, duration, keyName, isGap):
-        englishCurrentLabel, morseCurrentLabel = self.tabObject['englishCurrentLabel'], self.tabObject['morseCurrentLabel']
+        morseCurrentLabel =  self.tabObject['morseCurrentLabel']
         self.states['isKeying'] = True
         if self.states['paddleMode'] == 'A':
             unit = self.getUnit()
@@ -1300,7 +1306,6 @@ class ChallengeMode(TabEventsManager):
                 else:
                     newText = morseCurrentLabel.getText() + '.'
                 morseCurrentLabel.setText(newText)
-                englishCurrentLabel.setText(textParser.parseMorseKeying(newText))
         else:
             unit = self.getUnit()
             if isGap:
@@ -1312,7 +1317,6 @@ class ChallengeMode(TabEventsManager):
                 else:
                     newText = morseCurrentLabel.getText() + '-'
                 morseCurrentLabel.setText(newText)
-                englishCurrentLabel.setText(textParser.parseMorseKeying(newText))
     
     def getUnit(self):
         wpmSlider = self.tabObject['wpmSlider']
@@ -1525,7 +1529,7 @@ class ChallengeMode(TabEventsManager):
             self.states['acceptFullWordOnly'] = acceptFullWordOnly
             self.states['randomiseWordOrder'] = randomiseWordOrder
             self.states['limitWordCount'] = limitWordCount
-            self.wordLimit = limitWordCountValue
+            self.wordLimit = int(limitWordCountValue)
             appCMS.destroy()
 
         def cancel():
@@ -1580,8 +1584,10 @@ class ChallengeMode(TabEventsManager):
         self.tabObject['startButton'].disableButton()
         self.tabObject['endButton'].enableButton()
         self.states['challengeModeStarted'] = True
+        self.initialiseWordList()
         self.toggleTimer()
         self.states['doStartTimer'] = True
+        self.displayNextWord()
 
     def toggleTimer(self):
         #toggles timer to reset and start, or stop
@@ -1605,32 +1611,44 @@ class ChallengeMode(TabEventsManager):
                 timeDifference = round(newTime - self.startTime, 2)
                 timer.setText(str(timeDifference))
 
+    def initialiseWordList(self):
+        #pulls word list from word list settings
+        #applies relevant settings to the list
+        #including randomisation and word limit
+        allWords = self.currentWordList
+        if self.states['randomiseWordOrder'] == True:
+            random.shuffle(allWords)
+        if self.states['limitWordCount'] == True and len(allWords) > self.wordLimit:
+            allWords = allWords[:self.wordLimit]
+        self.finalWordList = allWords
+        self.wordListPointer = 0
+
 
     def displayNextWord(self):
         #get the next word from the word list
         #display this on the screen, updating GUI as appropriate
-        pass
+        nextWord = self.finalWordList[self.wordListPointer]
+        self.currentWord = nextWord
+        self.tabObject['englishCurrentLabel'].setText(nextWord)
+        self.tabObject['counterLabel'].setText(f"{self.wordListPointer+1}/{len(self.finalWordList)}")
 
-    def checkFullAnswer(self):
+    def checkAnswer(self, answer):
         #trace back the user input to check if they keyed the correct word
-        #checks for full answer only
-        pass
-    
-    def checkPartialAnswer(self):
-        #trace back the user input to check if they keyed the correct word
-        #checks for partial answer
-        pass
+        #depends on acceptFullWordOnly
+        englishAnswer = textParser.parseMorse(answer)
 
     def endChallengeMode(self):
         #ends Challenge Mode and returns to default tab settings
         self.tabObject['startButton'].enableButton()
         self.tabObject['endButton'].disableButton()
+        self.tabObject['englishCurrentLabel'].setText('')
+        self.tabObject['morseCurrentLabel'].setText('')
         self.states['challengeModeStarted'] = False
         self.states['doStartTimer'] = False
     
     def challengeModeStats(self):
         #displays statistics (if available) on the previous challenge mode playthrough this session
-        #alsi keeps track of the best time
+        #also keeps track of the best time
         pass
 
 

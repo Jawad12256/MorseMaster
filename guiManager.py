@@ -608,8 +608,8 @@ class TabBar(ttk.Notebook):
         timerLabel.setText('')
         timerLabel.tkraise()
 
-        counterLabel = TextLabelDynamic(self.challengeModeTab, Name ='counterLabel', fontSize = 18)
-        counterLabel.grid(row = 5, column = 1)
+        counterLabel = TextLabelDynamic(self.challengeModeTab, Name ='counterLabel', fontSize = 16)
+        counterLabel.grid(row = 5, column = 1, sticky = 'w')
         counterLabel.setText('')
         counterLabel.tkraise()
 
@@ -662,6 +662,9 @@ class TextLabelDynamic(tk.Frame):
 
     def setColour(self, newColour):
         self.label.configure(fg = newColour)
+
+    def setHighlight(self, newColour):
+        self.label.configure(bg = newColour)
 
     def getText(self):
         return self.textvariable.get()
