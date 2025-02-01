@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from tkinter.ttk import Combobox
 from tkinter import ttk
+from time import sleep
 
 class MorseMaster(tk.Tk):
     def __init__(self):
@@ -593,7 +594,7 @@ class TabBar(ttk.Notebook):
         endButton.grid(row = 0, column = 3)
         endButton.tkraise()
 
-        englishCurrentLabel = TextLabelDynamic(self.challengeModeTab, Name ='englishCurrentLabel', fontSize = 30)
+        englishCurrentLabel = TextLabelHighlightable(self.challengeModeTab, Name ='englishCurrentLabel', fontSize = 30, highlight = '#65fe08')
         englishCurrentLabel.grid(row = 2, column = 0, columnspan = 3)
         englishCurrentLabel.setText('')
         englishCurrentLabel.tkraise()
@@ -669,6 +670,58 @@ class TextLabelDynamic(tk.Frame):
     def getText(self):
         return self.textvariable.get()
 
+class TextLabelHighlightable(tk.Frame):
+    def __init__(self, parent, Name = 'TextLabelHighlightable', fontSize = 10, fontType = 'Verdana', colour = 'black', highlight = '#65fe08', anchor = 'w', pady = 5):
+        self.Name = Name
+        self.fontSize = fontSize
+        self.fontType = fontType
+        self.highlightedTextVariable = tk.StringVar()
+        self.remainingTextVariable = tk.StringVar()
+        self.anchor = anchor
+        self.colour = colour
+        self.highlight = highlight
+        self.pady = pady
+        tk.Frame.__init__(self, parent)
+        self.highlightedText = TextLabelDynamic(self, Name = 'highlightedText', pady = self.pady, padx = 0, fontSize = 30)
+        self.remainingText = TextLabelDynamic(self, Name = 'remainingText', pady = self.pady, padx = 0, fontSize = 30)
+        self.highlightedText.pack(side = 'left')
+        self.remainingText.pack(side = 'right')
+
+    def setText(self, newText):
+        self.highlightedText.setText('')
+        self.highlightedText.setHighlight('#f0f0ed')
+        self.remainingText.setText(newText)
+
+    def shiftText(self, numPlaces):
+        remaining = self.remainingText.getText()
+        if numPlaces <= len(remaining):
+            textToShift = remaining[:numPlaces]
+            textToRemain = remaining[numPlaces:]
+            self.highlightedText.setText(self.highlightedText.getText() + textToShift)
+            self.highlightedText.setHighlight(self.highlight)
+            self.remainingText.setText(textToRemain)
+    
+    def getRemainingText(self):
+        return self.remainingText.getText()
+    
+    def isFullyHighlighted(self):
+        if self.getRemainingText() == '':
+            return True
+        return False
+    
+    def flash(self, flashColour):
+        self.highlightedText.setHighlight(flashColour)
+        self.remainingText.setHighlight(flashColour)
+        sleep(0.75)
+        self.highlightedText.setHighlight('#f0f0ed')
+        self.remainingText.setHighlight('#f0f0ed')
+
+    def flashRemaining(self, flashColour):
+        self.remainingText.setHighlight(flashColour)
+        sleep(0.75)
+        self.remainingText.setHighlight('#f0f0ed')
+
+        
 
 class TextLabelStatic(tk.Frame):
     def __init__(self, parent, Name = 'TextLabelStatic', text = 'MorseMaster', fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 5, padx = 10):

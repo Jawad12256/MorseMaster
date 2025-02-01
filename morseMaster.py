@@ -1585,6 +1585,9 @@ class ChallengeMode(TabEventsManager):
         #initialise Challenge Mode
         #enable keying options, start the timer, and begin asking words
         app.focus_set()
+        self.tabObject['wordListButton'].disableButton()
+        self.tabObject['modeSettingsButton'].disableButton()
+        self.tabObject['statsButton'].disableButton()
         self.tabObject['startButton'].disableButton()
         self.tabObject['endButton'].enableButton()
         self.states['challengeModeStarted'] = True
@@ -1643,17 +1646,37 @@ class ChallengeMode(TabEventsManager):
         englishAnswer = textParser.parseMorseKeying(answer)
         if self.states['acceptFullWordOnly'] == True:
             if englishAnswer == self.currentWord:
-                englishCurrentLabel.setHighlight('#65fe08')
+                englishCurrentLabel.flash('#65fe08')
+                self.wordListPointer += 1
+                if self.wordListPointer == len(self.finalWordList):
+                    self.endChallengeMode()
+                else:
+                    self.displayNextWord()
+            else:
+                englishCurrentLabel.flash('#ff474c')
         else:
             answerLength = len(englishAnswer)
-            if answerLength <= len(self.currentWord) and englishAnswer == self.currentWord[:answerLength]:
-                pass
+            remaining = englishCurrentLabel.getRemainingText()
+            if answerLength <= len(remaining) and englishAnswer == remaining[:answerLength]:
+                englishCurrentLabel.shiftText(answerLength)
+            else:
+                englishCurrentLabel.flashRemaining('#ff474c')
+            if englishCurrentLabel.isFullyHighlighted():
+                time.sleep(0.75)
+                self.wordListPointer += 1
+                if self.wordListPointer == len(self.finalWordList):
+                    self.endChallengeMode()
+                else:
+                    self.displayNextWord()
 
 
     def endChallengeMode(self):
         #ends Challenge Mode and returns to default tab settings
         self.tabObject['startButton'].enableButton()
         self.tabObject['endButton'].disableButton()
+        self.tabObject['wordListButton'].enableButton()
+        self.tabObject['modeSettingsButton'].enableButton()
+        self.tabObject['statsButton'].enableButton()
         self.tabObject['englishCurrentLabel'].setText('')
         self.tabObject['morseCurrentLabel'].setText('')
         self.states['challengeModeStarted'] = False
