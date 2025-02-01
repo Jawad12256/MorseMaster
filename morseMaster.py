@@ -1639,7 +1639,16 @@ class ChallengeMode(TabEventsManager):
     def checkAnswer(self, answer):
         #trace back the user input to check if they keyed the correct word
         #depends on acceptFullWordOnly
+        englishCurrentLabel = self.tabObject['englishCurrentLabel']
         englishAnswer = textParser.parseMorseKeying(answer)
+        if self.states['acceptFullWordOnly'] == True:
+            if englishAnswer == self.currentWord:
+                englishCurrentLabel.setHighlight('#65fe08')
+        else:
+            answerLength = len(englishAnswer)
+            if answerLength <= len(self.currentWord) and englishAnswer == self.currentWord[:answerLength]:
+                pass
+
 
     def endChallengeMode(self):
         #ends Challenge Mode and returns to default tab settings
