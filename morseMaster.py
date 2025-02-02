@@ -738,11 +738,17 @@ class Keyer(TabEventsManager):
             if self.states['paddleMode'] == 'A':
                 if self.states['doStartBeep'] == True:
                     self.states['doStartBeep'] = False
-                    sound = mixer.Sound(self.beepSound)
-                    sound.play()
+                    try:
+                        sound = mixer.Sound(self.beepSound)
+                        sound.play()
+                    except:
+                        pass
                 if self.states['doBeep'] == False:
                     if mixer.get_busy():
-                        sound.stop()
+                        try:
+                            sound.stop()
+                        except:
+                            pass
             else:
                 if self.states['doStartBeepType'] != False:
                     self.states['isBlockingBeep'] = True
@@ -1051,10 +1057,12 @@ class ChallengeMode(TabEventsManager):
             'limitWordCount':False,
             'challengeModeStarted':False,
             'doStartTimer':False,
+            'hasPlayed':False,
         }
         self.keyDownTimes = {}
         self.currentWordList = self.parseWordList('wordLists/wordList1.txt')
         self.finalWordList = []
+        self.incorrectWordList = []
         self.wordListPointer = 0
         self.currentWord = ''
         self.currentWordListType = 'Challenge List 1 - Easy'
@@ -1062,6 +1070,7 @@ class ChallengeMode(TabEventsManager):
         self.timerTime = 0.0
         self.startTime = 0.0
         self.lastResultTime = 0.0
+        self.lastResultScore = ''
         self.bestTime = None
         mixer.init()
         self.keyUpTime = -1
@@ -1101,6 +1110,7 @@ class ChallengeMode(TabEventsManager):
         self.tabObject['startButton'].setCommand(self.startChallengeMode)
         self.tabObject['endButton'].setCommand(self.endChallengeMode)
         self.tabObject['endButton'].disableButton()
+        self.tabObject['statsButton'].setCommand(self.challengeModeStats)
         self.tabObject['legendButton'].setCommand(self.showLegend)
 
     def getBeepSound(self, frequency):
@@ -1599,7 +1609,7 @@ class ChallengeMode(TabEventsManager):
     def toggleTimer(self):
         #toggles timer to reset and start, or stop
         #depends on the challenge mode started state
-        timer = self.tabObject['timerLabel']
+        timer, counter = self.tabObject['timerLabel'], self.tabObject['counterLabel']
         if self.states['challengeModeStarted'] == True:
             self.startTime = time.time()
             timer.setText('0.0')
@@ -1607,6 +1617,7 @@ class ChallengeMode(TabEventsManager):
         else:
             self.states['doStartTimer'] = False
             self.lastResultTime = float(timer.getText())
+            self.lastResultScore = counter.getText()
 
     def activateTimer(self):
         #manages timer thread to ensure the correct time is displayed
@@ -1628,8 +1639,8 @@ class ChallengeMode(TabEventsManager):
         if self.states['limitWordCount'] == True and len(allWords) > self.wordLimit:
             allWords = allWords[:self.wordLimit]
         self.finalWordList = allWords
+        self.incorrectWordList = []
         self.wordListPointer = 0
-
 
     def displayNextWord(self):
         #get the next word from the word list
@@ -1653,6 +1664,8 @@ class ChallengeMode(TabEventsManager):
                 else:
                     self.displayNextWord()
             else:
+                if self.currentWord not in self.incorrectWordList:
+                    self.incorrectWordList.append(self.currentWord)
                 englishCurrentLabel.flash('#ff474c')
         else:
             answerLength = len(englishAnswer)
@@ -1660,6 +1673,8 @@ class ChallengeMode(TabEventsManager):
             if answerLength <= len(remaining) and englishAnswer == remaining[:answerLength]:
                 englishCurrentLabel.shiftText(answerLength)
             else:
+                if self.currentWord not in self.incorrectWordList:
+                    self.incorrectWordList.append(self.currentWord)
                 englishCurrentLabel.flashRemaining('#ff474c')
             if englishCurrentLabel.isFullyHighlighted():
                 time.sleep(0.75)
@@ -1681,11 +1696,71 @@ class ChallengeMode(TabEventsManager):
         self.tabObject['morseCurrentLabel'].setText('')
         self.states['challengeModeStarted'] = False
         self.states['doStartTimer'] = False
+        self.lastResultTime = float(self.tabObject['timerLabel'].getText())
+        self.lastResultScore = self.tabObject['counterLabel'].getText()
+        self.states['hasPlayed'] = True
+        self.challengeModeStats()
     
     def challengeModeStats(self):
         #displays statistics (if available) on the previous challenge mode playthrough this session
         #also keeps track of the best time
-        pass
+        def saveFileDialog():
+            filePath = asksaveasfile(defaultextension=".txt", title="Save As", filetypes=[("Text files", "*.txt")])
+            if filePath:
+                saveFileProcess(filePath)
+            elif filePath != None:
+                messagebox.showerror('Download Error', 'Invalid file path')
+
+        def saveFileProcess(filePath):
+            if missedWordsEntry.getText() != '' and missedWordsEntry.getText() != ' ':
+                with open(filePath.name, 'w') as f:
+                    f.write(missedWordsEntry.getText())
+            else:
+                messagebox.showerror('Download Error', 'Cannot save empty text output')
+
+        if self.states['hasPlayed'] == True:
+            app.focus_set()
+            appStats = Toplevel(app)
+            appStats.iconbitmap('iconAssets/morseMasterIcon.ico')
+            appStats.title('Challenge Mode Stats')
+            minutes = str(int(self.lastResultTime // 60.0))
+            if len(minutes) < 2:
+                minutes = '0' + minutes
+            seconds = str(int((self.lastResultTime % 60.0) // 1.0))
+            if len(seconds) < 2:
+                seconds = '0' + seconds
+            milliseconds = str(int(((self.lastResultTime % 60.0) % 1.0)*100))
+            if len(milliseconds) < 2:
+                milliseconds = '0' + milliseconds
+            score = float(self.lastResultScore.split('/')[0])
+            lastRecordedTime = TextLabelStatic(appStats, text = f"Last Recorded Time: {minutes}:{seconds}:{milliseconds}")
+            lastRecordedScore = TextLabelStatic(appStats, text = f"Last Recored Score: {self.lastResultScore}")
+            averageTimePerWord = TextLabelStatic(appStats, text = f"Average Time Per Word: {round(self.lastResultTime / score, 2)}")
+            missedWordsLabel = TextLabelStatic(appStats, text = 'Missed Words:')
+            missedWordsEntry = TextEntry(appStats)
+            missedWordsEntry.setText('\n'.join(self.incorrectWordList))
+            downloadFrame = tk.Frame(appStats)
+            downloadLabel = TextLabelStatic(downloadFrame, text = 'Download list as a text file: ')
+            downloadButton = ButtonIcon(downloadFrame, filename = 'iconAssets/download.png', command = saveFileDialog)
+
+            lastRecordedTime.grid(row = 0, column = 0, pady = 5, padx = 5, sticky = 'w')
+            lastRecordedScore.grid(row = 1, column = 0, pady = 5, padx = 5, sticky = 'w')
+            averageTimePerWord.grid(row = 2, column = 0, pady = 5, padx = 5, sticky = 'w')
+            missedWordsLabel.grid(row = 3, column = 0, pady = (20,5), padx = 5, sticky = 'w')
+            missedWordsEntry.grid(row = 4, column = 0, padx = 5, sticky = 'w')
+            downloadFrame.grid(row = 5, column = 0, pady = 5, sticky = 'w')
+            downloadLabel.grid(row = 0, column = 0, pady = 5, padx = (5,0), sticky = 'w')
+            downloadButton.grid(row = 0, column = 1, pady = 5, sticky = 'w')
+
+            lastRecordedTime.tkraise()
+            lastRecordedScore.tkraise()
+            averageTimePerWord.tkraise()
+            missedWordsLabel.tkraise()
+            missedWordsEntry.tkraise()
+            downloadLabel.tkraise()
+            downloadButton.tkraise()
+        else:
+            messagebox.showerror('Chellenge Mode Stats Error','No play data available for this session.')
 
 
 class MenuBarManager:
