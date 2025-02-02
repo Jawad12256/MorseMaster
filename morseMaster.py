@@ -1767,6 +1767,7 @@ class MenuBarManager:
     def __init__(self, app):
         app.menuBar.options.add_command(label = 'Word List Settings', command = self.wordListSettings)
         app.menuBar.options.add_command(label = 'Challenge Mode Settings', command = self.challengeModeSettings)
+        app.menuBar.options.add_command(label = 'See Challenge Stats', command = self.challengeModeStats)
         app.menuBar.help_.add_command(label = 'Show Legend', command = self.showLegend)
 
     def wordListSettings(self):
@@ -1777,6 +1778,9 @@ class MenuBarManager:
 
     def showLegend(self):
         keyer.showLegend()
+    
+    def challengeModeStats(self):
+        challengeMode.challengeModeStats()
 
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
