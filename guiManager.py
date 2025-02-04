@@ -846,10 +846,6 @@ class SmallTextEntry(tk.Frame):
         self.textBox.configure(state = 'normal')
 
 
-class LightBox:
-    pass
-
-
 class Slider(tk.Frame):
     def __init__(self, parent, Name = 'Slider', orient='horizontal', width = 250, minValue = 0, maxValue = 100, pady = 0, padx = 0):
         self.Name = Name
@@ -936,6 +932,7 @@ class RadioButtons(tk.Frame):
     def getValue(self):
         return self.value.get()
 
+
 class Checkbox(tk.Frame):
     #checkbox GUI element
     def __init__(self, parent, Name = 'Checkbox', initialState = False, command = None, text = 'Checkbox', fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0):
@@ -960,6 +957,7 @@ class Checkbox(tk.Frame):
     def getValue(self):
         #getter method for boolVariable
         return self.boolVariable.get()
+
 
 class Spinbox(tk.Frame):
     def __init__(self, parent, Name = 'Spinbox', width = 3, minValue = 0, maxValue = 1000, fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0):
@@ -994,3 +992,6 @@ class Spinbox(tk.Frame):
         self.spinbox.configure(state = 'normal')
         self.spinbox.configure(bg = 'light grey')
         self.spinbox.configure(fg = 'black')
+
+class Listbox(tk.frame):
+    pass

@@ -1734,7 +1734,7 @@ class ChallengeMode(TabEventsManager):
                 milliseconds = '0' + milliseconds
             score = float(self.lastResultScore.split('/')[0])
             lastRecordedTime = TextLabelStatic(appStats, text = f"Last Recorded Time: {minutes}:{seconds}:{milliseconds}")
-            lastRecordedScore = TextLabelStatic(appStats, text = f"Last Recored Score: {self.lastResultScore}")
+            lastRecordedScore = TextLabelStatic(appStats, text = f"Last Recorded Score: {self.lastResultScore}")
             averageTimePerWord = TextLabelStatic(appStats, text = f"Average Time Per Word: {round(self.lastResultTime / score, 2)}")
             missedWordsLabel = TextLabelStatic(appStats, text = 'Missed Words:')
             missedWordsEntry = TextEntry(appStats)
