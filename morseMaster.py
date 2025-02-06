@@ -2,6 +2,7 @@
 from guiManager import *
 import textParser, textValidator, soundTranslator
 import pyperclip
+import socket
 import numpy as np
 import tempfile
 import threading

@@ -993,5 +993,5 @@ class Spinbox(tk.Frame):
         self.spinbox.configure(bg = 'light grey')
         self.spinbox.configure(fg = 'black')
 
-class Listbox(tk.frame):
+class Listbox(tk.Frame):
     pass
