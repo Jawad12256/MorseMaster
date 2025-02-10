@@ -642,7 +642,86 @@ class TabBar(ttk.Notebook):
 
 
     def populateNetworkingTab(self):
-        pass
+        sendLabel = TextLabelDynamic(self.networkingTab, Name = 'sendLabel', anchor = 'w', pady = (10,10))
+        sendLabel.grid(row = 0, column = 0)
+        sendLabel.setText('English Plaintext -----> Send Morse Code Message')
+        sendLabel.tkraise()
+
+        inputTypeTextLabel = TextLabelStatic(self.networkingTab, Name = 'inputTypeTextLabel', text = 'Input:', anchor = 'e')
+        inputTypeTextLabel.grid(row = 0, column = 1, sticky = 'e')
+        inputTypeTextLabel.tkraise()
+
+        translationDropdown = Dropdown(self.networkingTab, Name = 'translationDropdown', valueTuple = ('English Plaintext Input', 'Morse Code Ciphertext Input'))
+        translationDropdown.grid(row = 0, column = 2)
+        translationDropdown.setDropdownValue('English Plaintext Input')
+        translationDropdown.tkraise()
+
+        inputTextLabel = TextLabelDynamic(self.networkingTab, Name ='inputTextLabel')
+        inputTextLabel.grid(row = 1, column = 0, sticky = 'nw')
+        inputTextLabel.setText('Input English Plaintext:')
+        inputTextLabel.tkraise()
+
+        inputTextArea = TextEntry(self.networkingTab, Name = 'inputTextArea')
+        inputTextArea.grid(row = 2, column = 0, sticky = 'nw')
+        inputTextArea.tkraise()
+
+        inputTextShortcutsFrame = tk.Frame(self.networkingTab, width=30, height=85)
+        inputTextShortcutsFrame.pack_propagate(False)
+        inputTextShortcutsFrame.grid(row = 2, column = 1, sticky = 'nw')
+        inputTextShortcutsFrame.tkraise()
+
+        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
+        pasteButton.pack(side = 'top', fill = 'x', expand = True)
+        pasteButton.tkraise()
+
+        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
+        deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
+        deleteButton.tkraise()
+
+        sendingFrame = tk.Frame(self.networkingTab)
+        sendingFrame.grid(row = 1, column = 2, rowspan = 2, sticky = 'nw')
+        sendingFrame.tkraise()
+
+        messagingNicknameLabel = TextLabelStatic(sendingFrame, Name = 'messagingNicknameLabel', text = 'Messaging Nickname:', pady = (10,0), anchor = 'w')
+        messagingNicknameLabel.grid(row = 0, column = 0, sticky = 'w')
+        messagingNicknameLabel.tkraise()
+
+        nicknameTextArea = SmallTextEntry(sendingFrame, Name = 'nicknameTextArea', width = 30)
+        nicknameTextArea.grid(row = 1, column = 0, sticky = 'w')
+        nicknameTextArea.tkraise()
+
+        prepareMessageButton = ButtonText(sendingFrame, Name = 'prepareMessageButton', text = 'Prepare Morse Code Message', command = None, pady = (15,0))
+        prepareMessageButton.grid(row = 2, column = 0)
+        prepareMessageButton.tkraise()
+
+        receiveTextLabel = TextLabelStatic(self.networkingTab, Name = 'receiveTextLabel', text = 'Receive Messages:', anchor = 'w', pady = (15,0))
+        receiveTextLabel.grid(row = 3, column = 0, sticky = 'w')
+        receiveTextLabel.tkraise()
+
+        receivedListBox = Listbox(self.networkingTab, Name = 'receivedListBox', pady = (10,0), padx = (8,0))
+        receivedListBox.grid(row = 4, column = 0, columnspan = 3)
+        receivedListBox.tkraise()
+
+        receivedButtonsFrame = tk.Frame(self.networkingTab, pady = 10)
+        receivedButtonsFrame.grid(row = 5, column = 0, columnspan = 3)
+        receivedButtonsFrame.tkraise()
+
+        refreshButton = ButtonText(receivedButtonsFrame, Name = 'refreshButton', text = 'Refresh', command = None, padx = (20,0))
+        refreshButton.grid(row = 0, column = 0, sticky = 'w')
+        refreshButton.tkraise()
+
+        openMessageButton = ButtonText(receivedButtonsFrame, Name = 'openMessageButton', text = 'Open Message', command = None, padx = (20,0))
+        openMessageButton.grid(row = 0, column = 1, sticky = 'w')
+        openMessageButton.tkraise()
+
+        deleteMessageButton = ButtonText(receivedButtonsFrame, Name = 'deleteMessageButton', text = 'Delete Message', command = None, padx = (20,0))
+        deleteMessageButton.grid(row = 0, column = 2, sticky = 'w')
+        deleteMessageButton.tkraise()
+
+        deleteAllMessagesButton = ButtonText(receivedButtonsFrame, Name = 'deleteAllMessagesButton', text = 'Delete All Messages', command = None, padx = (20,0))
+        deleteAllMessagesButton.grid(row = 0, column = 3, sticky = 'w')
+        deleteAllMessagesButton.tkraise()
+
 
 class TextLabelDynamic(tk.Frame):
     def __init__(self, parent, Name = 'TextLabelDynamic', fontSize = 10, fontType = 'Verdana', colour = 'black', anchor = 'w', pady = 5, padx = 10):
@@ -994,4 +1073,24 @@ class Spinbox(tk.Frame):
         self.spinbox.configure(fg = 'black')
 
 class Listbox(tk.Frame):
-    pass
+    def __init__(self, parent, Name = 'Listbox', multiselect = False, fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0, width = 90):
+        self.Name = Name
+        self.fontSize = fontSize
+        self.fontType = fontType
+        self.anchor = anchor
+        self.pady = pady
+        self.padx = padx
+        self.width = width
+        tk.Frame.__init__(self, parent)
+        self.selectMode = tk.BROWSE
+        if multiselect == True:
+            self.selectMode = tk.EXTENDED
+        self.listbox = tk.Listbox(self, font = (self.fontType, self.fontSize), selectmode = self.selectMode, width = self.width)
+        self.listbox.pack(pady = self.pady, padx = self.padx, fill = 'both', expand = True)
+        #implement listbox item management in class
+
+    def clearListbox(self):
+        self.listbox.delete(0, tk.END)
+
+    def addItem(self, newText):
+        self.listbox.insert(0, newText)
