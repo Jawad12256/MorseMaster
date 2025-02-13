@@ -1764,6 +1764,63 @@ class ChallengeMode(TabEventsManager):
             messagebox.showerror('Chellenge Mode Stats Error','No play data available for this session.')
 
 
+class Networking(TabEventsManager):
+    def __init__(self, ref):
+        TabEventsManager.__init__(self, ref)
+        
+        self.tabObject['prepareMessageButton'].setCommand(self.prepareMessage)
+
+        self.nickname = 'MR SAVAGE'
+        self.morseCodeMessage = '.... .- .--. .--. -.-- / -... .. .-. - .... -.. .- -.-- / -- .-. / ... .- ...- .- --. .'
+
+    def prepareMessage(self):
+        app.focus_set()
+        appPrepareMessage = Toplevel(app)
+        appPrepareMessage.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appPrepareMessage.title('Challenge Mode Stats')
+        sendMessageLabel = TextLabelStatic(appPrepareMessage, text = 'Send Morse Code Message:', anchor = 'w')
+        myNicknameLabel = TextLabelStatic(appPrepareMessage, text = f'My Nickname: {self.nickname}', anchor = 'w')
+        messageTextArea = TextEntry(appPrepareMessage)
+        messageTextArea.setText(self.morseCodeMessage)
+        messageTextArea.disableEntry()
+        messageRecipientsLabel = TextLabelStatic(appPrepareMessage, text = 'Select Message Recipients', anchor = 'w')
+        recipientsListbox = Listbox(appPrepareMessage, width = 40)
+        recipientButtonFrame = tk.Frame(appPrepareMessage)
+        selectButtonFrame = tk.Frame(recipientButtonFrame)
+        refreshButton = ButtonText(selectButtonFrame, text = 'Refresh', command = None)
+        selectAllButton = ButtonText(selectButtonFrame, text = 'Select All', command = None)
+        deselectAllButton = ButtonText(selectButtonFrame, text = 'Deselect All', command = None)
+        addFriendButton = ButtonText(recipientButtonFrame, text = 'Add Friend', command = None)
+        removeFriendButton = ButtonText(recipientButtonFrame, text = 'Remove Friend', command = None)
+        sendButton = ButtonIcon(recipientButtonFrame, filename = 'iconAssets/send.png', command = None)
+        
+        sendMessageLabel.grid(row = 0, column = 0, sticky = 'w', padx = (10,0))
+        myNicknameLabel.grid(row = 1, column = 0, columnspan = 2, sticky = 'w', padx = (10,0))
+        messageTextArea.grid(row = 2, column = 0, columnspan = 2, sticky = 'w', padx = (10,0))
+        messageRecipientsLabel.grid(row = 3, column = 0, sticky = 'w', pady = (10,0), padx = (10,0))
+        recipientsListbox.grid(row = 4, column = 0, columnspan = 2, sticky = 'w', padx = (20,0))
+        recipientButtonFrame.grid(row = 5, column = 0, rowspan = 2, columnspan = 2)
+        selectButtonFrame.grid(row = 0, column = 0, columnspan = 2)
+        refreshButton.grid(row = 0, column = 0, pady = (10,0), padx = (5,0))
+        selectAllButton.grid(row = 0, column = 1, pady = (10,0), padx = (15,0))
+        deselectAllButton.grid(row = 0, column = 2, pady = (10,0), padx = (15,0))
+        addFriendButton.grid(row = 1, column = 0, pady = (10,15), padx = (25,0))
+        removeFriendButton.grid(row = 1, column = 1, pady = (10,15), padx = (15,0))
+        sendButton.grid(row = 1, column = 2, pady = (10,15), padx = (15,15))
+
+        sendMessageLabel.tkraise()
+        myNicknameLabel.tkraise()
+        messageRecipientsLabel.tkraise()
+        recipientsListbox.tkraise()
+        recipientButtonFrame.tkraise()
+        refreshButton.tkraise()
+        selectAllButton.tkraise()
+        deselectAllButton.tkraise()
+        addFriendButton.tkraise()
+        removeFriendButton.tkraise()
+        sendButton.tkraise()
+
+
 class MenuBarManager:
     def __init__(self, app):
         app.menuBar.options.add_command(label = 'Word List Settings', command = self.wordListSettings)
@@ -1789,6 +1846,7 @@ soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
 soundDecoder = SoundDecoder(app.tabBar.soundDecoderTab.winfo_children())
 keyer = Keyer(app.tabBar.keyerTab.winfo_children())
 challengeMode = ChallengeMode(app.tabBar.challengeModeTab.winfo_children())
+networking = Networking(app.tabBar.networkingTab.winfo_children())
 menuBarManager = MenuBarManager(app)
 
 app.mainloop()

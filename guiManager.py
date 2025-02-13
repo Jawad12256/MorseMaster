@@ -897,6 +897,9 @@ class TextEntry(tk.Frame):
     def setCommand(self, event, newCommand):
         self.textBox.bind(event, newCommand)
 
+    def disableEntry(self):
+        self.textBox.configure(state = 'disabled')
+
 
 class SmallTextEntry(tk.Frame):
     def __init__(self, parent, Name = 'SmallTextEntry', fontSize = 10, fontType = 'Verdana', width = 5, pady = 0, padx = (15,0)):
