@@ -920,6 +920,9 @@ class SmallTextEntry(tk.Frame):
 
     def getText(self):
         return self.textBox.get()
+    
+    def setCommand(self, event, newCommand):
+        self.textBox.bind(event, newCommand)
 
     def disableEntry(self):
         self.textBox.configure(state = 'disabled')

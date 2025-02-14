@@ -1,8 +1,7 @@
 '''MORSEMASTER MAIN APPLICATION'''
 from guiManager import *
-import textParser, textValidator, soundTranslator
+import textParser, textValidator, soundTranslator, networkManager
 import pyperclip
-import socket
 import numpy as np
 import tempfile
 import threading
@@ -1769,8 +1768,10 @@ class Networking(TabEventsManager):
         TabEventsManager.__init__(self, ref)
         
         self.tabObject['prepareMessageButton'].setCommand(self.prepareMessage)
-
+        self.tabObject['nicknameTextArea'].setCommand("<KeyRelease>", (self.updateNickname))
         self.nickname = 'MR SAVAGE'
+        self.sender = networkManager.TCPServer(self.nickname)
+        self.recipients = {}
         self.morseCodeMessage = '.... .- .--. .--. -.-- / -... .. .-. - .... -.. .- -.-- / -- .-. / ... .- ...- .- --. .'
 
     def prepareMessage(self):
@@ -1787,7 +1788,7 @@ class Networking(TabEventsManager):
         recipientsListbox = Listbox(appPrepareMessage, width = 40)
         recipientButtonFrame = tk.Frame(appPrepareMessage)
         selectButtonFrame = tk.Frame(recipientButtonFrame)
-        refreshButton = ButtonText(selectButtonFrame, text = 'Refresh', command = None)
+        refreshButton = ButtonText(selectButtonFrame, text = 'Refresh', command = refresh)
         selectAllButton = ButtonText(selectButtonFrame, text = 'Select All', command = None)
         deselectAllButton = ButtonText(selectButtonFrame, text = 'Deselect All', command = None)
         addFriendButton = ButtonText(recipientButtonFrame, text = 'Add Friend', command = None)
@@ -1819,6 +1820,22 @@ class Networking(TabEventsManager):
         addFriendButton.tkraise()
         removeFriendButton.tkraise()
         sendButton.tkraise()
+    
+        def refresh(self):
+            self.sender.establishClients()
+            self.recipients = self.sender.getClients()
+            recipientsListbox.clearListbox()
+            if len(self.recipients) > 0:
+                for recipient in self.recipients.keys():
+                    name = recipient.getName()
+                    recipientsListbox.addItem(name)
+    
+    def updateNickname(self):
+        newNickname = self.tabObject['nicknameTextArea']
+        if newNickname != '':
+            self.nickname = newNickname
+        else:
+            self.nickname = 'MR SAVAGE'
 
 
 class MenuBarManager:
