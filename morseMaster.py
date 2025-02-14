@@ -1770,9 +1770,15 @@ class Networking(TabEventsManager):
         self.tabObject['prepareMessageButton'].setCommand(self.prepareMessage)
         self.tabObject['nicknameTextArea'].setCommand("<KeyRelease>", (self.updateNickname))
         self.nickname = 'MR SAVAGE'
-        self.sender = networkManager.TCPServer(self.nickname)
+        self.networkThread = threading.Thread(target = self.initialiseSenderAndClient)
+        self.networkThread.daemon = True
+        self.networkThread.start()
         self.recipients = {}
         self.morseCodeMessage = '.... .- .--. .--. -.-- / -... .. .-. - .... -.. .- -.-- / -- .-. / ... .- ...- .- --. .'
+
+    def initialiseSenderAndClient(self):
+        self.sender = networkManager.TCPServer(self.nickname)
+        self.client = networkManager.TCPClient(self.nickname)
 
     def prepareMessage(self):
         app.focus_set()

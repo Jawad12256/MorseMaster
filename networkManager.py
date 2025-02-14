@@ -11,8 +11,9 @@ class TCPServer():
         self.maxclients = 8
         self.nameRequestWait = 1.0
         self.connections = {}
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.host, self.port))
+        self.sock.settimeout(5)
         self.establishClients()
     
     def establishClients(self):
@@ -25,15 +26,22 @@ class TCPServer():
             #pass name to create TCPClient object
             #store TCPClient object against socket connection object in dictionary
             #dictionary - TCPClient(clientName):conn
-            conn = self.sock.accept() 
-            self.sendNameRequestToClient(conn)
-            sleep(self.nameRequestWait)
             try:
-                clientName = self.getDataFromClient(conn)
+                conn = self.sock.accept()
+                print(f"Connection: {conn}")
+                if conn:
+                    self.sendNameRequestToClient(conn)
+                    sleep(self.nameRequestWait)
+                    try:
+                        clientName = self.getDataFromClient(conn)
+                    except:
+                        clientName = f"Client {i}"
+                    self.connections[TCPClient(clientName)] = conn
+                    print(f"Connected with {clientName}")
             except:
-                clientName = f"Client {i}"
-            self.connections[TCPClient(clientName)] = conn
-            print(f"Connected with {clientName}")
+                print('Failed to find connections this iteration')
+                continue
+        print('Finished establishing clients')
     
     def getClients(self):
         #getter method for connections dictionary
