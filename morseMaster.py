@@ -28,6 +28,8 @@ def killAll():
     keyer.listener.stop()
     keyer.keyboardThread = None
     keyer.wordTerminatorThread = None
+    networking.myNode.killPeer()
+    networking.networkThread = None
     app.destroy()
 
 app.protocol('WM_DELETE_WINDOW', killAll)
@@ -1770,15 +1772,14 @@ class Networking(TabEventsManager):
         self.tabObject['prepareMessageButton'].setCommand(self.prepareMessage)
         self.tabObject['nicknameTextArea'].setCommand("<KeyRelease>", (self.updateNickname))
         self.nickname = 'MR SAVAGE'
-        self.networkThread = threading.Thread(target = self.initialiseSenderAndClient)
+        self.networkThread = threading.Thread(target = self.initialisePeer)
         self.networkThread.daemon = True
         self.networkThread.start()
         self.recipients = {}
         self.morseCodeMessage = '.... .- .--. .--. -.-- / -... .. .-. - .... -.. .- -.-- / -- .-. / ... .- ...- .- --. .'
 
-    def initialiseSenderAndClient(self):
-        self.sender = networkManager.TCPServer(self.nickname)
-        self.client = networkManager.TCPClient(self.nickname)
+    def initialisePeer(self):
+        self.myNode = networkManager.Peer()
 
     def prepareMessage(self):
         app.focus_set()
@@ -1828,13 +1829,7 @@ class Networking(TabEventsManager):
         sendButton.tkraise()
     
         def refresh(self):
-            self.sender.establishClients()
-            self.recipients = self.sender.getClients()
-            recipientsListbox.clearListbox()
-            if len(self.recipients) > 0:
-                for recipient in self.recipients.keys():
-                    name = recipient.getName()
-                    recipientsListbox.addItem(name)
+            pass
     
     def updateNickname(self):
         newNickname = self.tabObject['nicknameTextArea']
