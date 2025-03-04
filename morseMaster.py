@@ -1768,20 +1768,63 @@ class ChallengeMode(TabEventsManager):
 class Networking(TabEventsManager):
     def __init__(self, ref):
         TabEventsManager.__init__(self, ref)
-        
+        self.states = {
+            'networking_MorseInput':False,
+        }
         self.tabObject['prepareMessageButton'].setCommand(self.prepareMessage)
-        self.tabObject['nicknameTextArea'].setCommand("<KeyRelease>", (self.updateNickname))
-        self.nickname = 'MR SAVAGE'
+        self.tabObject['translationDropdown'].setCommand('<<ComboboxSelected>>', self.switch)
+        self.tabObject['pasteButton'].setCommand(self.pasteText)
+        self.tabObject['deleteButton'].setCommand(self.clearBoxes)
+        self.tabObject['nicknameTextArea'].setCommand("<FocusOut>", (self.updateNickname))
+        self.nickname = 'Unknown User'
         self.networkThread = threading.Thread(target = self.initialisePeer)
         self.networkThread.daemon = True
         self.networkThread.start()
         self.recipients = {}
-        self.morseCodeMessage = '.... .- .--. .--. -.-- / -... .. .-. - .... -.. .- -.-- / -- .-. / ... .- ...- .- --. .'
+        self.morseCodeMessage = ''
 
     def initialisePeer(self):
-        self.myNode = networkManager.Peer()
+        self.myNode = networkManager.Peer(self.nickname)
+
+    def switch(self, *args):
+        sendLabel, translationDropdown, inputTextLabel = self.tabObject['sendLabel'], self.tabObject['translationDropdown'], self.tabObject['inputTextLabel']
+        currentValue = translationDropdown.getDropdownValue()
+        if self.states['networking_MorseInput'] == False and currentValue == 'Morse Code Ciphertext Input':
+            self.states['networking_MorseInput'] = True
+            sendLabel.setText('Morse Code Ciphertext -> Send Morse Code Message')
+            inputTextLabel.setText('Input Morse Code Ciphertext:')
+        elif self.states['networking_MorseInput'] == True and currentValue == 'English Plaintext Input':
+            self.states['networking_MorseInput'] = False
+            sendLabel.setText('English Plaintext -> Send Morse Code Message')
+            inputTextLabel.setText('Input English Plaintext:')
 
     def prepareMessage(self):
+        def refresh():
+            recipientsListbox.clearListbox()
+            self.peerList = self.myNode.getUpdatedPeers()
+            if len(self.peerList) > 0:
+                for peer in self.peerList:
+                    recipientsListbox.addItem(peer)
+        
+        def selectAll():
+            recipientsListbox.selectAll()
+
+        def deselectAll():
+            recipientsListbox.deselectAll()
+
+        def addFriend():
+            pass
+
+        def removeFriend():
+            pass
+
+        def send():
+            self.nicknameDict = self.myNode.getNicknameDict()
+            recipientPeerNicknames = recipientsListbox.getSelectedItems()
+            recipientPeerIDs = [self.nicknameDict[nickname] for nickname in recipientPeerNicknames]
+            self.myNode.sendMessage(self.morseCodeMessage, recipientPeerIDs)
+
+
         app.focus_set()
         appPrepareMessage = Toplevel(app)
         appPrepareMessage.iconbitmap('iconAssets/morseMasterIcon.ico')
@@ -1789,18 +1832,38 @@ class Networking(TabEventsManager):
         sendMessageLabel = TextLabelStatic(appPrepareMessage, text = 'Send Morse Code Message:', anchor = 'w')
         myNicknameLabel = TextLabelStatic(appPrepareMessage, text = f'My Nickname: {self.nickname}', anchor = 'w')
         messageTextArea = TextEntry(appPrepareMessage)
+
+        text = self.tabObject['inputTextArea'].getText().replace('\n',' ')
+        if self.states['networking_MorseInput']:
+            validatedCiphertext = textValidator.validateMorse(text)
+            if validatedCiphertext == False:
+                text = ''
+                messagebox.showerror('Message Content Error', 'Invalid message text')
+                appPrepareMessage.destroy()
+                return None
+        else:
+            validatedPlaintext = textValidator.validateEnglish(text)
+            if validatedPlaintext:
+                text = textParser.parseEnglish(validatedPlaintext)
+            else:
+                text = ''
+                messagebox.showerror('Message Content Error', 'Invalid message text')
+                appPrepareMessage.destroy()
+                return None
+        self.morseCodeMessage = text
+
         messageTextArea.setText(self.morseCodeMessage)
         messageTextArea.disableEntry()
-        messageRecipientsLabel = TextLabelStatic(appPrepareMessage, text = 'Select Message Recipients', anchor = 'w')
-        recipientsListbox = Listbox(appPrepareMessage, width = 40)
+        messageRecipientsLabel = TextLabelStatic(appPrepareMessage, text = 'Select Message Recipients:', anchor = 'w')
+        recipientsListbox = Listbox(appPrepareMessage, width = 40, multiselect = True)
         recipientButtonFrame = tk.Frame(appPrepareMessage)
         selectButtonFrame = tk.Frame(recipientButtonFrame)
         refreshButton = ButtonText(selectButtonFrame, text = 'Refresh', command = refresh)
-        selectAllButton = ButtonText(selectButtonFrame, text = 'Select All', command = None)
-        deselectAllButton = ButtonText(selectButtonFrame, text = 'Deselect All', command = None)
-        addFriendButton = ButtonText(recipientButtonFrame, text = 'Add Friend', command = None)
-        removeFriendButton = ButtonText(recipientButtonFrame, text = 'Remove Friend', command = None)
-        sendButton = ButtonIcon(recipientButtonFrame, filename = 'iconAssets/send.png', command = None)
+        selectAllButton = ButtonText(selectButtonFrame, text = 'Select All', command = selectAll)
+        deselectAllButton = ButtonText(selectButtonFrame, text = 'Deselect All', command = deselectAll)
+        addFriendButton = ButtonText(recipientButtonFrame, text = 'Add Friend', command = addFriend)
+        removeFriendButton = ButtonText(recipientButtonFrame, text = 'Remove Friend', command = removeFriend)
+        sendButton = ButtonIcon(recipientButtonFrame, filename = 'iconAssets/send.png', command = send)
         
         sendMessageLabel.grid(row = 0, column = 0, sticky = 'w', padx = (10,0))
         myNicknameLabel.grid(row = 1, column = 0, columnspan = 2, sticky = 'w', padx = (10,0))
@@ -1827,16 +1890,22 @@ class Networking(TabEventsManager):
         addFriendButton.tkraise()
         removeFriendButton.tkraise()
         sendButton.tkraise()
+
+        refresh()
     
-        def refresh(self):
-            pass
-    
-    def updateNickname(self):
-        newNickname = self.tabObject['nicknameTextArea']
+    def updateNickname(self, *args):
+        newNickname = self.tabObject['nicknameTextArea'].getText()
         if newNickname != '':
             self.nickname = newNickname
-        else:
-            self.nickname = 'MR SAVAGE'
+            self.myNode.setNickname(self.nickname)
+
+    def pasteText(self):
+        inputEntry = self.tabObject['inputTextArea']
+        inputEntry.setText(pyperclip.paste())
+
+    def clearBoxes(self):
+        inputEntry= self.tabObject['inputTextArea']
+        inputEntry.clearText()
 
 
 class MenuBarManager:

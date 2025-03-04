@@ -644,7 +644,7 @@ class TabBar(ttk.Notebook):
     def populateNetworkingTab(self):
         sendLabel = TextLabelDynamic(self.networkingTab, Name = 'sendLabel', anchor = 'w', pady = (10,10))
         sendLabel.grid(row = 0, column = 0)
-        sendLabel.setText('English Plaintext -----> Send Morse Code Message')
+        sendLabel.setText('English Plaintext -> Send Morse Code Message')
         sendLabel.tkraise()
 
         inputTypeTextLabel = TextLabelStatic(self.networkingTab, Name = 'inputTypeTextLabel', text = 'Input:', anchor = 'e')
@@ -1081,6 +1081,7 @@ class Spinbox(tk.Frame):
 class Listbox(tk.Frame):
     def __init__(self, parent, Name = 'Listbox', multiselect = False, fontSize = 10, fontType = 'Verdana', anchor = 'w', pady = 0, padx = 0, width = 90):
         self.Name = Name
+        self.length = 0
         self.fontSize = fontSize
         self.fontType = fontType
         self.anchor = anchor
@@ -1096,7 +1097,27 @@ class Listbox(tk.Frame):
         #implement listbox item management in class
 
     def clearListbox(self):
+        #clear listbox and reset counter
         self.listbox.delete(0, tk.END)
+        self.length = 0
 
     def addItem(self, newText):
+        #add item to listbox and increment counter
         self.listbox.insert(0, newText)
+        self.length += 1
+    
+    def getLength(self):
+        #getter method for number of items in listbox
+        return self.length
+
+    def selectAll(self):
+        #select all items in the listbox
+        self.listbox.selection_set(0, tk.END)
+
+    def deselectAll(self):
+        #deselect all items in the listbox
+        self.listbox.selection_clear(0, tk.END)
+
+    def getSelectedItems(self):
+        #getter method to return a list of all the selected listbox items
+        return [self.listbox.get(idx) for idx in self.listbox.curselection()]
