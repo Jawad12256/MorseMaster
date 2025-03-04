@@ -1101,6 +1101,9 @@ class Listbox(tk.Frame):
         self.listbox.delete(0, tk.END)
         self.length = 0
 
+    def deleteItem(self, idx):
+        self.listbox.delete(idx)
+
     def addItem(self, newText):
         #add item to listbox and increment counter
         self.listbox.insert(0, newText)
@@ -1121,3 +1124,7 @@ class Listbox(tk.Frame):
     def getSelectedItems(self):
         #getter method to return a list of all the selected listbox items
         return [self.listbox.get(idx) for idx in self.listbox.curselection()]
+
+    def setColour(self, idx, colour):
+        #setter method to set the colour attribute of a given item in the listbox
+        self.listbox.itemconfig(idx,{'fg':colour})

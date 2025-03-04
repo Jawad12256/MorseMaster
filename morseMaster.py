@@ -1775,6 +1775,10 @@ class Networking(TabEventsManager):
         self.tabObject['translationDropdown'].setCommand('<<ComboboxSelected>>', self.switch)
         self.tabObject['pasteButton'].setCommand(self.pasteText)
         self.tabObject['deleteButton'].setCommand(self.clearBoxes)
+        self.tabObject['refreshButton'].setCommand(self.refresh)
+        self.tabObject['deleteMessageButton'].setCommand(self.deleteMessage)
+        self.tabObject['deleteAllMessagesButton'].setCommand(self.deleteAllMessages)
+        self.tabObject['openMessageButton'].setCommand(self.openMessage)
         self.tabObject['nicknameTextArea'].setCommand("<FocusOut>", (self.updateNickname))
         self.nickname = 'Unknown User'
         self.networkThread = threading.Thread(target = self.initialisePeer)
@@ -1782,6 +1786,8 @@ class Networking(TabEventsManager):
         self.networkThread.start()
         self.recipients = {}
         self.morseCodeMessage = ''
+        self.inbox = {}
+        self.friendList = []
 
     def initialisePeer(self):
         self.myNode = networkManager.Peer(self.nickname)
@@ -1798,6 +1804,41 @@ class Networking(TabEventsManager):
             sendLabel.setText('English Plaintext -> Send Morse Code Message')
             inputTextLabel.setText('Input English Plaintext:')
 
+    def refresh(self, *args):
+        receivedListbox = self.tabObject['receivedListBox']
+        self.inbox = self.myNode.getInbox()
+        receivedListbox.clearListbox()
+        if len(self.inbox) > 0:
+            for message in self.inbox:
+                name = message[0]
+                strippedMessage = message[1][2:-1]
+                text = f"{name}: {strippedMessage}"
+                receivedListbox.addItem(text)
+                if name in self.friendList:
+                    receivedListbox.setColour(0, 'red')
+
+    def openMessage(self, *args):
+        pass
+
+    def deleteMessage(self, *args):
+        receivedListbox = self.tabObject['receivedListBox']
+        messagesToDelete = receivedListbox.getSelectedItems()
+        for message in messagesToDelete:
+            formattedMessage = message.split(': ')
+            formattedMessage[1] = f"b\'{formattedMessage[1]}\'"
+            formattedMessage = tuple(formattedMessage)
+            print(formattedMessage)
+            print(self.inbox)
+            if formattedMessage in self.inbox:
+                self.inbox.remove(formattedMessage)
+        self.refresh()
+
+    def deleteAllMessages(self, *args):
+        receivedListbox = self.tabObject['receivedListBox']
+        receivedListbox.clearListbox()
+        self.inbox = {}
+        self.refresh()
+
     def prepareMessage(self):
         def refresh():
             recipientsListbox.clearListbox()
@@ -1805,6 +1846,8 @@ class Networking(TabEventsManager):
             if len(self.peerList) > 0:
                 for peer in self.peerList:
                     recipientsListbox.addItem(peer)
+                    if peer in self.friendList:
+                        recipientsListbox.setColour(0, 'red')
         
         def selectAll():
             recipientsListbox.selectAll()
@@ -1813,10 +1856,18 @@ class Networking(TabEventsManager):
             recipientsListbox.deselectAll()
 
         def addFriend():
-            pass
+            friendNicknames = recipientsListbox.getSelectedItems()
+            for name in friendNicknames:
+                if name not in self.friendList:
+                    self.friendList.append(name)
+            refresh()
 
         def removeFriend():
-            pass
+            friendNicknames = recipientsListbox.getSelectedItems()
+            for name in friendNicknames:
+                if name in self.friendList:
+                    self.friendList.remove(name)
+            refresh()
 
         def send():
             self.nicknameDict = self.myNode.getNicknameDict()
@@ -1895,9 +1946,9 @@ class Networking(TabEventsManager):
     
     def updateNickname(self, *args):
         newNickname = self.tabObject['nicknameTextArea'].getText()
-        if newNickname != '':
-            self.nickname = newNickname
-            self.myNode.setNickname(self.nickname)
+        self.nickname = newNickname
+        self.myNode.killPeer()
+        self.myNode = networkManager.Peer(self.nickname)
 
     def pasteText(self):
         inputEntry = self.tabObject['inputTextArea']

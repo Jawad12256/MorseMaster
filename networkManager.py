@@ -11,7 +11,8 @@ class Peer:
         self.nickname = nickname
         self.chat_pipe = zhelper.zthread_fork(self.ctx, self.chat_task) #zthread for incoming chat messages
         self.peerSelection = []
-        self.idDictionary = {} 
+        self.idDictionary = {}
+        self.inbox = [] #list of (nickname, message) tuples for peer to store its inbound messages
 
     def killPeer(self):
         #kill ZMQ context and processes
@@ -22,8 +23,6 @@ class Peer:
     def sendMessage(self, message, peers):
         #set recipient peers
         #write message to pipe
-        print(message)
-        print(peers)
         self.peerSelection = peers
         self.chat_pipe.send(message.encode('utf-8'))
 
@@ -42,42 +41,32 @@ class Peer:
             if pipe in items and items[pipe] == zmq.POLLIN:
                 #SENDING MESSAGE
                 message = pipe.recv() #get outbound message from the pipe
-                print(f"Sending message: {str(message)}")
                 for peer in self.peerSelection:
                     self.n.whispers(peer, message.decode('utf-8'))
                 # self.n.shouts("CHAT", message.decode('utf-8'))
             elif self.n.socket() in items and items[self.n.socket()] == zmq.POLLIN:
                 #RECEIVING MESSAGE
                 cmds = self.n.recv()
-                for cmd in cmds:
-                    print(cmd)
                 senderPeerID = uuid.UUID(bytes=cmds[1])
                 messageType = str(cmds[0].decode('utf-8'))
                 if messageType == 'SHOUT':
                     #decode message contents if it is a shout message
                     messageContent = str(cmds[4])
-                    print('MESSAGE CONTENTS:')
-                    print(messageContent)
+                    self.inbox.append((self.idDictionary[senderPeerID],messageContent))
                 elif messageType  == 'WHISPER':
                     #decode message contents if it is a whisper message
                     messageContent = str(cmds[3])
-                    print('MESSAGE CONTENTS:')
-                    print(messageContent)
+                    self.inbox.append((self.idDictionary[senderPeerID],messageContent))
                 elif messageType == 'ENTER':
                     #decode TCP and port if it is a new peer entering
                     #add peer to dictionary
                     headers = json.loads(cmds[3].decode('utf-8'))
-                    TCPPort = str(cmds[4].decode('utf-8'))
-                    print(f"TCP/PORT: {TCPPort}")
                     self.idDictionary[senderPeerID] = headers['NICKNAME'] #dictionary format - id:nickname
                 elif messageType == 'EXIT':
                     #remove peer from dictionary
                     self.idDictionary.pop(senderPeerID)
                     if senderPeerID in self.peerSelection:
                         self.peerSelection.remove(senderPeerID)
-                print(f"PEER ID: {str(senderPeerID)}")
-                print(f"MESSAGE TYPE: {messageType}")
-                print('---------------------------------------------')
     
     def getUpdatedPeers(self):
         #getter method for list of id dictionary values (nicknames)
@@ -86,12 +75,7 @@ class Peer:
     def getNicknameDict(self):
         #getter method for reversed key-value version of idDictionary
         return {v:k for k,v in self.idDictionary.items()}
-
-    def setNickname(self, newNickname):
-        #setter method for nickname
-        self.nickname = newNickname
-        # self.n.stop()
-        # self.n = Pyre("CHAT")
-        self.n.set_header("NICKNAME",self.nickname)
-        # self.n.join("CHAT")
-        # self.n.start()
+    
+    def getInbox(self):
+        #getter method for updated message inbox
+        return self.inbox
