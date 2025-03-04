@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from tkinter.ttk import Combobox
 from tkinter import ttk
+from tktooltip import ToolTip
 from time import sleep
 
 class MorseMaster(tk.Tk):

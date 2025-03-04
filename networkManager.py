@@ -79,3 +79,7 @@ class Peer:
     def getInbox(self):
         #getter method for updated message inbox
         return self.inbox
+
+    def setInbox(self, newInbox):
+        #setter method for message inbox
+        self.inbox = newInbox

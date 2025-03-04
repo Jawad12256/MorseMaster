@@ -1784,9 +1784,12 @@ class Networking(TabEventsManager):
         self.networkThread = threading.Thread(target = self.initialisePeer)
         self.networkThread.daemon = True
         self.networkThread.start()
+        self.autoRefreshThread = threading.Thread(target = self.autoRefresh)
+        self.autoRefreshThread.daemon = True
+        self.autoRefreshThread.start()
         self.recipients = {}
         self.morseCodeMessage = ''
-        self.inbox = {}
+        self.inbox = []
         self.friendList = []
 
     def initialisePeer(self):
@@ -1817,8 +1820,45 @@ class Networking(TabEventsManager):
                 if name in self.friendList:
                     receivedListbox.setColour(0, 'red')
 
+    def autoRefresh(self, *args):
+        #automatically refreshes for new messages every 5 seconds
+        #run as a background thread process
+        while True:
+            time.sleep(5)
+            self.refresh()
+
     def openMessage(self, *args):
-        pass
+        receivedListbox = self.tabObject['receivedListBox']
+        messageToOpen = receivedListbox.getSelectedItems()
+
+        if len(messageToOpen) == 1:
+            nameMessage = messageToOpen[0].split(': ')
+            name, ciphertextMessage = nameMessage[0], nameMessage[1]
+            validatedCiphertext = textValidator.validateMorse(ciphertextMessage)
+            if validatedCiphertext != False:
+                plaintextMessage = textParser.parseMorse(validatedCiphertext)
+            else:
+                plaintextMessage = '[no valid translation available]'
+            
+            app.focus_set()
+            appMessage = Toplevel(app)
+            appMessage.iconbitmap('iconAssets/morseMasterIcon.ico')
+            appMessage.title('Open Message')
+            
+            nicknameLabel = TextLabelStatic(appMessage, text = f"Sender Nickname: {name}", anchor = 'w')
+            ciphertextLabel = TextLabelStatic(appMessage, text = f"Message Ciphertext:\n{ciphertextMessage}", anchor = 'w')
+            plaintextLabel = TextLabelStatic(appMessage, text = f"Decoded Message Plaintext:\n{plaintextMessage}")
+
+            nicknameLabel.grid(row = 0, column = 0)
+            ciphertextLabel.grid(row = 1, column = 0)
+            plaintextLabel.grid(row = 2, column = 0)
+
+            nicknameLabel.tkraise()
+            ciphertextLabel.tkraise()
+            plaintextLabel.tkraise()
+        
+        else:
+            messagebox.showerror('Open Message Error', 'Can only open exactly 1 message at a time')
 
     def deleteMessage(self, *args):
         receivedListbox = self.tabObject['receivedListBox']
@@ -1827,8 +1867,6 @@ class Networking(TabEventsManager):
             formattedMessage = message.split(': ')
             formattedMessage[1] = f"b\'{formattedMessage[1]}\'"
             formattedMessage = tuple(formattedMessage)
-            print(formattedMessage)
-            print(self.inbox)
             if formattedMessage in self.inbox:
                 self.inbox.remove(formattedMessage)
         self.refresh()
@@ -1836,7 +1874,8 @@ class Networking(TabEventsManager):
     def deleteAllMessages(self, *args):
         receivedListbox = self.tabObject['receivedListBox']
         receivedListbox.clearListbox()
-        self.inbox = {}
+        self.inbox = []
+        self.myNode.setInbox(self.inbox)
         self.refresh()
 
     def prepareMessage(self):
@@ -1879,7 +1918,7 @@ class Networking(TabEventsManager):
         app.focus_set()
         appPrepareMessage = Toplevel(app)
         appPrepareMessage.iconbitmap('iconAssets/morseMasterIcon.ico')
-        appPrepareMessage.title('Challenge Mode Stats')
+        appPrepareMessage.title('Prepare Morse Code Message')
         sendMessageLabel = TextLabelStatic(appPrepareMessage, text = 'Send Morse Code Message:', anchor = 'w')
         myNicknameLabel = TextLabelStatic(appPrepareMessage, text = f'My Nickname: {self.nickname}', anchor = 'w')
         messageTextArea = TextEntry(appPrepareMessage)
