@@ -8,8 +8,8 @@ class Peer:
     def __init__(self, nickname):
         self.ctx = zmq.Context()
         self.killed = False
-        self.chat_pipe = zhelper.zthread_fork(self.ctx, self.chat_task) #zthread for incoming chat messages
         self.nickname = nickname
+        self.chat_pipe = zhelper.zthread_fork(self.ctx, self.chat_task) #zthread for incoming chat messages
         self.peerSelection = []
         self.idDictionary = {} 
 
@@ -33,33 +33,34 @@ class Peer:
         self.n.join("CHAT")
         self.n.start()
 
-        #poller to manage peers
+        #poller to manage communications with peers
         self.poller = zmq.Poller()
-        self.poller.register(pipe, zmq.POLLIN)
-        self.poller.register(self.n.socket(), zmq.POLLIN)
+        self.poller.register(pipe, zmq.POLLIN) #for outbound messages
+        self.poller.register(self.n.socket(), zmq.POLLIN) #for inbound messages
         while not self.killed:
             items = dict(self.poller.poll(500))
             if pipe in items and items[pipe] == zmq.POLLIN:
                 #SENDING MESSAGE
-                print('POLL IN')
                 message = pipe.recv() #get outbound message from the pipe
                 print(f"Sending message: {str(message)}")
-                # for peer in self.peerSelection:
-                    # peerRef = uuid.UUID(bytes=peer)
-                    # self.n.whispers(peerRef, message.decode('utf-8'))
-                self.n.shouts("CHAT", message.decode('utf-8'))
-            #elif self.n.socket() in items and items[self.n.socket()] == zmq.POLLIN:
-            else:
+                for peer in self.peerSelection:
+                    self.n.whispers(peer, message.decode('utf-8'))
+                # self.n.shouts("CHAT", message.decode('utf-8'))
+            elif self.n.socket() in items and items[self.n.socket()] == zmq.POLLIN:
                 #RECEIVING MESSAGE
                 cmds = self.n.recv()
+                for cmd in cmds:
+                    print(cmd)
                 senderPeerID = uuid.UUID(bytes=cmds[1])
                 messageType = str(cmds[0].decode('utf-8'))
-                if messageType in ('SHOUT','WHISPER'):
-                    #decode headers if it is a sent message
-                    headers = json.loads(cmds[4].decode('utf-8'))
-                    messageContent = str(cmds[6])
-                    print('HEADERS:')
-                    print(headers)
+                if messageType == 'SHOUT':
+                    #decode message contents if it is a shout message
+                    messageContent = str(cmds[4])
+                    print('MESSAGE CONTENTS:')
+                    print(messageContent)
+                elif messageType  == 'WHISPER':
+                    #decode message contents if it is a whisper message
+                    messageContent = str(cmds[3])
                     print('MESSAGE CONTENTS:')
                     print(messageContent)
                 elif messageType == 'ENTER':
@@ -89,8 +90,8 @@ class Peer:
     def setNickname(self, newNickname):
         #setter method for nickname
         self.nickname = newNickname
-        self.n.stop()
-        self.n = Pyre("CHAT")
+        # self.n.stop()
+        # self.n = Pyre("CHAT")
         self.n.set_header("NICKNAME",self.nickname)
-        self.n.join("CHAT")
-        self.n.start()
+        # self.n.join("CHAT")
+        # self.n.start()
