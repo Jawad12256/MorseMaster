@@ -18,6 +18,7 @@ from pvrecorder import PvRecorder
 
 from tkinter import messagebox, Toplevel, Frame, Label
 from tkinter.filedialog import askopenfilename, asksaveasfile, asksaveasfilename
+from tktooltip import ToolTip
 
 app = MorseMaster()
 app.iconbitmap('iconAssets/morseMasterIcon.ico')
@@ -1496,6 +1497,11 @@ class ChallengeMode(TabEventsManager):
         okButton.tkraise()
         cancelButton.tkraise()
 
+        ToolTip(WLSdropdown, msg = 'Choose word list', delay = 1.0)
+        ToolTip(uploadButton, msg = 'Upload a text file', delay = 1.0)
+        ToolTip(okButton, msg = 'Save changes', delay = 1.0)
+        ToolTip(cancelButton, msg = 'Cancel changes', delay = 1.0)
+
     def sanitiseWordList(self, wordList):
         #sanitisation in case of invalid input for English plaintext
         newWordList = []
@@ -1592,6 +1598,9 @@ class ChallengeMode(TabEventsManager):
         noOfWordsSpinbox.tkraise()
         cancelButton.tkraise()
         okButton.tkraise()
+
+        ToolTip(okButton, msg = 'Save changes', delay = 1.0)
+        ToolTip(cancelButton, msg = 'Cancel changes', delay = 1.0)
     
     def startChallengeMode(self):
         #initialise Challenge Mode
@@ -1761,6 +1770,8 @@ class ChallengeMode(TabEventsManager):
             missedWordsEntry.tkraise()
             downloadLabel.tkraise()
             downloadButton.tkraise()
+
+            ToolTip(downloadButton, msg = 'Download missed words', delay = 1.0)
         else:
             messagebox.showerror('Chellenge Mode Stats Error','No play data available for this session.')
 
@@ -1980,6 +1991,13 @@ class Networking(TabEventsManager):
         addFriendButton.tkraise()
         removeFriendButton.tkraise()
         sendButton.tkraise()
+
+        ToolTip(refreshButton, msg = 'Refresh recipient peers interface', delay = 1.0)
+        ToolTip(selectAllButton, msg = 'Select all recipients', delay = 1.0)
+        ToolTip(deselectAllButton, msg = 'Deselect all recipients', delay = 1.0)
+        ToolTip(addFriendButton, msg = 'Add selected as friends', delay = 1.0)
+        ToolTip(removeFriendButton, msg = 'Remove selected from friends', delay = 1.0)
+        ToolTip(sendButton, msg = 'Send message to selected recipients', delay = 1.0)
 
         refresh()
     
