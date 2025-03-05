@@ -72,6 +72,7 @@ class TabBar(ttk.Notebook):
         translationDirectionButton = ButtonText(self.textTranslatorTab, Name = 'translationDirectionButton', text = 'Switch', command = None, pady = (3,10))
         translationDirectionButton.grid(row = 0, column = 1, sticky = 'nw')
         translationDirectionButton.tkraise()
+        ToolTip(translationDirectionButton, msg = 'Switch translation direction', delay = 1.0)
 
         inputTextLabel = TextLabelDynamic(self.textTranslatorTab, Name ='inputTextLabel')
         inputTextLabel.grid(row = 1, column = 0, sticky = 'nw')
@@ -85,6 +86,7 @@ class TabBar(ttk.Notebook):
         uploadButton = ButtonIcon(self.textTranslatorTab, Name = 'uploadButton', filename = 'iconAssets/upload.png', command = None)
         uploadButton.grid(row = 2, column = 2, sticky = 'n', padx = (45,0))
         uploadButton.tkraise()
+        ToolTip(uploadButton, msg = 'Upload a text file', delay = 1.0)
 
         inputTextArea = TextEntry(self.textTranslatorTab, Name = 'inputTextArea')
         inputTextArea.grid(row = 2, column = 0, sticky = 'nw')
@@ -98,10 +100,12 @@ class TabBar(ttk.Notebook):
         pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
         pasteButton.pack(side = 'top', fill = 'x', expand = True)
         pasteButton.tkraise()
+        ToolTip(pasteButton, msg = 'Paste text from clipboard', delay = 1.0)
 
         deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
+        ToolTip(deleteButton, msg = 'Clear text from input box', delay = 1.0)
 
         outputTextLabel = TextLabelDynamic(self.textTranslatorTab, Name = 'outputTextLabel', pady = (20,0))
         outputTextLabel.grid(row = 3, column = 0, sticky = 'nw')
@@ -115,6 +119,7 @@ class TabBar(ttk.Notebook):
         downloadButton = ButtonIcon(self.textTranslatorTab, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
         downloadButton.grid(row = 4, column = 2, sticky = 'n', padx = (45,0))
         downloadButton.tkraise()
+        ToolTip(downloadButton, msg = 'Download as text file', delay = 1.0)
 
         outputTextArea = TextEntry(self.textTranslatorTab, Name = 'outputTextArea')
         outputTextArea.grid(row = 4, column = 0, sticky = 'nw')
@@ -128,10 +133,12 @@ class TabBar(ttk.Notebook):
         copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
         copyButton.pack(side = 'top', fill = 'x', expand = True)
         copyButton.tkraise()
+        ToolTip(copyButton, msg = 'Copy text to clipboard', delay = 1.0)
 
         lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename = 'iconAssets/light.png', command = None)
         lightButton.pack(side = 'bottom', fill = 'x', expand = True)
         lightButton.tkraise()
+        ToolTip(lightButton, msg = 'Show light representation', delay = 1.0)
 
     def populateSoundGeneratorTab(self):
         translationDirectionLabel = TextLabelDynamic(self.soundGeneratorTab, Name = 'translationDirectionLabel', anchor = 'w', pady = (10,10))
@@ -147,6 +154,7 @@ class TabBar(ttk.Notebook):
         translationDropdown.grid(row = 0, column = 2)
         translationDropdown.setDropdownValue('English Plaintext Input')
         translationDropdown.tkraise()
+        ToolTip(translationDropdown, msg = 'Switch input text format', delay = 1.0)
 
         inputTextLabel = TextLabelDynamic(self.soundGeneratorTab, Name ='inputTextLabel')
         inputTextLabel.grid(row = 1, column = 0, sticky = 'nw')
@@ -169,14 +177,17 @@ class TabBar(ttk.Notebook):
         pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
         pasteButton.pack(side = 'top', fill = 'x', expand = True)
         pasteButton.tkraise()
+        ToolTip(pasteButton, msg = 'Paste text from clipboard', delay = 1.0)
 
         deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
+        ToolTip(deleteButton, msg = 'Clear text from input box', delay = 1.0)
 
         uploadButton = ButtonIcon(self.soundGeneratorTab, Name = 'uploadButton', filename = 'iconAssets/upload.png', command = None)
         uploadButton.grid(row = 2, column = 2, sticky = 'n')
         uploadButton.tkraise()
+        ToolTip(uploadButton, msg = 'Upload a text file', delay = 1.0)
 
         outputTextLabel = TextLabelStatic(self.soundGeneratorTab, Name = 'outputTextLabel', text = 'Output Morse Code sound file:', pady = (10,0))
         outputTextLabel.grid(row = 3, column = 0, sticky = 'nw')
@@ -185,6 +196,7 @@ class TabBar(ttk.Notebook):
         resetButton = ButtonText(self.soundGeneratorTab, Name = 'resetButton', text = 'Reset', pady = (10,0), command = None)
         resetButton.grid(row = 3, column = 1, sticky = 'w')
         resetButton.tkraise()
+        ToolTip(resetButton, msg = 'Reset to default values', delay = 1.0)
 
         generateFrame = tk.Frame(self.soundGeneratorTab)
         generateFrame.grid(row = 3, column = 2)
@@ -193,6 +205,7 @@ class TabBar(ttk.Notebook):
         generateButton = ButtonText(generateFrame, Name = 'generateButton', text = 'Generate', pady = (10,0), command = None)
         generateButton.grid(row = 0, column = 0)
         generateButton.tkraise()
+        ToolTip(generateButton, msg = 'Generate Morse Code sound', delay = 1.0)
 
         generateTextLabel = TextLabelDynamic(generateFrame, Name = 'generateTextLabel', colour = 'red', pady = (10,0))
         generateTextLabel.grid(row = 0, column = 1)
@@ -211,6 +224,7 @@ class TabBar(ttk.Notebook):
         frequencySlider.grid(row = 0, column = 1, sticky = 'n')
         frequencySlider.setSliderValue(600)
         frequencySlider.tkraise()
+        ToolTip(frequencySlider, msg = 'Modify output frequency', delay = 1.0)
 
         wpmTextLabel = TextLabelStatic(sliderFrame, Name = 'wpmTextLabel', text = 'WPM', anchor = 'e')
         wpmTextLabel.grid(row = 1, column = 0, sticky = 'sw')
@@ -220,6 +234,7 @@ class TabBar(ttk.Notebook):
         wpmSlider.grid(row = 1, column = 1, sticky = 'n')
         wpmSlider.setSliderValue(10)
         wpmSlider.tkraise()
+        ToolTip(frequencySlider, msg = 'Modify output WPM', delay = 1.0)
 
         volumeTextLabel = TextLabelStatic(sliderFrame, Name = 'volumeTextLabel', text = 'Volume', anchor = 'e')
         volumeTextLabel.grid(row = 2, column = 0, sticky = 'sw')
@@ -229,6 +244,7 @@ class TabBar(ttk.Notebook):
         volumeSlider.grid(row = 2, column = 1, sticky = 'n')
         volumeSlider.setSliderValue(100)
         volumeSlider.tkraise()
+        ToolTip(frequencySlider, msg = 'Modify output volume', delay = 1.0)
 
         frequencyTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
         frequencyTextEntry.grid(row = 0, column = 2, sticky = 's')
@@ -256,6 +272,7 @@ class TabBar(ttk.Notebook):
         downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
         downloadButton.grid(row = 1, column = 0, sticky = 'n')
         downloadButton.tkraise()
+        ToolTip(downloadButton, msg = 'Download as sound file', delay = 1.0)
 
         playbackFrame = tk.Frame(self.soundGeneratorTab, pady = 15)
         playbackFrame.grid(row = 5, column = 0, columnspan = 2, sticky = 'w')
@@ -268,18 +285,22 @@ class TabBar(ttk.Notebook):
         playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename = 'iconAssets/play.png', padx = 5 , command = None)
         playButton.grid(row = 0, column = 1)
         playButton.tkraise()
+        ToolTip(playButton, msg = 'Start playback', delay = 1.0)
 
         pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename = 'iconAssets/pause.png', padx = 5, command = None)
         pauseButton.grid(row = 0, column = 2)
         pauseButton.tkraise()
+        ToolTip(pauseButton, msg = 'Pause playback', delay = 1.0)
 
         stopButton = ButtonIcon(playbackFrame, Name = 'stopButton', filename = 'iconAssets/stop.png', padx = 5 , command = None)
         stopButton.grid(row = 0, column = 3)
         stopButton.tkraise()
+        ToolTip(stopButton, msg = 'Stop playback', delay = 1.0)
 
         waveformButton = ButtonIcon(playbackFrame, Name = 'waveformButton', filename = 'iconAssets/waveform.png', padx = 5, command = None)
         waveformButton.grid(row = 0, column = 4)
         waveformButton.tkraise()
+        ToolTip(waveformButton, msg = 'Show sound waveform graph', delay = 1.0)
 
     def populateSoundDecoderTab(self):
         translationDirectionLabel = TextLabelDynamic(self.soundDecoderTab, Name = 'translationDirectionLabel', anchor = 'w', pady = (10,10))
@@ -295,6 +316,7 @@ class TabBar(ttk.Notebook):
         translationDropdown.grid(row = 0, column = 2)
         translationDropdown.setDropdownValue('English Plaintext Output')
         translationDropdown.tkraise()
+        ToolTip(translationDropdown, msg = 'Switch output text format', delay = 1.0)
 
         uploadTextLabel = TextLabelStatic(self.soundDecoderTab, Name ='uploadTextLabel', text = 'Upload Morse Code Sound File:', anchor = 'w', padx = (10,0))
         uploadTextLabel.grid(row = 1, column = 0, sticky = 'sw')
@@ -303,6 +325,7 @@ class TabBar(ttk.Notebook):
         resetButton = ButtonText(self.soundDecoderTab, Name = 'resetButton', text = 'Reset', pady = (10,0), padx = (45,0), command = None)
         resetButton.grid(row = 1, column = 1, sticky = 'w')
         resetButton.tkraise()
+        ToolTip(resetButton, msg = 'Reset to default values', delay = 1.0)
 
         wpmFrame = tk.Frame(self.soundDecoderTab)
         wpmFrame.grid(row = 2, column = 0, columnspan = 2)
@@ -317,6 +340,7 @@ class TabBar(ttk.Notebook):
         wpmSlider.setSliderValue(10)
         wpmSlider.disableSlider()
         wpmSlider.tkraise()
+        ToolTip(wpmSlider, msg = 'Modify input WPM', delay = 1.0)
 
         wpmTextEntry = SmallTextEntry(wpmFrame, Name = 'wpmTextEntry', pady = (15,0))
         wpmTextEntry.grid(row = 1, column = 2)
@@ -337,6 +361,7 @@ class TabBar(ttk.Notebook):
         translateButton = ButtonText(translateFrame, Name = 'translateButton', text = 'Translate', pady = (10,0), command = None)
         translateButton.grid(row = 1, column = 0)
         translateButton.tkraise()
+        ToolTip(wpmSlider, msg = 'Decode Morse sound file into text', delay = 1.0)
 
         uploadRecordFrame = tk.Frame(self.soundDecoderTab)
         uploadRecordFrame.grid(row = 3, column = 0, columnspan = 2)
@@ -349,6 +374,7 @@ class TabBar(ttk.Notebook):
         uploadButton = ButtonIcon(uploadRecordFrame, Name = 'uploadButton', filename = 'iconAssets/upload.png', pady = (10,0), command = None)
         uploadButton.grid(row = 0, column = 1)
         uploadButton.tkraise()
+        ToolTip(uploadButton, msg = 'Upload a sound file', delay = 1.0)
 
         recordTextLabel = TextLabelStatic(uploadRecordFrame, Name = 'recordTextLabel', text = 'Or record a sound file:', pady = (10,0), padx = (25,0))
         recordTextLabel.grid(row = 0, column = 2)
@@ -357,6 +383,7 @@ class TabBar(ttk.Notebook):
         recordButton = ButtonIcon(uploadRecordFrame, Name = 'recordButton', filename = 'iconAssets/record.png', pady = (10,0), padx = (15,0), command = None)
         recordButton.grid(row = 0, column = 3)
         recordButton.tkraise()
+        ToolTip(wpmSlider, msg = 'Start / stop recording from microphone', delay = 1.0)
 
         playbackFrame = tk.Frame(self.soundDecoderTab)
         playbackFrame.grid(row = 3, column = 2)
@@ -365,14 +392,17 @@ class TabBar(ttk.Notebook):
         playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename = 'iconAssets/play.png', pady = (10,0), padx = 5, command = None)
         playButton.grid(row = 0, column = 0)
         playButton.tkraise()
+        ToolTip(playButton, msg = 'Start playback', delay = 1.0)
 
         pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename = 'iconAssets/pause.png', pady = (10,0), padx = 5, command = None)
         pauseButton.grid(row = 0, column = 1)
         pauseButton.tkraise()
+        ToolTip(pauseButton, msg = 'Pause playback', delay = 1.0)
 
         stopButton = ButtonIcon(playbackFrame, Name = 'stopButton', filename = 'iconAssets/stop.png', pady = (10,0), padx = 5 , command = None)
         stopButton.grid(row = 0, column = 2)
         stopButton.tkraise()
+        ToolTip(stopButton, msg = 'Stop playback', delay = 1.0)
 
         outputTextLabel = TextLabelDynamic(self.soundDecoderTab, Name = 'outputTextLabel', pady = (20,0))
         outputTextLabel.grid(row = 4, column = 0, sticky = 'nw')
@@ -391,11 +421,13 @@ class TabBar(ttk.Notebook):
         copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
         copyButton.pack(side = 'top', fill = 'x', expand = True)
         copyButton.tkraise()
+        ToolTip(copyButton, msg = 'Copy text to clipboard', delay = 1.0)
 
         lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename = 'iconAssets/light.png', command = None)
         lightButton.pack(side = 'bottom', fill = 'x', expand = True)
         lightButton.disableButton()
         lightButton.tkraise()
+        ToolTip(lightButton, msg = 'Show light representation', delay = 1.0)
 
         downloadFrame = tk.Frame(self.soundDecoderTab)
         downloadFrame.grid(row = 5, column = 2)
@@ -408,6 +440,7 @@ class TabBar(ttk.Notebook):
         downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
         downloadButton.grid(row = 1, column = 0, sticky = 'n')
         downloadButton.tkraise()
+        ToolTip(downloadButton, msg = 'Download as text file', delay = 1.0)
 
 
     def populateKeyerTab(self):
@@ -428,6 +461,7 @@ class TabBar(ttk.Notebook):
         switchButton = ButtonText(translateFrame, Name = 'switchButton', text = 'Switch Mode', command = None)
         switchButton.grid(row = 1, column = 1)
         switchButton.tkraise()
+        ToolTip(switchButton, msg = 'Switch paddle mode', delay = 1.0)
         
         sliderFrame = tk.Frame(self.keyerTab)
         sliderFrame.grid(row = 0, column = 1, columnspan = 2)
@@ -441,6 +475,7 @@ class TabBar(ttk.Notebook):
         frequencySlider.grid(row = 0, column = 1, sticky = 'n')
         frequencySlider.setSliderValue(600)
         frequencySlider.tkraise()
+        ToolTip(frequencySlider, msg = 'Modify output frequency', delay = 1.0)
 
         wpmTextLabel = TextLabelStatic(sliderFrame, Name = 'wpmTextLabel', text = 'WPM', anchor = 'e')
         wpmTextLabel.grid(row = 1, column = 0, sticky = 'sw')
@@ -450,6 +485,7 @@ class TabBar(ttk.Notebook):
         wpmSlider.grid(row = 1, column = 1, sticky = 'n')
         wpmSlider.setSliderValue(10)
         wpmSlider.tkraise()
+        ToolTip(wpmSlider, msg = 'Modify input WPM', delay = 1.0)
 
         frequencyTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
         frequencyTextEntry.grid(row = 0, column = 2, sticky = 's')
@@ -483,6 +519,7 @@ class TabBar(ttk.Notebook):
         downloadButton = ButtonIcon(self.keyerTab, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
         downloadButton.grid(row = 4, column = 2, sticky = 'n')
         downloadButton.tkraise()
+        ToolTip(downloadButton, msg = 'Download as text file', delay = 1.0)
 
         outputTextArea = TextEntry(self.keyerTab, Name = 'outputTextArea')
         outputTextArea.grid(row = 4, column = 0, sticky = 'nw')
@@ -496,10 +533,12 @@ class TabBar(ttk.Notebook):
         copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
         copyButton.pack(side = 'top', fill = 'x', expand = True)
         copyButton.tkraise()
+        ToolTip(copyButton, msg = 'Copy text to clipboard', delay = 1.0)
 
         deleteButton = ButtonIcon(outputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
+        ToolTip(deleteButton, msg = 'Clear text from output box', delay = 1.0)
 
         keyFrame = tk.Frame(self.keyerTab)
         keyFrame.grid(row = 5, column = 0, columnspan = 2, sticky = 'w')
@@ -508,11 +547,13 @@ class TabBar(ttk.Notebook):
         keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename = 'iconAssets/key.png', command = None, pady = (10,0), padx = (15,0))
         keyButton1.grid(row = 0, column = 0, sticky = 'w')
         keyButton1.tkraise()
+        ToolTip(keyButton1, msg = 'Dit', delay = 1.0)
 
         keyButton2 = ButtonIcon(keyFrame, Name = 'keyButton2', filename = 'iconAssets/keyDash.png', command = None, pady = (10,0), padx = (15,0))
         keyButton2.grid(row = 0, column = 1, sticky = 'w')
         keyButton2.disableButton()
         keyButton2.tkraise()
+        ToolTip(keyButton2, msg = 'Dah', delay = 1.0)
 
         keyTextLabel = TextLabelDynamic(keyFrame, Name = 'keyTextLabel')
         keyTextLabel.setText('Tap button or press spacebar / comma / full stop')
@@ -522,6 +563,7 @@ class TabBar(ttk.Notebook):
         legendButton = ButtonText(self.keyerTab, Name = 'legendButton', text = 'Show Legend', command = None)
         legendButton.grid(row = 5, column = 2, sticky = 'w')
         legendButton.tkraise()
+        ToolTip(legendButton, msg = 'Show Morse Code legend', delay = 1.0)
 
 
     def populateChallengeModeTab(self):
@@ -542,6 +584,7 @@ class TabBar(ttk.Notebook):
         switchButton = ButtonText(translateFrame, Name = 'switchButton', text = 'Switch Mode', padx = (20,0), command = None)
         switchButton.grid(row = 1, column = 1)
         switchButton.tkraise()
+        ToolTip(switchButton, msg = 'Switch paddle mode', delay = 1.0)
         
         sliderFrame = tk.Frame(self.challengeModeTab)
         sliderFrame.grid(row = 0, column = 1, columnspan = 2)
@@ -555,6 +598,7 @@ class TabBar(ttk.Notebook):
         frequencySlider.grid(row = 0, column = 1, sticky = 'n')
         frequencySlider.setSliderValue(600)
         frequencySlider.tkraise()
+        ToolTip(frequencySlider, msg = 'Modify output frequency', delay = 1.0)
 
         wpmTextLabel = TextLabelStatic(sliderFrame, Name = 'wpmTextLabel', text = 'WPM', anchor = 'e')
         wpmTextLabel.grid(row = 1, column = 0, sticky = 'sw')
@@ -564,6 +608,7 @@ class TabBar(ttk.Notebook):
         wpmSlider.grid(row = 1, column = 1, sticky = 'n')
         wpmSlider.setSliderValue(10)
         wpmSlider.tkraise()
+        ToolTip(wpmSlider, msg = 'Modify input WPM', delay = 1.0)
 
         frequencyTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
         frequencyTextEntry.grid(row = 0, column = 2, sticky = 's')
@@ -582,18 +627,22 @@ class TabBar(ttk.Notebook):
         wordListButton = ButtonText(settingsFrame, Name = 'wordListButton', text = 'Word List Settings', padx = 5, pady = 10, command = None)
         wordListButton.grid(row = 0, column = 0)
         wordListButton.tkraise()
+        ToolTip(frequencySlider, msg = 'Open word list settings', delay = 1.0)
 
         modeSettingsButton = ButtonText(settingsFrame, Name = 'modeSettingsButton', text = 'Challenge Mode Settings', padx = 5, pady = 10, command = None)
         modeSettingsButton.grid(row = 0, column = 1)
         modeSettingsButton.tkraise()
+        ToolTip(frequencySlider, msg = 'Open challenge mode settings', delay = 1.0)
 
         startButton = ButtonText(settingsFrame, Name = 'startButton', text = 'Start Challenge Mode', padx = 5, pady = 10, command = None)
         startButton.grid(row = 0, column = 2)
         startButton.tkraise()
+        ToolTip(startButton, msg = 'Start challenge mode game session', delay = 1.0)
 
         endButton = ButtonText(settingsFrame, Name = 'endButton', text = 'End Challenge Mode', padx = 5, pady = 10, command = None)
         endButton.grid(row = 0, column = 3)
         endButton.tkraise()
+        ToolTip(endButton, msg = 'End challenge mode game session', delay = 1.0)
 
         englishCurrentLabel = TextLabelHighlightable(self.challengeModeTab, Name ='englishCurrentLabel', fontSize = 30, highlight = '#65fe08')
         englishCurrentLabel.grid(row = 2, column = 0, columnspan = 3)
@@ -618,6 +667,7 @@ class TabBar(ttk.Notebook):
         statsButton = ButtonText(self.challengeModeTab, Name = 'statsButton', text = 'See Challenge Stats', command = None)
         statsButton.grid(row = 5, column = 2)
         statsButton.tkraise()
+        ToolTip(statsButton, msg = 'Show challenge mode session statistics', delay = 1.0)
 
         keyFrame = tk.Frame(self.challengeModeTab)
         keyFrame.grid(row = 6, column = 0, columnspan = 2, sticky = 'nw')
@@ -626,11 +676,13 @@ class TabBar(ttk.Notebook):
         keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename = 'iconAssets/key.png', command = None, pady = (10,0), padx = (15,0))
         keyButton1.grid(row = 0, column = 0, sticky = 'w')
         keyButton1.tkraise()
+        ToolTip(keyButton1, msg = 'Dit', delay = 1.0)
 
         keyButton2 = ButtonIcon(keyFrame, Name = 'keyButton2', filename = 'iconAssets/keyDash.png', command = None, pady = (10,0), padx = (15,0))
         keyButton2.grid(row = 0, column = 1, sticky = 'w')
         keyButton2.disableButton()
         keyButton2.tkraise()
+        ToolTip(keyButton2, msg = 'Dah', delay = 1.0)
 
         keyTextLabel = TextLabelDynamic(keyFrame, Name = 'keyTextLabel')
         keyTextLabel.setText('Tap button or press spacebar / comma / full stop')
@@ -640,6 +692,7 @@ class TabBar(ttk.Notebook):
         legendButton = ButtonText(self.challengeModeTab, Name = 'legendButton', text = 'Show Legend', command = None)
         legendButton.grid(row = 6, column = 2, sticky = 'w')
         legendButton.tkraise()
+        ToolTip(legendButton, msg = 'Show Morse Code legend', delay = 1.0)
 
 
     def populateNetworkingTab(self):
@@ -656,6 +709,7 @@ class TabBar(ttk.Notebook):
         translationDropdown.grid(row = 0, column = 2)
         translationDropdown.setDropdownValue('English Plaintext Input')
         translationDropdown.tkraise()
+        ToolTip(translationDropdown, msg = 'Switch input text format', delay = 1.0)
 
         inputTextLabel = TextLabelDynamic(self.networkingTab, Name ='inputTextLabel')
         inputTextLabel.grid(row = 1, column = 0, sticky = 'nw')
@@ -674,10 +728,12 @@ class TabBar(ttk.Notebook):
         pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
         pasteButton.pack(side = 'top', fill = 'x', expand = True)
         pasteButton.tkraise()
+        ToolTip(pasteButton, msg = 'Paste text from clipboard', delay = 1.0)
 
         deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
+        ToolTip(deleteButton, msg = 'Clear text from input box', delay = 1.0)
 
         sendingFrame = tk.Frame(self.networkingTab)
         sendingFrame.grid(row = 1, column = 2, rowspan = 2, sticky = 'nw')
@@ -694,6 +750,7 @@ class TabBar(ttk.Notebook):
         prepareMessageButton = ButtonText(sendingFrame, Name = 'prepareMessageButton', text = 'Prepare Morse Code Message', command = None, pady = (15,0))
         prepareMessageButton.grid(row = 2, column = 0)
         prepareMessageButton.tkraise()
+        ToolTip(prepareMessageButton, msg = 'Prepare Morse Code message for sending', delay = 1.0)
 
         receiveTextLabel = TextLabelStatic(self.networkingTab, Name = 'receiveTextLabel', text = 'Receive Messages:', anchor = 'w', pady = (15,0))
         receiveTextLabel.grid(row = 3, column = 0, sticky = 'w')
@@ -710,18 +767,22 @@ class TabBar(ttk.Notebook):
         refreshButton = ButtonText(receivedButtonsFrame, Name = 'refreshButton', text = 'Refresh', command = None, padx = (20,0))
         refreshButton.grid(row = 0, column = 0, sticky = 'w')
         refreshButton.tkraise()
+        ToolTip(refreshButton, msg = 'Refresh message interface', delay = 1.0)
 
         openMessageButton = ButtonText(receivedButtonsFrame, Name = 'openMessageButton', text = 'Open Message', command = None, padx = (20,0))
         openMessageButton.grid(row = 0, column = 1, sticky = 'w')
         openMessageButton.tkraise()
+        ToolTip(openMessageButton, msg = 'Open selected message', delay = 1.0)
 
         deleteMessageButton = ButtonText(receivedButtonsFrame, Name = 'deleteMessageButton', text = 'Delete Message', command = None, padx = (20,0))
         deleteMessageButton.grid(row = 0, column = 2, sticky = 'w')
         deleteMessageButton.tkraise()
+        ToolTip(deleteMessageButton, msg = 'Delete selected message', delay = 1.0)
 
         deleteAllMessagesButton = ButtonText(receivedButtonsFrame, Name = 'deleteAllMessagesButton', text = 'Delete All Messages', command = None, padx = (20,0))
         deleteAllMessagesButton.grid(row = 0, column = 3, sticky = 'w')
         deleteAllMessagesButton.tkraise()
+        ToolTip(deleteAllMessagesButton, msg = 'Delete all messages', delay = 1.0)
 
 
 class TextLabelDynamic(tk.Frame):
