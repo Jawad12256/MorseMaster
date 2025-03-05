@@ -1836,7 +1836,9 @@ class Networking(TabEventsManager):
         #run as a background thread process
         while True:
             time.sleep(5)
-            self.refresh()
+            if not str(self.tabObject['receivedListBox']) in str(app.focus_get()):
+                #only refresh if the user doesn't have an item in the listbox currently selected
+                self.refresh()
 
     def openMessage(self, *args):
         receivedListbox = self.tabObject['receivedListBox']
