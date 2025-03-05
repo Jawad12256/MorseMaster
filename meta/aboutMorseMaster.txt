@@ -1,0 +1,11 @@
+About MorseMaster
+
+Version: 1.0.0
+Developer: Jawad Uddin
+Copyright: © 2025 Jawad Uddin
+License: GPL
+
+MorseMaster is a software tool that provides translation facilities for Morse Code in text, sound, and light formats.
+It also includes a Morse Code keyer, Challenge Mode, and local networking features.
+
+Happy Birthday, Mr Savage!

@@ -2003,7 +2003,9 @@ class MenuBarManager:
         app.menuBar.options.add_command(label = 'Word List Settings', command = self.wordListSettings)
         app.menuBar.options.add_command(label = 'Challenge Mode Settings', command = self.challengeModeSettings)
         app.menuBar.options.add_command(label = 'See Challenge Stats', command = self.challengeModeStats)
+        app.menuBar.help_.add_command(label = 'MorseMaster Help', command = None)
         app.menuBar.help_.add_command(label = 'Show Legend', command = self.showLegend)
+        app.menuBar.help_.add_command(label = 'About MorseMaster', command = self.aboutMorseMaster)
 
     def wordListSettings(self):
         challengeMode.wordListSettings()
@@ -2016,6 +2018,18 @@ class MenuBarManager:
     
     def challengeModeStats(self):
         challengeMode.challengeModeStats()
+    
+    def aboutMorseMaster(self):
+        with open('meta/aboutMorseMaster.txt', 'r') as f:
+            aboutText = f.read()
+        
+        app.focus_set()
+        appAbout = Toplevel(app)
+        appAbout.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appAbout.title('About MorseMaster')
+        aboutLabel = TextLabelStatic(appAbout, text = aboutText, anchor = 'w')
+        aboutLabel.pack()
+        aboutLabel.tkraise()
 
 
 textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())

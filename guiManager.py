@@ -34,8 +34,6 @@ class MenuBar:
 
         self.help_ = tk.Menu(self.menubar, tearoff = 0)
         self.menubar.add_cascade(label = 'Help', menu = self.help_)
-        self.help_.add_command(label = 'MorseMaster Help', command = None)
-        self.help_.add_command(label = 'About MorseMaster', command = None)
 
 
 class TabBar(ttk.Notebook):
