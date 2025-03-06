@@ -1499,8 +1499,8 @@ class ChallengeMode(TabEventsManager):
 
         ToolTip(WLSdropdown, msg = 'Choose word list', delay = 1.0)
         ToolTip(uploadButton, msg = 'Upload a text file', delay = 1.0)
-        ToolTip(okButton, msg = 'Save changes', delay = 1.0)
-        ToolTip(cancelButton, msg = 'Cancel changes', delay = 1.0)
+        # ToolTip(okButton, msg = 'Save changes', delay = 1.0)
+        # ToolTip(cancelButton, msg = 'Cancel changes', delay = 1.0)
 
     def sanitiseWordList(self, wordList):
         #sanitisation in case of invalid input for English plaintext

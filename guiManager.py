@@ -232,7 +232,7 @@ class TabBar(ttk.Notebook):
         wpmSlider.grid(row = 1, column = 1, sticky = 'n')
         wpmSlider.setSliderValue(10)
         wpmSlider.tkraise()
-        ToolTip(frequencySlider, msg = 'Modify output WPM', delay = 1.0)
+        ToolTip(wpmSlider, msg = 'Modify output WPM', delay = 1.0)
 
         volumeTextLabel = TextLabelStatic(sliderFrame, Name = 'volumeTextLabel', text = 'Volume', anchor = 'e')
         volumeTextLabel.grid(row = 2, column = 0, sticky = 'sw')
@@ -242,7 +242,7 @@ class TabBar(ttk.Notebook):
         volumeSlider.grid(row = 2, column = 1, sticky = 'n')
         volumeSlider.setSliderValue(100)
         volumeSlider.tkraise()
-        ToolTip(frequencySlider, msg = 'Modify output volume', delay = 1.0)
+        ToolTip(volumeSlider, msg = 'Modify output volume', delay = 1.0)
 
         frequencyTextEntry = SmallTextEntry(sliderFrame, Name = 'frequencyTextEntry')
         frequencyTextEntry.grid(row = 0, column = 2, sticky = 's')
@@ -359,7 +359,7 @@ class TabBar(ttk.Notebook):
         translateButton = ButtonText(translateFrame, Name = 'translateButton', text = 'Translate', pady = (10,0), command = None)
         translateButton.grid(row = 1, column = 0)
         translateButton.tkraise()
-        ToolTip(wpmSlider, msg = 'Decode Morse sound file into text', delay = 1.0)
+        ToolTip(translateButton, msg = 'Decode Morse sound file into text', delay = 1.0)
 
         uploadRecordFrame = tk.Frame(self.soundDecoderTab)
         uploadRecordFrame.grid(row = 3, column = 0, columnspan = 2)
@@ -381,7 +381,7 @@ class TabBar(ttk.Notebook):
         recordButton = ButtonIcon(uploadRecordFrame, Name = 'recordButton', filename = 'iconAssets/record.png', pady = (10,0), padx = (15,0), command = None)
         recordButton.grid(row = 0, column = 3)
         recordButton.tkraise()
-        ToolTip(wpmSlider, msg = 'Start / stop recording from microphone', delay = 1.0)
+        ToolTip(recordButton, msg = 'Start / stop recording from microphone', delay = 1.0)
 
         playbackFrame = tk.Frame(self.soundDecoderTab)
         playbackFrame.grid(row = 3, column = 2)
