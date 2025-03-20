@@ -1415,7 +1415,8 @@ class ChallengeMode(TabEventsManager):
     def wordListSettings(self):
         def ok():
             #OK button to modify word list variable
-            if self.checkTextEntry(WLSentry.getText()):
+            #sanitise duplicate spaces in text entry before performing validation check
+            if self.checkTextEntry(self.sanitiseTextEntrySpaces(WLSentry.getText())):
                 self.currentWordList = [word for word in WLSentry.getText().replace('\n',' ').split(' ')]
                 self.currentWordListType = WLSdropdown.getDropdownValue()
                 appWLS.destroy()
@@ -1530,6 +1531,10 @@ class ChallengeMode(TabEventsManager):
         except:
             messagebox.showerror('File Read Error', 'Error while reading the file')
     
+    def sanitiseTextEntrySpaces(self, textEntry):
+        #sanitises duplicate spaces from the text entry input
+        return ' '.join(textEntry.split())
+
     def checkTextEntry(self, textEntry):
         #checks if word list in the text entry box is not empty and contains only valid characters
         textEntry = textEntry.replace('\n', ' ')
@@ -1548,10 +1553,13 @@ class ChallengeMode(TabEventsManager):
             randomiseWordOrder = randomiseWordOrderCheckbox.getValue()
             limitWordCount = limitWordCountCheckbox.getValue()
             limitWordCountValue = noOfWordsSpinbox.getValue()
-            self.states['acceptFullWordOnly'] = acceptFullWordOnly
-            self.states['randomiseWordOrder'] = randomiseWordOrder
-            self.states['limitWordCount'] = limitWordCount
-            self.wordLimit = int(limitWordCountValue)
+            if int(limitWordCountValue) <= 0: #validation for case of spinbox value of 0
+                messagebox.showerror('Word Limit Error','Word limit must be a positive integer')
+            else:
+                self.states['acceptFullWordOnly'] = acceptFullWordOnly
+                self.states['randomiseWordOrder'] = randomiseWordOrder
+                self.states['limitWordCount'] = limitWordCount
+                self.wordLimit = int(limitWordCountValue)
             appCMS.destroy()
 
         def cancel():
@@ -1599,8 +1607,8 @@ class ChallengeMode(TabEventsManager):
         cancelButton.tkraise()
         okButton.tkraise()
 
-        ToolTip(okButton, msg = 'Save changes', delay = 1.0)
-        ToolTip(cancelButton, msg = 'Cancel changes', delay = 1.0)
+        # ToolTip(okButton, msg = 'Save changes', delay = 1.0)
+        # ToolTip(cancelButton, msg = 'Cancel changes', delay = 1.0)
     
     def startChallengeMode(self):
         #initialise Challenge Mode
@@ -1836,7 +1844,7 @@ class Networking(TabEventsManager):
         #run as a background thread process
         while True:
             time.sleep(5)
-            if not str(self.tabObject['receivedListBox']) in str(app.focus_get()):
+            if app.tabBar.tab(app.tabBar.select(), "text") == 'Networking' and not str(self.tabObject['receivedListBox']) in str(app.focus_get()):
                 #only refresh if the user doesn't have an item in the listbox currently selected
                 self.refresh()
 
@@ -1922,10 +1930,14 @@ class Networking(TabEventsManager):
             refresh()
 
         def send():
+            #Verify that recipients have been selected from the interface, then encode and send the Morse Code message
             self.nicknameDict = self.myNode.getNicknameDict()
             recipientPeerNicknames = recipientsListbox.getSelectedItems()
             recipientPeerIDs = [self.nicknameDict[nickname] for nickname in recipientPeerNicknames]
-            self.myNode.sendMessage(self.morseCodeMessage, recipientPeerIDs)
+            if len(recipientPeerIDs) > 0:
+                self.myNode.sendMessage(self.morseCodeMessage, recipientPeerIDs)
+            else:
+                messagebox.showerror('Message Recipients Error', 'No message recipients selected')
 
 
         app.focus_set()
