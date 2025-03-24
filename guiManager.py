@@ -5,6 +5,7 @@ from tkinter.ttk import Combobox
 from tkinter import ttk
 from tktooltip import ToolTip
 from time import sleep
+import os, sys
 
 class MorseMaster(tk.Tk):
     def __init__(self):
@@ -61,6 +62,13 @@ class TabBar(ttk.Notebook):
         self.populateChallengeModeTab()
         self.populateNetworkingTab()
 
+    def getPath(self, relative_path):
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
+
     def populateTextTranslatorTab(self):
         translationDirectionLabel = TextLabelDynamic(self.textTranslatorTab, Name = 'translationDirectionLabel', anchor = 'e', pady = (5,10))
         translationDirectionLabel.grid(row = 0, column = 0)
@@ -81,7 +89,7 @@ class TabBar(ttk.Notebook):
         uploadTextLabel.grid(row = 1, column = 2, sticky = 's')
         uploadTextLabel.tkraise()
 
-        uploadButton = ButtonIcon(self.textTranslatorTab, Name = 'uploadButton', filename = 'iconAssets/upload.png', command = None)
+        uploadButton = ButtonIcon(self.textTranslatorTab, Name = 'uploadButton', filename = self.getPath('iconAssets/upload.png'), command = None)
         uploadButton.grid(row = 2, column = 2, sticky = 'n', padx = (45,0))
         uploadButton.tkraise()
         ToolTip(uploadButton, msg = 'Upload a text file', delay = 1.0)
@@ -95,12 +103,12 @@ class TabBar(ttk.Notebook):
         inputTextShortcutsFrame.grid(row = 2, column = 1, sticky = 'nw')
         inputTextShortcutsFrame.tkraise()
 
-        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
+        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename =  self.getPath('iconAssets/paste.png'), command = None)
         pasteButton.pack(side = 'top', fill = 'x', expand = True)
         pasteButton.tkraise()
         ToolTip(pasteButton, msg = 'Paste text from clipboard', delay = 1.0)
 
-        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
+        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename =  self.getPath('iconAssets/delete.png'), command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
         ToolTip(deleteButton, msg = 'Clear text from input box', delay = 1.0)
@@ -114,7 +122,7 @@ class TabBar(ttk.Notebook):
         downloadTextLabel.grid(row = 3, column = 2, sticky = 's')
         downloadTextLabel.tkraise()
 
-        downloadButton = ButtonIcon(self.textTranslatorTab, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
+        downloadButton = ButtonIcon(self.textTranslatorTab, Name = 'downloadButton', filename =  self.getPath('iconAssets/download.png'), command = None)
         downloadButton.grid(row = 4, column = 2, sticky = 'n', padx = (45,0))
         downloadButton.tkraise()
         ToolTip(downloadButton, msg = 'Download as text file', delay = 1.0)
@@ -128,12 +136,12 @@ class TabBar(ttk.Notebook):
         outputTextShortcutsFrame.grid(row = 4, column = 1, sticky = 'nw')
         outputTextShortcutsFrame.tkraise()
 
-        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
+        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename =  self.getPath('iconAssets/copy.png'), command = None)
         copyButton.pack(side = 'top', fill = 'x', expand = True)
         copyButton.tkraise()
         ToolTip(copyButton, msg = 'Copy text to clipboard', delay = 1.0)
 
-        lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename = 'iconAssets/light.png', command = None)
+        lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename =  self.getPath('iconAssets/light.png'), command = None)
         lightButton.pack(side = 'bottom', fill = 'x', expand = True)
         lightButton.tkraise()
         ToolTip(lightButton, msg = 'Show light representation', delay = 1.0)
@@ -172,17 +180,17 @@ class TabBar(ttk.Notebook):
         inputTextShortcutsFrame.grid(row = 2, column = 1, sticky = 'nw')
         inputTextShortcutsFrame.tkraise()
 
-        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
+        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename =  self.getPath('iconAssets/paste.png'), command = None)
         pasteButton.pack(side = 'top', fill = 'x', expand = True)
         pasteButton.tkraise()
         ToolTip(pasteButton, msg = 'Paste text from clipboard', delay = 1.0)
 
-        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
+        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename =  self.getPath('iconAssets/delete.png'), command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
         ToolTip(deleteButton, msg = 'Clear text from input box', delay = 1.0)
 
-        uploadButton = ButtonIcon(self.soundGeneratorTab, Name = 'uploadButton', filename = 'iconAssets/upload.png', command = None)
+        uploadButton = ButtonIcon(self.soundGeneratorTab, Name = 'uploadButton', filename =  self.getPath('iconAssets/upload.png'), command = None)
         uploadButton.grid(row = 2, column = 2, sticky = 'n')
         uploadButton.tkraise()
         ToolTip(uploadButton, msg = 'Upload a text file', delay = 1.0)
@@ -267,7 +275,7 @@ class TabBar(ttk.Notebook):
         downloadTextLabel.grid(row = 0, column = 0, sticky = 's')
         downloadTextLabel.tkraise()
 
-        downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
+        downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename =  self.getPath('iconAssets/download.png'), command = None)
         downloadButton.grid(row = 1, column = 0, sticky = 'n')
         downloadButton.tkraise()
         ToolTip(downloadButton, msg = 'Download as sound file', delay = 1.0)
@@ -280,22 +288,22 @@ class TabBar(ttk.Notebook):
         playbackTextLabel.grid(row = 0, column = 0, sticky = 'w')
         playbackFrame.tkraise()
 
-        playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename = 'iconAssets/play.png', padx = 5 , command = None)
+        playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename =  self.getPath('iconAssets/play.png'), padx = 5 , command = None)
         playButton.grid(row = 0, column = 1)
         playButton.tkraise()
         ToolTip(playButton, msg = 'Start playback', delay = 1.0)
 
-        pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename = 'iconAssets/pause.png', padx = 5, command = None)
+        pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename =  self.getPath('iconAssets/pause.png'), padx = 5, command = None)
         pauseButton.grid(row = 0, column = 2)
         pauseButton.tkraise()
         ToolTip(pauseButton, msg = 'Pause playback', delay = 1.0)
 
-        stopButton = ButtonIcon(playbackFrame, Name = 'stopButton', filename = 'iconAssets/stop.png', padx = 5 , command = None)
+        stopButton = ButtonIcon(playbackFrame, Name = 'stopButton', filename =  self.getPath('iconAssets/stop.png'), padx = 5 , command = None)
         stopButton.grid(row = 0, column = 3)
         stopButton.tkraise()
         ToolTip(stopButton, msg = 'Stop playback', delay = 1.0)
 
-        waveformButton = ButtonIcon(playbackFrame, Name = 'waveformButton', filename = 'iconAssets/waveform.png', padx = 5, command = None)
+        waveformButton = ButtonIcon(playbackFrame, Name = 'waveformButton', filename =  self.getPath('iconAssets/waveform.png'), padx = 5, command = None)
         waveformButton.grid(row = 0, column = 4)
         waveformButton.tkraise()
         ToolTip(waveformButton, msg = 'Show sound waveform graph', delay = 1.0)
@@ -369,7 +377,7 @@ class TabBar(ttk.Notebook):
         uploadSoundFileLabel.grid(row = 0, column = 0)
         uploadSoundFileLabel.tkraise()
 
-        uploadButton = ButtonIcon(uploadRecordFrame, Name = 'uploadButton', filename = 'iconAssets/upload.png', pady = (10,0), command = None)
+        uploadButton = ButtonIcon(uploadRecordFrame, Name = 'uploadButton', filename =  self.getPath('iconAssets/upload.png'), pady = (10,0), command = None)
         uploadButton.grid(row = 0, column = 1)
         uploadButton.tkraise()
         ToolTip(uploadButton, msg = 'Upload a sound file', delay = 1.0)
@@ -378,7 +386,7 @@ class TabBar(ttk.Notebook):
         recordTextLabel.grid(row = 0, column = 2)
         recordTextLabel.tkraise()
 
-        recordButton = ButtonIcon(uploadRecordFrame, Name = 'recordButton', filename = 'iconAssets/record.png', pady = (10,0), padx = (15,0), command = None)
+        recordButton = ButtonIcon(uploadRecordFrame, Name = 'recordButton', filename =  self.getPath('iconAssets/record.png'), pady = (10,0), padx = (15,0), command = None)
         recordButton.grid(row = 0, column = 3)
         recordButton.tkraise()
         ToolTip(recordButton, msg = 'Start / stop recording from microphone', delay = 1.0)
@@ -387,17 +395,17 @@ class TabBar(ttk.Notebook):
         playbackFrame.grid(row = 3, column = 2)
         playbackFrame.tkraise()
 
-        playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename = 'iconAssets/play.png', pady = (10,0), padx = 5, command = None)
+        playButton = ButtonIcon(playbackFrame, Name = 'playButton', filename =  self.getPath('iconAssets/play.png'), pady = (10,0), padx = 5, command = None)
         playButton.grid(row = 0, column = 0)
         playButton.tkraise()
         ToolTip(playButton, msg = 'Start playback', delay = 1.0)
 
-        pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename = 'iconAssets/pause.png', pady = (10,0), padx = 5, command = None)
+        pauseButton = ButtonIcon(playbackFrame, Name = 'pauseButton', filename =  self.getPath('iconAssets/pause.png'), pady = (10,0), padx = 5, command = None)
         pauseButton.grid(row = 0, column = 1)
         pauseButton.tkraise()
         ToolTip(pauseButton, msg = 'Pause playback', delay = 1.0)
 
-        stopButton = ButtonIcon(playbackFrame, Name = 'stopButton', filename = 'iconAssets/stop.png', pady = (10,0), padx = 5 , command = None)
+        stopButton = ButtonIcon(playbackFrame, Name = 'stopButton', filename =  self.getPath('iconAssets/stop.png'), pady = (10,0), padx = 5 , command = None)
         stopButton.grid(row = 0, column = 2)
         stopButton.tkraise()
         ToolTip(stopButton, msg = 'Stop playback', delay = 1.0)
@@ -416,12 +424,12 @@ class TabBar(ttk.Notebook):
         outputTextShortcutsFrame.grid(row = 5, column = 1, sticky = 'nw')
         outputTextShortcutsFrame.tkraise()
 
-        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
+        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename =  self.getPath('iconAssets/copy.png'), command = None)
         copyButton.pack(side = 'top', fill = 'x', expand = True)
         copyButton.tkraise()
         ToolTip(copyButton, msg = 'Copy text to clipboard', delay = 1.0)
 
-        lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename = 'iconAssets/light.png', command = None)
+        lightButton = ButtonIcon(outputTextShortcutsFrame, Name = 'lightButton', filename =  self.getPath('iconAssets/light.png'), command = None)
         lightButton.pack(side = 'bottom', fill = 'x', expand = True)
         lightButton.disableButton()
         lightButton.tkraise()
@@ -435,7 +443,7 @@ class TabBar(ttk.Notebook):
         downloadTextLabel.grid(row = 0, column = 0, sticky = 's')
         downloadTextLabel.tkraise()
 
-        downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
+        downloadButton = ButtonIcon(downloadFrame, Name = 'downloadButton', filename =  self.getPath('iconAssets/download.png'), command = None)
         downloadButton.grid(row = 1, column = 0, sticky = 'n')
         downloadButton.tkraise()
         ToolTip(downloadButton, msg = 'Download as text file', delay = 1.0)
@@ -514,7 +522,7 @@ class TabBar(ttk.Notebook):
         downloadTextLabel.grid(row = 3, column = 2, sticky = 's')
         downloadTextLabel.tkraise()
 
-        downloadButton = ButtonIcon(self.keyerTab, Name = 'downloadButton', filename = 'iconAssets/download.png', command = None)
+        downloadButton = ButtonIcon(self.keyerTab, Name = 'downloadButton', filename =  self.getPath('iconAssets/download.png'), command = None)
         downloadButton.grid(row = 4, column = 2, sticky = 'n')
         downloadButton.tkraise()
         ToolTip(downloadButton, msg = 'Download as text file', delay = 1.0)
@@ -528,12 +536,12 @@ class TabBar(ttk.Notebook):
         outputTextShortcutsFrame.grid(row = 4, column = 1, sticky = 'nw')
         outputTextShortcutsFrame.tkraise()
 
-        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename = 'iconAssets/copy.png', command = None)
+        copyButton = ButtonIcon(outputTextShortcutsFrame, Name = 'copyButton', filename =  self.getPath('iconAssets/copy.png'), command = None)
         copyButton.pack(side = 'top', fill = 'x', expand = True)
         copyButton.tkraise()
         ToolTip(copyButton, msg = 'Copy text to clipboard', delay = 1.0)
 
-        deleteButton = ButtonIcon(outputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
+        deleteButton = ButtonIcon(outputTextShortcutsFrame, Name = 'deleteButton', filename =  self.getPath('iconAssets/delete.png'), command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
         ToolTip(deleteButton, msg = 'Clear text from output box', delay = 1.0)
@@ -542,12 +550,12 @@ class TabBar(ttk.Notebook):
         keyFrame.grid(row = 5, column = 0, columnspan = 2, sticky = 'w')
         keyFrame.tkraise()
 
-        keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename = 'iconAssets/key.png', command = None, pady = (10,0), padx = (15,0))
+        keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename =  self.getPath('iconAssets/key.png'), command = None, pady = (10,0), padx = (15,0))
         keyButton1.grid(row = 0, column = 0, sticky = 'w')
         keyButton1.tkraise()
         ToolTip(keyButton1, msg = 'Dit', delay = 1.0)
 
-        keyButton2 = ButtonIcon(keyFrame, Name = 'keyButton2', filename = 'iconAssets/keyDash.png', command = None, pady = (10,0), padx = (15,0))
+        keyButton2 = ButtonIcon(keyFrame, Name = 'keyButton2', filename =  self.getPath('iconAssets/keyDash.png'), command = None, pady = (10,0), padx = (15,0))
         keyButton2.grid(row = 0, column = 1, sticky = 'w')
         keyButton2.disableButton()
         keyButton2.tkraise()
@@ -671,12 +679,12 @@ class TabBar(ttk.Notebook):
         keyFrame.grid(row = 6, column = 0, columnspan = 2, sticky = 'nw')
         keyFrame.tkraise()
 
-        keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename = 'iconAssets/key.png', command = None, pady = (10,0), padx = (15,0))
+        keyButton1 = ButtonIcon(keyFrame, Name = 'keyButton1', filename =  self.getPath('iconAssets/key.png'), command = None, pady = (10,0), padx = (15,0))
         keyButton1.grid(row = 0, column = 0, sticky = 'w')
         keyButton1.tkraise()
         ToolTip(keyButton1, msg = 'Dit', delay = 1.0)
 
-        keyButton2 = ButtonIcon(keyFrame, Name = 'keyButton2', filename = 'iconAssets/keyDash.png', command = None, pady = (10,0), padx = (15,0))
+        keyButton2 = ButtonIcon(keyFrame, Name = 'keyButton2', filename =  self.getPath('iconAssets/keyDash.png'), command = None, pady = (10,0), padx = (15,0))
         keyButton2.grid(row = 0, column = 1, sticky = 'w')
         keyButton2.disableButton()
         keyButton2.tkraise()
@@ -723,12 +731,12 @@ class TabBar(ttk.Notebook):
         inputTextShortcutsFrame.grid(row = 2, column = 1, sticky = 'nw')
         inputTextShortcutsFrame.tkraise()
 
-        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename = 'iconAssets/paste.png', command = None)
+        pasteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'pasteButton', filename =  self.getPath('iconAssets/paste.png'), command = None)
         pasteButton.pack(side = 'top', fill = 'x', expand = True)
         pasteButton.tkraise()
         ToolTip(pasteButton, msg = 'Paste text from clipboard', delay = 1.0)
 
-        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename = 'iconAssets/delete.png', command = None)
+        deleteButton = ButtonIcon(inputTextShortcutsFrame, Name = 'deleteButton', filename =  self.getPath('iconAssets/delete.png'), command = None)
         deleteButton.pack(side = 'bottom', fill = 'x', expand = True)
         deleteButton.tkraise()
         ToolTip(deleteButton, msg = 'Clear text from input box', delay = 1.0)

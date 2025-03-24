@@ -7,21 +7,31 @@ import tempfile
 import threading
 import wave, struct
 import time
-import os
+import os, sys
 import random
 from pygame import mixer, sndarray
 os.system('cls' if os.name == 'nt' else "printf '\033c'")
 from pynput import keyboard
 from scipy.io import wavfile
 from just_playback import Playback
-from pvrecorder import PvRecorder
+# from pvrecorder import PvRecorder
 
 from tkinter import messagebox, Toplevel, Frame, Label
 from tkinter.filedialog import askopenfilename, asksaveasfile, asksaveasfilename
 from tktooltip import ToolTip
 
+def getPath(relative_path):
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
+
+# library_path = getPath("pvrecorder/lib/windows/amd64/libpv_recorder.dll")
+# os.environ["PV_RECORDER_LIBRARY_PATH"] = library_path
+
 app = MorseMaster()
-app.iconbitmap('iconAssets/morseMasterIcon.ico')
+app.iconbitmap(getPath('iconAssets/morseMasterIcon.ico'))
 app.title('MorseMaster')
 app.minsize(750,400)
 
@@ -66,6 +76,13 @@ class TextTranslator(TabEventsManager):
         self.tabObject['uploadButton'].setCommand(self.openFileDialog)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
         self.tabObject['inputTextArea'].setCommand("<KeyRelease>", (self.translate))
+
+    def getPath(self, relative_path):
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
 
     def switch(self):
         mainLabel, inputLabel, outputLabel = self.tabObject['translationDirectionLabel'], self.tabObject['inputTextLabel'], self.tabObject['outputTextLabel']
@@ -146,7 +163,7 @@ class TextTranslator(TabEventsManager):
                     '/':3.360
                 }
                 appLight = Toplevel(app)
-                appLight.iconbitmap('iconAssets/morseMasterIcon.ico')
+                appLight.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
                 appLight.title('Light Representation')
                 light = Frame(appLight, background = 'white', width = 300, height = 300)
                 light.pack()
@@ -420,7 +437,7 @@ class SoundDecoder(TabEventsManager):
         self.soundRate = 8000
         self.playbackManager = Playback()
         self.tempDataFilePath = None
-        self.recorder = PvRecorder(device_index=-1, frame_length=512)
+        # self.recorder = PvRecorder(device_index=-1, frame_length=512)
         self.recordThread = None
         self.lightThread = None
 
@@ -431,7 +448,7 @@ class SoundDecoder(TabEventsManager):
         w = self.tabObject['wpmTextEntry']
         w.text.trace_add('write', self.matchSlider)
         self.tabObject['uploadButton'].setCommand(self.openFileDialog)
-        self.tabObject['recordButton'].setCommand(self.recordStartStop)
+        #self.tabObject['recordButton'].setCommand(self.recordStartStop)
         self.tabObject['translateButton'].setCommand(self.translate)
         self.tabObject['playButton'].setCommand(self.playSoundFile)
         self.tabObject['pauseButton'].setCommand(self.pauseSoundFile)
@@ -439,6 +456,13 @@ class SoundDecoder(TabEventsManager):
         self.tabObject['copyButton'].setCommand(self.copyText)
         self.tabObject['lightButton'].setCommand(self.activateLightThread)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
+
+    def getPath(self, relative_path):
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
 
     def switch(self, *args):
         mainLabel, outputLabel, outputEntry, translationDropdown = self.tabObject['translationDirectionLabel'], self.tabObject['outputTextLabel'], self.tabObject['outputTextArea'], self.tabObject['translationDropdown']
@@ -604,7 +628,7 @@ class SoundDecoder(TabEventsManager):
                     '/':3.360
                 }
                 appLight = Toplevel(app)
-                appLight.iconbitmap('iconAssets/morseMasterIcon.ico')
+                appLight.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
                 appLight.title('Light Representation')
                 light = Frame(appLight, background = 'white', width = 300, height = 300)
                 light.pack()
@@ -723,6 +747,13 @@ class Keyer(TabEventsManager):
         self.tabObject['copyButton'].setCommand(self.copyText)
         self.tabObject['downloadButton'].setCommand(self.saveFileDialog)
         self.tabObject['legendButton'].setCommand(self.showLegend)
+
+    def getPath(self, relative_path):
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
 
     def getBeepSound(self, frequency):
         beepSoundData = np.sin(2 * np.pi * frequency * (np.linspace(0, 20, 882000)))
@@ -1021,7 +1052,7 @@ class Keyer(TabEventsManager):
         column2 = [englishChars[i] + '   ' + morseChars[i] for i in range(19,38)]
         column3 = [englishChars[i] + '   ' + morseChars[i] for i in range(38,len(englishChars))]
         appLegend = Toplevel(app)
-        appLegend.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appLegend.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
         appLegend.title('Legend')
         frame1, frame2, frame3 = Frame(appLegend), Frame(appLegend), Frame(appLegend)
         frame1.grid(row = 0, column = 0, sticky = 'n', padx = (5,30))
@@ -1115,6 +1146,13 @@ class ChallengeMode(TabEventsManager):
         self.tabObject['endButton'].disableButton()
         self.tabObject['statsButton'].setCommand(self.challengeModeStats)
         self.tabObject['legendButton'].setCommand(self.showLegend)
+
+    def getPath(self, relative_path):
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
 
     def getBeepSound(self, frequency):
         beepSoundData = np.sin(2 * np.pi * frequency * (np.linspace(0, 20, 882000)))
@@ -1390,7 +1428,7 @@ class ChallengeMode(TabEventsManager):
         column2 = [englishChars[i] + '   ' + morseChars[i] for i in range(19,38)]
         column3 = [englishChars[i] + '   ' + morseChars[i] for i in range(38,len(englishChars))]
         appLegend = Toplevel(app)
-        appLegend.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appLegend.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
         appLegend.title('Legend')
         frame1, frame2, frame3 = Frame(appLegend), Frame(appLegend), Frame(appLegend)
         frame1.grid(row = 0, column = 0, sticky = 'n', padx = (5,30))
@@ -1466,7 +1504,7 @@ class ChallengeMode(TabEventsManager):
         
         app.focus_set()
         appWLS = Toplevel(app)
-        appWLS.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appWLS.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
         appWLS.title('Word List Settings')
         wordListTextPrompt = Label(appWLS, text = 'Enter Word List:', font = ('Verdana', 10), anchor = 'w')
         WLSentry = TextEntry(appWLS)
@@ -1478,7 +1516,7 @@ class ChallengeMode(TabEventsManager):
         WLSdropdown.setDropdownValue(self.currentWordListType)
         WLSdropdown.setCommand('<<ComboboxSelected>>', overwriteWithTemplate)
         #this binding ensures that the entry box is overwritten with the template word lists when they are selected
-        uploadButton = ButtonIcon(appWLS, filename = 'iconAssets/upload.png', command = openFileDialog)
+        uploadButton = ButtonIcon(appWLS, filename =  self.getPath('iconAssets/upload.png'), command = openFileDialog)
         uploadTextPrompt = TextLabelDynamic(appWLS, colour = 'red')
         uploadTextPrompt.setText('No File Uploaded')
         cancelButton = ButtonText(appWLS, text = 'Cancel', command = cancel)
@@ -1575,7 +1613,7 @@ class ChallengeMode(TabEventsManager):
         
         app.focus_set()
         appCMS = Toplevel(app)
-        appCMS.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appCMS.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
         appCMS.title('Word List Settings')
         acceptFullWordOnlyCheckbox = Checkbox(appCMS, text = 'Accept full word only', initialState = True)
         randomiseWordOrderCheckbox = Checkbox(appCMS, text = 'Randomise word order', initialState = False)
@@ -1740,7 +1778,7 @@ class ChallengeMode(TabEventsManager):
         if self.states['hasPlayed'] == True:
             app.focus_set()
             appStats = Toplevel(app)
-            appStats.iconbitmap('iconAssets/morseMasterIcon.ico')
+            appStats.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
             appStats.title('Challenge Mode Stats')
             minutes = str(int(self.lastResultTime // 60.0))
             if len(minutes) < 2:
@@ -1760,7 +1798,7 @@ class ChallengeMode(TabEventsManager):
             missedWordsEntry.setText('\n'.join(self.incorrectWordList))
             downloadFrame = tk.Frame(appStats)
             downloadLabel = TextLabelStatic(downloadFrame, text = 'Download list as a text file: ')
-            downloadButton = ButtonIcon(downloadFrame, filename = 'iconAssets/download.png', command = saveFileDialog)
+            downloadButton = ButtonIcon(downloadFrame, filename =  self.getPath('iconAssets/download.png'), command = saveFileDialog)
 
             lastRecordedTime.grid(row = 0, column = 0, pady = 5, padx = 5, sticky = 'w')
             lastRecordedScore.grid(row = 1, column = 0, pady = 5, padx = 5, sticky = 'w')
@@ -1810,6 +1848,13 @@ class Networking(TabEventsManager):
         self.morseCodeMessage = ''
         self.inbox = []
         self.friendList = []
+
+    def getPath(self, relative_path):
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
 
     def initialisePeer(self):
         self.myNode = networkManager.Peer(self.nickname)
@@ -1863,7 +1908,7 @@ class Networking(TabEventsManager):
             
             app.focus_set()
             appMessage = Toplevel(app)
-            appMessage.iconbitmap('iconAssets/morseMasterIcon.ico')
+            appMessage.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
             appMessage.title('Open Message')
             
             nicknameLabel = TextLabelStatic(appMessage, text = f"Sender Nickname: {name}", anchor = 'w')
@@ -1942,7 +1987,7 @@ class Networking(TabEventsManager):
 
         app.focus_set()
         appPrepareMessage = Toplevel(app)
-        appPrepareMessage.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appPrepareMessage.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
         appPrepareMessage.title('Prepare Morse Code Message')
         sendMessageLabel = TextLabelStatic(appPrepareMessage, text = 'Send Morse Code Message:', anchor = 'w')
         myNicknameLabel = TextLabelStatic(appPrepareMessage, text = f'My Nickname: {self.nickname}', anchor = 'w')
@@ -1978,7 +2023,7 @@ class Networking(TabEventsManager):
         deselectAllButton = ButtonText(selectButtonFrame, text = 'Deselect All', command = deselectAll)
         addFriendButton = ButtonText(recipientButtonFrame, text = 'Add Friend', command = addFriend)
         removeFriendButton = ButtonText(recipientButtonFrame, text = 'Remove Friend', command = removeFriend)
-        sendButton = ButtonIcon(recipientButtonFrame, filename = 'iconAssets/send.png', command = send)
+        sendButton = ButtonIcon(recipientButtonFrame, filename =  self.getPath('iconAssets/send.png'), command = send)
         
         sendMessageLabel.grid(row = 0, column = 0, sticky = 'w', padx = (10,0))
         myNicknameLabel.grid(row = 1, column = 0, columnspan = 2, sticky = 'w', padx = (10,0))
@@ -2039,6 +2084,13 @@ class MenuBarManager:
         app.menuBar.help_.add_command(label = 'Show Legend', command = self.showLegend)
         app.menuBar.help_.add_command(label = 'About MorseMaster', command = self.aboutMorseMaster)
 
+    def getPath(relative_path):
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
+
     def wordListSettings(self):
         challengeMode.wordListSettings()
 
@@ -2057,7 +2109,7 @@ class MenuBarManager:
         
         app.focus_set()
         appAbout = Toplevel(app)
-        appAbout.iconbitmap('iconAssets/morseMasterIcon.ico')
+        appAbout.iconbitmap(self.getPath('iconAssets/morseMasterIcon.ico'))
         appAbout.title('About MorseMaster')
         aboutLabel = TextLabelStatic(appAbout, text = aboutText, anchor = 'w')
         aboutLabel.pack()
