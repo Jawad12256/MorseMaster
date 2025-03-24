@@ -1,3 +1,19 @@
 
 /__pycache__
 __pycache__/guiManager.cpython-311.pyc
+build/morseMaster/Analysis-00.toc
+build/morseMaster/base_library.zip
+build/morseMaster/EXE-00.toc
+build/morseMaster/localpycs/pyimod01_archive.pyc
+build/morseMaster/localpycs/pyimod02_importers.pyc
+build/morseMaster/localpycs/pyimod03_ctypes.pyc
+build/morseMaster/localpycs/pyimod04_pywin32.pyc
+build/morseMaster/localpycs/struct.pyc
+build/morseMaster/morseMaster.pkg
+build/morseMaster/PKG-00.toc
+build/morseMaster/PYZ-00.pyz
+build/morseMaster/PYZ-00.toc
+build/morseMaster/warn-morseMaster.txt
+build/morseMaster/xref-morseMaster.html
+dist/morseMaster.exe
+morseMaster.spec
