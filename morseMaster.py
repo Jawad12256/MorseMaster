@@ -2115,13 +2115,13 @@ class MenuBarManager:
         aboutLabel.pack()
         aboutLabel.tkraise()
 
+if __name__ == '__main__':
+    textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
+    soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
+    soundDecoder = SoundDecoder(app.tabBar.soundDecoderTab.winfo_children())
+    keyer = Keyer(app.tabBar.keyerTab.winfo_children())
+    challengeMode = ChallengeMode(app.tabBar.challengeModeTab.winfo_children())
+    networking = Networking(app.tabBar.networkingTab.winfo_children())
+    menuBarManager = MenuBarManager(app)
 
-textTranslator = TextTranslator(app.tabBar.textTranslatorTab.winfo_children())
-soundGenerator = SoundGenerator(app.tabBar.soundGeneratorTab.winfo_children())
-soundDecoder = SoundDecoder(app.tabBar.soundDecoderTab.winfo_children())
-keyer = Keyer(app.tabBar.keyerTab.winfo_children())
-challengeMode = ChallengeMode(app.tabBar.challengeModeTab.winfo_children())
-networking = Networking(app.tabBar.networkingTab.winfo_children())
-menuBarManager = MenuBarManager(app)
-
-app.mainloop()
+    app.mainloop()
