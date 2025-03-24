@@ -1094,7 +1094,7 @@ class ChallengeMode(TabEventsManager):
             'hasPlayed':False,
         }
         self.keyDownTimes = {}
-        self.currentWordList = self.parseWordList('wordLists/wordList1.txt')
+        self.currentWordList = self.parseWordList(self.getPath('wordLists/wordList1.txt'))
         self.finalWordList = []
         self.incorrectWordList = []
         self.wordListPointer = 0
